@@ -102,7 +102,7 @@ export default function LoginPage() {
               </a>
             </div>
 
-            {/* <div className="mb-4">
+            <div className="mb-4">
               <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
                 Select Your Role
               </label>
@@ -116,7 +116,7 @@ export default function LoginPage() {
                 <option value="Staff">Staff</option>
                 <option value="Attendee">Attendee</option>
               </select>
-            </div> */}
+            </div>
 
             <button
               type="submit"
