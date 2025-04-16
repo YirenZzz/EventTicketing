@@ -1,0 +1,103 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // .env中配置DATABASE_URL
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  Organizer
+  Staff
+  Attendee
+}
+
+model User {
+  id               Int               @id @default(autoincrement())
+  email            String            @unique
+  name             String
+  password         String
+  role             Role // 使用枚举类型
+  events           Event[] // 如果是 Organizer，可以创建多个事件（1对多）
+  purchasedTickets PurchasedTicket[]
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  location    String?
+  status      String   @default("UPCOMING")
+  createdAt   DateTime @default(now())
+
+  // 与 User 建立关系
+  organizer   User? @relation(fields: [organizerId], references: [id])
+  organizerId Int?
+
+  ticketTypes TicketType[]
+  promoCodes  PromoCode[]
+}
+
+model PromoCode {
+  id         Int       @id @default(autoincrement())
+  code       String    @unique
+  type       String // 'percentage' or 'fixed'
+  amount     Float
+  maxUsage   Int?
+  usageCount Int       @default(0)
+  startDate  DateTime?
+  endDate    DateTime?
+  createdAt  DateTime  @default(now())
+
+  event   Event @relation(fields: [eventId], references: [id])
+  eventId Int
+
+  ticketType   TicketType? @relation(fields: [ticketTypeId], references: [id])
+  ticketTypeId Int?
+}
+
+model TicketType {
+  id         Int         @id @default(autoincrement())
+  name       String
+  price      Float
+  quantity   Int
+  event      Event       @relation(fields: [eventId], references: [id])
+  eventId    Int
+  tickets    Ticket[]
+  createdAt  DateTime    @default(now())
+  promoCodes PromoCode[]
+}
+
+model Ticket {
+  id           Int        @id @default(autoincrement())
+  ticketType   TicketType @relation(fields: [ticketTypeId], references: [id])
+  ticketTypeId Int
+  purchased    Boolean    @default(false)
+  checkedIn    Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+
+  checkIn         CheckIn?
+  purchasedTicket PurchasedTicket?
+}
+
+model CheckIn {
+  id        Int      @id @default(autoincrement())
+  ticketId  Int      @unique
+  checkedAt DateTime @default(now())
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+}
+
+model PurchasedTicket {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  ticketId  Int      @unique
+  createdAt DateTime @default(now())
+  checkedIn Boolean  @default(false)
+}
