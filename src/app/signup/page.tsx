@@ -176,16 +176,12 @@ export default function SignupPage() {
         <div className="max-w-md mx-auto">
           {/* Logo */}
           <div className="flex items-center mb-8">
-            <img
-              src="/your-logo.png"  /* 替换成你自己的LOGO */
-              alt="Logo"
-              className="h-8 w-8 mr-2"
-            />
-            <h1 className="text-2xl font-bold">hi.events</h1>
+            {/* <h1 className="text-2xl font-bold">hi.events</h1> */}
+            <h1 className="text-3xl font-bold text-purple-600">Event Ticket System</h1>
           </div>
 
           {/* 标题与说明 */}
-          <h2 className="text-3xl font-semibold mb-2">
+          <h2 className="text-2xl font-semibold mb-2">
             Create an account <span className="wave-emoji">👋</span>
           </h2>
           <p className="text-gray-600 mb-6">
@@ -308,7 +304,7 @@ export default function SignupPage() {
           </form>
 
           {/* 同意条款 */}
-          <p className="text-sm text-gray-500 mb-6">
+          {/* <p className="text-sm text-gray-500 mb-6">
             By registering you agree to our{" "}
             <Link href="#" className="underline">
               Terms of Service
@@ -317,17 +313,21 @@ export default function SignupPage() {
             <Link href="#" className="underline">
               Privacy Policy
             </Link>.
+          </p> */}
+
+        <p className="text-sm text-gray-500 mb-6">
+            By registering you agree to our Terms of Service and Privacy Policy
           </p>
 
           {/* 底部 */}
-          <div className="flex items-center justify-between text-sm text-gray-500">
+          {/* <div className="flex items-center justify-between text-sm text-gray-500">
             <div>Powered by Hi.Events 🚀</div>
             <select className="border rounded px-2 py-1 text-gray-700">
               <option>English</option>
               <option>Français</option>
               <option>中文</option>
             </select>
-          </div>
+          </div> */}
         </div>
       </section>
 

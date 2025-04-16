@@ -6,14 +6,8 @@ import { useSession } from "next-auth/react";
 import {
   Gauge,
   BarChart,
-  Settings,
   Ticket,
-  Users,
-  Receipt,
-  HelpCircle,
   Percent,
-  MessageSquare,
-  Users2,
   QrCode,
 } from "lucide-react";
 
@@ -24,32 +18,28 @@ export default function Sidebar() {
   const role = session?.user?.role?.toLowerCase(); // 'organizer' / 'staff' / 'attendee'
   const userId = session?.user?.id;
 
-  // 动态构建 dashboard URL
-  const dashboardHref =
-    role && userId ? `/dashboard/${role}/${userId}` : "/dashboard";
+  const dashboardHref = role && userId ? `/dashboard/${role}/${userId}` : "/dashboard";
+  const reportsHref = role && userId ? `/dashboard/${role}/${userId}/report` : '/dashboard';
+  const eventsHref = role && userId ? `/dashboard/${role}/${userId}/events` : '/dashboard';
+  const promosHref = role && userId ? `/dashboard/${role}/${userId}/promos` : '/dashboard';
+  const checkinHref = role && userId ? `/dashboard/${role}/${userId}/checkin` : '/dashboard';
 
-  const reportsHref =
-    role && userId ? `/dashboard/${role}/${userId}/report` : '/dashboard';
+  let navItems = [];
 
-  const eventsHref =
-    role && userId ? `/dashboard/${role}/${userId}/events` : '/dashboard';
-
-  const promosHref =
-    role && userId ? `/dashboard/${role}/${userId}/promos` : '/dashboard';
-
-  const navItems = [
-    { name: "Dashboard", href: dashboardHref, icon: Gauge },
-    { name: "Reports", href: reportsHref, icon: BarChart },
-    // { name: "Settings", href: "/settings", icon: Settings },
-    { name: "Events", href: eventsHref, icon: Ticket },
-    // { name: "Attendees", href: "/attendees", icon: Users },
-    // { name: "Orders", href: "/orders", icon: Receipt },
-    // { name: "Questions", href: "/questions", icon: HelpCircle },
-    { name: "Promo Codes", href: promosHref, icon: Percent },
-    // { name: "Messages", href: "/messages", icon: MessageSquare },
-    // { name: "Capacity", href: "/capacity", icon: Users2 },
-    // { name: "Check-In Lists", href: "/checkin", icon: QrCode },
-  ];
+  if (role === "organizer") {
+    navItems = [
+      { name: "Dashboard", href: dashboardHref, icon: Gauge },
+      { name: "Reports", href: reportsHref, icon: BarChart },
+      { name: "Events", href: eventsHref, icon: Ticket },
+      { name: "Promo Codes", href: promosHref, icon: Percent },
+    ];
+  } else if (role === "staff") {
+    navItems = [
+      { name: "Dashboard", href: dashboardHref, icon: Gauge },
+      { name: "Events", href: eventsHref, icon: Ticket },
+      { name: "Check-In Lists", href: checkinHref, icon: QrCode },
+    ];
+  }
 
   return (
     <aside className="w-64 h-screen bg-gradient-to-b from-purple-800 to-purple-900 text-white flex flex-col justify-between shadow-md">
@@ -61,9 +51,9 @@ export default function Sidebar() {
         <nav className="px-4 space-y-1">
           {navItems.map(({ name, href, icon: Icon }) => {
             const isActive =
-            name === "Events"
-              ? pathname.startsWith(eventsHref) // 高亮所有 /events 子页面
-              : pathname === href;
+              name === "Events"
+                ? pathname.startsWith(eventsHref)
+                : pathname === href;
             return (
               <Link
                 key={name}
