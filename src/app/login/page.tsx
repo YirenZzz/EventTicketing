@@ -47,15 +47,15 @@ export default function LoginPage() {
       <section className="w-full md:w-1/2 flex flex-col justify-center px-6 md:px-12 lg:px-24 bg-white">
         <div className="max-w-md mx-auto">
           <div className="flex items-center mb-8">
-            <img src="/your-logo.png" alt="Logo" className="h-8 w-8 mr-2" />
-            <h1 className="text-2xl font-bold">hi.events</h1>
+            {/* <img src="/your-logo.png" alt="Logo" className="h-8 w-8 mr-2" /> */}
+            <h1 className="text-3xl font-bold text-purple-600">Event Ticket System</h1>
           </div>
 
-          <h2 className="text-3xl font-semibold mb-2">
+          <h2 className="text-2xl font-semibold mb-2">
             Welcome back <span className="wave-emoji">👋</span>
           </h2>
           <p className="text-gray-600 mb-6">
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <a href="/signup" className="text-blue-600 hover:underline">
               Sign up
             </a>
@@ -102,7 +102,7 @@ export default function LoginPage() {
               </a>
             </div>
 
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
                 Select Your Role
               </label>
@@ -116,7 +116,7 @@ export default function LoginPage() {
                 <option value="Staff">Staff</option>
                 <option value="Attendee">Attendee</option>
               </select>
-            </div>
+            </div> */}
 
             <button
               type="submit"
@@ -127,14 +127,14 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="flex items-center justify-between text-sm text-gray-500 mt-4">
+          {/* <div className="flex items-center justify-between text-sm text-gray-500 mt-4">
             <div>Powered by Hi.Events 🚀</div>
             <select className="border rounded px-2 py-1 text-gray-700">
               <option>English</option>
               <option>Français</option>
               <option>中文</option>
             </select>
-          </div>
+          </div> */}
         </div>
       </section>
 
