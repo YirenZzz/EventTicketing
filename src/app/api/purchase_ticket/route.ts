@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     const eventName = purchased.ticketType.event.name;
 
     // 调用邮件 API
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/email/send`, {
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/email/confirmation`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
