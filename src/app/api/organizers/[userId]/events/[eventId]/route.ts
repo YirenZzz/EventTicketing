@@ -24,6 +24,7 @@ export async function GET(
       id: event.id,
       name: event.name,
       description: event.description,
+      location: event.location,
       startDate: event.startDate,
       endDate: event.endDate,
       status: event.status,
@@ -37,7 +38,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ userId: string; eventId: string }> }
 ) {
-  const { eventId } = await params;                     // ✅ await
+  const { eventId } = await params;                     
   const id = Number(eventId);
   const { name, description, startDate, endDate, status } = await req.json();
 
@@ -47,6 +48,7 @@ export async function PATCH(
       data: {
         name,
         description,
+        location,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         status,
@@ -64,7 +66,7 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ userId: string; eventId: string }> }
 ) {
-  const { userId, eventId } = await params;             // ✅ await
+  const { userId, eventId } = await params;          
   const uid = Number(userId);
   const eid = Number(eventId);
 
@@ -92,7 +94,6 @@ export async function DELETE(
       await db.ticket.deleteMany({ where: { ticketTypeId: { in: ticketTypeIds } } });
       await db.ticketType.deleteMany({ where: { id: { in: ticketTypeIds } } });
     }
-
     await db.event.delete({ where: { id: eid } });
     return NextResponse.json({ message: 'Event deleted successfully' });
   } catch (e) {
