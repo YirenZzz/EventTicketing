@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function CreateEventModal({
   open,
@@ -24,10 +24,11 @@ export default function CreateEventModal({
   const { data: session } = useSession();
   const organizerId = session?.user?.id;
 
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [touchedStart, setTouchedStart] = useState(false);
   const [touchedEnd, setTouchedEnd] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,54 +47,56 @@ export default function CreateEventModal({
 
   const handleSubmit = async () => {
     if (!name.trim() || !startDate || !endDate) {
-      alert('Please fill in all required fields.');
+      alert("Please fill in all required fields.");
       return;
     }
-  
+
     if (!organizerId) {
-      alert('Organizer ID is missing.');
+      alert("Organizer ID is missing.");
       return;
     }
-  
+
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      alert('Invalid date format');
+      alert("Invalid date format");
       return;
     }
-  
+
     setLoading(true);
     try {
       const res = await fetch(`/api/organizers/${organizerId}/events`, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify({
           name,
           description,
+          location,
           startDate,
           endDate,
         }),
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
-  
+
       if (!res.ok) {
         const msg = await res.text();
         alert(`Failed to create event: ${msg}`);
         return;
       }
-  
+
       const json = await res.json();
       onCreated(json.event);
       onClose();
-  
-      setName('');
-      setDescription('');
-      setStartDate('');
-      setEndDate('');
+
+      setName("");
+      setDescription("");
+      setLocation("");
+      setStartDate("");
+      setEndDate("");
       setTouchedStart(false);
       setTouchedEnd(false);
     } catch (err) {
-      console.error('Create event error:', err);
-      alert('Something went wrong');
+      console.error("Create event error:", err);
+      alert("Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -108,7 +111,9 @@ export default function CreateEventModal({
 
         <div className="space-y-6">
           <div>
-            <Label>Event Name <span className="text-red-500">*</span></Label>
+            <Label>
+              Event Name <span className="text-red-500">*</span>
+            </Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -127,28 +132,42 @@ export default function CreateEventModal({
             />
           </div>
 
+          <div>
+            <Label>Location</Label>
+            <Input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="mt-1"
+              placeholder="e.g. 123 Queen St, Toronto"
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Start Date <span className="text-red-500">*</span></Label>
+              <Label>
+                Start Date <span className="text-red-500">*</span>
+              </Label>
               <Input
                 type="datetime-local"
                 value={startDate}
                 onFocus={() => setTouchedStart(true)}
                 onChange={(e) => setStartDate(e.target.value)}
                 className={`mt-1 w-full ${
-                  !touchedStart ? 'text-gray-300' : 'text-gray-900'
+                  !touchedStart ? "text-gray-300" : "text-gray-900"
                 }`}
               />
             </div>
             <div>
-              <Label>End Date <span className="text-red-500">*</span></Label>
+              <Label>
+                End Date <span className="text-red-500">*</span>
+              </Label>
               <Input
                 type="datetime-local"
                 value={endDate}
                 onFocus={() => setTouchedEnd(true)}
                 onChange={(e) => setEndDate(e.target.value)}
                 className={`mt-1 w-full ${
-                  !touchedEnd ? 'text-gray-300' : 'text-gray-900'
+                  !touchedEnd ? "text-gray-300" : "text-gray-900"
                 }`}
               />
             </div>
@@ -159,7 +178,7 @@ export default function CreateEventModal({
             disabled={loading}
             className="w-full bg-purple-700 hover:bg-purple-800 text-white"
           >
-            {loading ? 'Creating...' : 'Submit'}
+            {loading ? "Creating..." : "Submit"}
           </Button>
         </div>
       </DialogContent>

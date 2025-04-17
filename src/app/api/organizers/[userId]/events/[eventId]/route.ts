@@ -1,16 +1,16 @@
 // src/app/api/organizers/[userId]/events/[eventId]/route.ts
-import { db } from '@/lib/db';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { NextRequest, NextResponse } from 'next/server';
+import { db } from "@/lib/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   _: NextRequest,
-  { params }: { params: { userId: string; eventId: string } }
+  { params }: { params: { userId: string; eventId: string } },
 ) {
   const eventId = Number(params.eventId);
   if (isNaN(eventId)) {
-    return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid event ID" }, { status: 400 });
   }
 
   const event = await db.event.findUnique({
@@ -19,7 +19,7 @@ export async function GET(
   });
 
   if (!event) {
-    return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+    return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
   return NextResponse.json({
@@ -27,20 +27,22 @@ export async function GET(
       id: event.id,
       name: event.name,
       description: event.description,
+      location: event.location,
       startDate: event.startDate,
       endDate: event.endDate,
       status: event.status,
-      organizerName: event.organizer?.name || 'Unknown',
+      organizerName: event.organizer?.name || "Unknown",
     },
   });
 }
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { userId: string; eventId: string } }
+  { params }: { params: { userId: string; eventId: string } },
 ) {
   const eventId = Number(params.eventId);
-  const { name, description, startDate, endDate, status } = await req.json();
+  const { name, description, location, startDate, endDate, status } =
+    await req.json();
 
   try {
     const updated = await db.event.update({
@@ -48,6 +50,7 @@ export async function PATCH(
       data: {
         name,
         description,
+        location,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         status,
@@ -56,14 +59,17 @@ export async function PATCH(
 
     return NextResponse.json({ event: updated });
   } catch (error) {
-    console.error('Failed to update event:', error);
-    return NextResponse.json({ error: 'Failed to update event' }, { status: 500 });
+    console.error("Failed to update event:", error);
+    return NextResponse.json(
+      { error: "Failed to update event" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   _: NextRequest,
-  { params }: { params: { userId: string; eventId: string } }
+  { params }: { params: { userId: string; eventId: string } },
 ) {
   const session = await getServerSession(authOptions);
   const userId = Number(params.userId);
@@ -71,10 +77,10 @@ export async function DELETE(
 
   if (
     !session?.user ||
-    session.user.role !== 'Organizer' ||
+    session.user.role !== "Organizer" ||
     Number(session.user.id) !== userId
   ) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
   try {
@@ -120,9 +126,12 @@ export async function DELETE(
       where: { id: eventId },
     });
 
-    return NextResponse.json({ message: 'Event deleted successfully' });
+    return NextResponse.json({ message: "Event deleted successfully" });
   } catch (error) {
-    console.error('Failed to delete event:', error);
-    return NextResponse.json({ error: 'Failed to delete event' }, { status: 500 });
+    console.error("Failed to delete event:", error);
+    return NextResponse.json(
+      { error: "Failed to delete event" },
+      { status: 500 },
+    );
   }
 }
