@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Calendar, MapPin, Ticket } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
+import AppShell from '@/components/layout/AppShell';
 
 interface EventWithStatus {
   id: number;
@@ -36,6 +37,7 @@ export default function AttendeeEventListPage() {
   }, [userId]);
 
   return (
+    <AppShell>
     <div className="max-w-6xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Explore Events</h1>
 
@@ -86,5 +88,6 @@ export default function AttendeeEventListPage() {
         ))}
       </div>
     </div>
+    </AppShell>
   );
 }
