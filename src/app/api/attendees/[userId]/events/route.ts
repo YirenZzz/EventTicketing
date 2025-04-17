@@ -3,71 +3,54 @@ import prisma from '@/lib/prisma';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }   // 👈 Promise
 ) {
-  const userId = Number(params.userId);
+  const { userId: rawUserId } = await params;            // 👈 await 先解包
+  const userId = Number(rawUserId);
+
   if (isNaN(userId)) {
     return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
   }
 
-  // 获取所有非取消的 Event，带上 ticketTypes 和 tickets
+  // 1) 取所有非取消事件，连票类型与票
   const events = await prisma.event.findMany({
-    where: {
-      status: { not: 'CANCELLED' },
-    },
+    where: { status: { not: 'CANCELLED' } },
     include: {
       ticketTypes: {
-        include: {
-          tickets: {
-            select: {
-              id: true,
-              purchased: true,
-              ticketTypeId: true,
-            },
-          },
-        },
+        include: { tickets: { select: { purchased: true } } },
       },
     },
   });
 
-  // 获取当前用户购买的所有 tickets（用于判断是否已注册）
+  // 2) 取用户已购票对应的 eventId
   const purchased = await prisma.purchasedTicket.findMany({
     where: { userId },
     select: {
-      ticket: {
-        select: {
-          ticketType: {
-            select: {
-              eventId: true,
-            },
-          },
-        },
-      },
+      ticket: { select: { ticketType: { select: { eventId: true } } } },
     },
   });
-
   const registeredEventIds = new Set(
-    purchased.map((p) => p.ticket.ticketType.eventId)
+    purchased.map(p => p.ticket.ticketType.eventId),
   );
 
-  // 构造响应数据
-  const result = events.map((event) => {
-    const allTickets = event.ticketTypes.flatMap((type) => type.tickets);
-    const hasAvailableTickets = allTickets.some((t) => !t.purchased);
-    const allPrices = event.ticketTypes.map((t) => t.price);
-    const minTicketPrice =
-      allPrices.length > 0 ? Math.min(...allPrices) : 0;
+  // 3) 构造响应
+  const data = events.map(ev => {
+    const allTickets        = ev.ticketTypes.flatMap(t => t.tickets);
+    const hasAvailable      = allTickets.some(t => !t.purchased);
+    const minPrice          = ev.ticketTypes.length
+      ? Math.min(...ev.ticketTypes.map(t => t.price))
+      : 0;
 
     return {
-      id: event.id,
-      name: event.name,
-      startDate: event.startDate,
-      location: event.location || 'TBA',
-      isRegistered: registeredEventIds.has(event.id),
-      hasAvailableTickets,
-      minTicketPrice,
+      id: ev.id,
+      name: ev.name,
+      startDate: ev.startDate,
+      location: ev.location ?? 'TBA',
+      isRegistered: registeredEventIds.has(ev.id),
+      hasAvailableTickets: hasAvailable,
+      minTicketPrice: minPrice,
     };
   });
 
-  return NextResponse.json({ data: result });
+  return NextResponse.json({ data });
 }
