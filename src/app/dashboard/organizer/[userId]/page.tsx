@@ -113,6 +113,7 @@ export default function OrganizerDashboard() {
                 startDate: event.startDate,
                 endDate: event.endDate,
                 status: event.status || 'Draft',
+                coverImage: event.coverImage,
               }}
             />
           ))

@@ -39,7 +39,28 @@ export async function GET(
       return filterStatus === "ENDED" ? isEnded : !isEnded;
     });
 
-    return NextResponse.json({ data: filteredEvents });
+    const data = filteredEvents.map((ev) => {
+      const allTickets = ev.ticketTypes.flatMap((tt) => tt.tickets);
+      const sold = allTickets.filter((t) => t.purchased).length;
+      const checkedIn = allTickets.filter((t) => t.checkedIn).length;
+
+      return {
+        id: ev.id,
+        name: ev.name,
+        description: ev.description,
+        location: ev.location,
+        startDate: ev.startDate,
+        endDate: ev.endDate,
+        status: ev.status,
+        coverImage: ev.coverImage, // ✅ 关键字段
+        ticketTypes: ev.ticketTypes,
+        totalTickets: allTickets.length,
+        soldTickets: sold,
+        checkedIn,
+      };
+    });
+
+    return NextResponse.json({ data }); // ✅ 返回 data 而不是 filteredEvents
   } catch (error) {
     console.error("Failed to fetch organizer events:", error);
     return NextResponse.json(
