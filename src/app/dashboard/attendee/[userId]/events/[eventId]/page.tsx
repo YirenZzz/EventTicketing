@@ -29,10 +29,10 @@ export default function AttendeeEventDetailPage() {
 
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [tickets, setTickets] = useState<TicketType[]>([]);
+  const [promoCodes, setPromoCodes] = useState<Record<number, string>>({});
   const [purchasedIds, setPurchasedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
 
-  /* ─────────── Fetch event, tickets, and purchased info ─────────── */
   useEffect(() => {
     (async () => {
       try {
@@ -60,12 +60,13 @@ export default function AttendeeEventDetailPage() {
     })();
   }, [userId, eventId]);
 
-  /* ─────────── Purchase handler ─────────── */
   async function buy(ticketTypeId: number) {
+    const promoCode = promoCodes[ticketTypeId]?.trim() || null;
+
     const res = await fetch(`/api/attendees/${userId}/purchased`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ticketTypeId }),
+      body: JSON.stringify({ ticketTypeId, promoCode }),
     });
 
     if (!res.ok) {
@@ -90,14 +91,12 @@ export default function AttendeeEventDetailPage() {
     alert('Ticket purchased!');
   }
 
-  /* ─────────── UI rendering ─────────── */
   if (loading) return <p className="p-8 text-center">Loading …</p>;
   if (!event) return <p className="p-8 text-center text-red-500">Event not found.</p>;
 
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        {/* Event Header */}
         <h1 className="text-3xl font-bold">{event.name}</h1>
 
         <div className="text-gray-600 space-y-1">
@@ -113,7 +112,6 @@ export default function AttendeeEventDetailPage() {
 
         {event.description && <p className="text-gray-700">{event.description}</p>}
 
-        {/* Ticket Types */}
         <h2 className="text-xl font-semibold mt-6">Ticket Types</h2>
 
         <div className="space-y-4">
@@ -122,40 +120,45 @@ export default function AttendeeEventDetailPage() {
             const soldOut = t.available === 0;
 
             return (
-              <div
-                key={t.id}
-                className="border rounded-lg p-4 flex justify-between items-center"
-              >
-                {/* Left info */}
-                <div>
-                  <div className="font-medium">{t.name}</div>
-                  <div className="text-sm text-gray-600">
-                    ${t.price.toFixed(2)}
-                    {!isPurchased && soldOut && (
-                      <> ・ <span className="text-red-500 font-medium">Sold Out</span></>
-                    )}
-                    {!isPurchased && t.available > 0 && t.available <= 3 && (
-                      <> ・ <span className="text-red-500 font-medium">only {t.available} left</span></>
-                    )}
+              <div key={t.id} className="border rounded-lg p-4 space-y-2">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="font-medium">{t.name}</div>
+                    <div className="text-sm text-gray-600">
+                      ${t.price.toFixed(2)}
+                      {!isPurchased && soldOut && (
+                        <> ・ <span className="text-red-500 font-medium">Sold Out</span></>
+                      )}
+                      {!isPurchased && t.available > 0 && t.available <= 3 && (
+                        <> ・ <span className="text-red-500 font-medium">only {t.available} left</span></>
+                      )}
+                    </div>
                   </div>
+
+                  {isPurchased ? (
+                    <span className="text-sm text-green-600 font-medium">Already Purchased</span>
+                  ) : soldOut ? (
+                    <span className="text-sm text-red-500 font-medium">Sold Out</span>
+                  ) : (
+                    <button
+                      onClick={() => buy(t.id)}
+                      className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
+                    >
+                      Buy
+                    </button>
+                  )}
                 </div>
 
-                {/* Right actions */}
-                {isPurchased ? (
-                  <span className="text-sm text-green-600 font-medium">
-                    Already Purchased
-                  </span>
-                ) : soldOut ? (
-                  <span className="text-sm text-red-500 font-medium">
-                    Sold Out
-                  </span>
-                ) : (
-                  <button
-                    onClick={() => buy(t.id)}
-                    className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
-                  >
-                    Buy
-                  </button>
+                {!isPurchased && !soldOut && (
+                  <input
+                    type="text"
+                    placeholder="Promo code (optional)"
+                    value={promoCodes[t.id] || ''}
+                    onChange={(e) =>
+                      setPromoCodes((prev) => ({ ...prev, [t.id]: e.target.value }))
+                    }
+                    className="mt-1 w-full border rounded px-3 py-1 text-sm text-gray-700"
+                  />
                 )}
               </div>
             );
