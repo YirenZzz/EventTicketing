@@ -14,13 +14,16 @@ export async function GET(
     return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
   }
 
-  const tickets = await prisma.purchasedTicket.findMany({
+  // 拉取所有已购买的票，并把 ticketType.event 一并 include
+  const purchases = await prisma.purchasedTicket.findMany({
     where: { userId },
     include: {
       ticket: {
         include: {
           ticketType: {
-            include: { event: true },
+            include: {
+              event: true,   // 把活动信息也拉进来
+            },
           },
         },
       },
@@ -28,11 +31,14 @@ export async function GET(
     orderBy: { createdAt: 'desc' },
   });
 
-  const data = tickets.map(p => ({
+  // 构造前端需要的字段列表
+  const data = purchases.map((p) => ({
     purchaseId:     p.id,
-    purchasedAt:    p.createdAt,
+    purchasedAt:    p.createdAt.toISOString(),
     eventId:        p.ticket.ticketType.event.id,
     eventName:      p.ticket.ticketType.event.name,
+    eventStart:     p.ticket.ticketType.event.startDate.toISOString(),  // 新增
+    eventEnd:       p.ticket.ticketType.event.endDate.toISOString(),    // 新增
     ticketTypeId:   p.ticket.ticketType.id,
     ticketTypeName: p.ticket.ticketType.name,
     price:          p.ticket.ticketType.price,
