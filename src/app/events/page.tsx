@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { EventCard } from '@/components/ui/EventCard';
 import CreateEventModal from '@/components/modals/CreateEventModal';
-import AppShell from '@/components/layout/AppShell'; // ✅ 引入全局 layout
+import AppShell from '@/components/layout/AppShell'; 
 
 export default function EventsPage() {
   const searchParams = useSearchParams();

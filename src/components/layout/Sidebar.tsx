@@ -9,6 +9,12 @@ import {
   Ticket,
   Percent,
   QrCode,
+  Calendar,
+  Inbox,
+  Receipt,
+  MessageSquare,
+  User,
+  HelpCircle,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -23,6 +29,7 @@ export default function Sidebar() {
   const eventsHref = role && userId ? `/dashboard/${role}/${userId}/events` : '/dashboard';
   const promosHref = role && userId ? `/dashboard/${role}/${userId}/promos` : '/dashboard';
   const checkinHref = role && userId ? `/dashboard/${role}/${userId}/checkin` : '/dashboard';
+  // const eventsAttendeeHref = role && userId ? `/dashboard/${role}/${userId}/events` : '/dashboard';
 
   let navItems = [];
 
@@ -39,7 +46,22 @@ export default function Sidebar() {
       { name: "Events", href: eventsHref, icon: Ticket },
       { name: "Check-In Lists", href: checkinHref, icon: QrCode },
     ];
+  } else if (role === "attendee") {
+    const activityHref = role && userId ? `/dashboard/${role}/${userId}/activity` : '/dashboard';
+    const orderHref = role && userId ? `/dashboard/${role}/${userId}/order` : '/dashboard';
+    const accountHref =  role && userId ? `/dashboard/${role}/${userId}/account` : '/dashboard';
+    navItems = [
+      { name: "Dashboard", href: dashboardHref, icon: Gauge },
+      { name: "Events", href: eventsHref, icon: Ticket },
+      { name: "Activity", href: activityHref, icon: Calendar },
+      { name: "Registration", href: "/registration", icon: Inbox },
+      { name: "Orders & Payments", href: orderHref, icon: Receipt },
+      { name: "Messages", href: "/messages", icon: MessageSquare },
+      { name: "Account", href: accountHref, icon: User },
+      { name: "Help Center", href: "/help_center", icon: HelpCircle },
+    ];
   }
+
 
   return (
     <aside className="w-64 h-screen bg-gradient-to-b from-purple-800 to-purple-900 text-white flex flex-col justify-between shadow-md">
