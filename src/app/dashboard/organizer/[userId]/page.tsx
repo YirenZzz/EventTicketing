@@ -23,6 +23,7 @@ export default function OrganizerDashboard() {
   const userId = params?.userId?.toString();
 
   const [events, setEvents] = useState<any[]>([]);
+  const [grossSales, setGrossSales] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,10 +43,27 @@ export default function OrganizerDashboard() {
         const res = await fetch(`/api/organizers/${userId}/events`);
         if (!res.ok) throw new Error('Failed to fetch events');
         const data = await res.json();
-        setEvents(data.data || []);
+        const evts = data.data || [];
+        setEvents(evts);
+
+        // 计算所有活动的总收入
+        const total = evts.reduce((accEvent: number, event: any) => {
+          const revenuePerEvent = (event.ticketTypes || []).reduce(
+            (accType: number, tt: any) => {
+              // tt.price + tt.tickets: purchased flags
+              const soldCount = (tt.tickets || []).filter((t: any) => t.purchased).length;
+              return accType + soldCount * tt.price;
+            },
+            0
+          );
+          return accEvent + revenuePerEvent;
+        }, 0);
+
+        setGrossSales(total);
       } catch (err) {
         console.error('Error fetching events:', err);
         setEvents([]);
+        setGrossSales(0);
       } finally {
         setLoading(false);
       }
@@ -55,22 +73,14 @@ export default function OrganizerDashboard() {
   }, [session, status, userId, router]);
 
   if (status === 'loading') return null;
-  if (!session || session.user.role !== 'Organizer' || String(session.user.id) !== userId) return null;
+  if (!session || session.user.role !== 'Organizer' || String(session.user.id) !== userId)
+    return null;
 
   return (
     <OrganizerShell>
       <h1 className="text-3xl font-bold mb-6">Welcome back, {session.user.name} 👋</h1>
-{/* 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        <StatCard icon={ShoppingCart} label="Products sold" value="0" />
-        <StatCard icon={Users} label="Attendees" value="0" color="bg-pink-100" />
-        <StatCard icon={CreditCard} label="Refunded" value="CA$0.00" color="bg-cyan-100" />
-        <StatCard icon={Wallet} label="Gross sales" value="CA$0.00" />
-        <StatCard icon={Eye} label="Page views" value="0" />
-        <StatCard icon={FileCheck} label="Completed orders" value="0" />
-      </div> */}
 
-      <div className="bg-white p-6 rounded-lg border shadow-sm">
+      <div className="bg-white p-6 rounded-lg border shadow-sm mb-8">
         <h2 className="text-lg font-semibold mb-4">🚀 Get your event ready</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <StepCard
@@ -79,12 +89,11 @@ export default function OrganizerDashboard() {
             actionLabel="Publish Event"
             onClick={() => router.push(`/dashboard/organizer/${userId}/events`)}
           />
-          <StatCard icon={Wallet} label="Gross sales" value="CA$0.00" />
-          {/* <StepCard
-            title="Connect payment processing"
-            description="Link your Stripe account to receive funds."
-            actionLabel="Connect to Stripe"
-          /> */}
+          <StatCard
+            icon={Wallet}
+            label="Gross sales"
+            value={`CA$${grossSales.toFixed(2)}`}
+          />
         </div>
       </div>
 
