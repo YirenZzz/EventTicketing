@@ -38,6 +38,8 @@ export default function TicketManager({
   const [price, setPrice] = useState('');
   const [quantity, setQuantity] = useState('');
   const [loading, setLoading] = useState(false);
+  const [nameError, setNameError] = useState('');
+  const [editNameError, setEditNameError] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ name: '', price: '', quantity: '' });
 
@@ -50,9 +52,34 @@ export default function TicketManager({
 
   if (!userId) return <p className="text-gray-500">Loading user session...</p>;
 
+  const validateInput = (n: string, p: string, q: string) => {
+    if (!n || !p || !q) return 'All fields are required.';
+    const priceVal = parseFloat(p);
+    const qtyVal = parseInt(q);
+    if (isNaN(priceVal) || isNaN(qtyVal)) return 'Price and quantity must be numbers.';
+    if (priceVal < 0) return 'Price must be non-negative.';
+    if (qtyVal <= 0) return 'Quantity must be greater than 0.';
+    return '';
+  };
+
   const handleCreate = async () => {
-    if (!name || !price || !quantity) return alert('Please fill in all fields');
+    const error = validateInput(name, price, quantity);
+    if (error) {
+      setNameError(error);
+      return;
+    }
+
+    const isDuplicate = ticketTypes.some(
+      (tt) => tt.name.toLowerCase() === name.toLowerCase()
+    );
+    if (isDuplicate) {
+      setNameError('Ticket type already exists.');
+      return;
+    }
+
     setLoading(true);
+    setNameError('');
+
     try {
       const res = await fetch(`/api/organizers/${userId}/events/${eventId}/ticket-types`, {
         method: 'POST',
@@ -70,7 +97,7 @@ export default function TicketManager({
       setPrice('');
       setQuantity('');
     } catch {
-      alert('Create failed');
+      setNameError('Create failed.');
     } finally {
       setLoading(false);
     }
@@ -95,10 +122,28 @@ export default function TicketManager({
       price: tt.price.toString(),
       quantity: tt.quantity.toString(),
     });
+    setEditNameError('');
   };
 
   const handleSaveEdit = async () => {
     if (!editingId) return;
+
+    const error = validateInput(editForm.name, editForm.price, editForm.quantity);
+    if (error) {
+      setEditNameError(error);
+      return;
+    }
+
+    const isDuplicate = ticketTypes.some(
+      (tt) =>
+        tt.id !== editingId &&
+        tt.name.toLowerCase() === editForm.name.trim().toLowerCase()
+    );
+    if (isDuplicate) {
+      setEditNameError('Ticket type already exists.');
+      return;
+    }
+
     const res = await fetch(`/api/organizers/${userId}/events/${eventId}/ticket-types/${editingId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -108,20 +153,25 @@ export default function TicketManager({
         quantity: parseInt(editForm.quantity),
       }),
     });
+
     if (!res.ok) return alert('Update failed');
     const { ticketType } = await res.json();
     setTicketTypes((prev) => prev.map((tt) => (tt.id === ticketType.id ? ticketType : tt)));
     setEditingId(null);
+    setEditNameError('');
   };
 
   return (
     <div className="bg-white border rounded p-4 shadow-sm mt-6">
       <h3 className="text-xl font-bold mb-4">🎟️ Ticket Types</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
         <select
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            setNameError('');
+          }}
           className="border rounded px-3 py-2 text-sm text-gray-700"
         >
           <option value="">Select Ticket Tier</option>
@@ -134,6 +184,8 @@ export default function TicketManager({
         <Input placeholder="Price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
         <Input placeholder="Quantity" type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
       </div>
+      {nameError && <p className="text-red-500 text-sm mb-2">{nameError}</p>}
+
       <Button onClick={handleCreate} disabled={loading}>
         {loading ? 'Creating...' : 'Add Ticket Type'}
       </Button>
@@ -158,7 +210,10 @@ export default function TicketManager({
                   <div className="grid grid-cols-3 gap-2 mb-2">
                     <select
                       value={editForm.name}
-                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      onChange={(e) => {
+                        setEditForm({ ...editForm, name: e.target.value });
+                        setEditNameError('');
+                      }}
                       className="border rounded px-2 py-1 text-sm text-gray-700"
                     >
                       <option value="">Select Ticket Tier</option>
@@ -176,11 +231,21 @@ export default function TicketManager({
                       value={editForm.quantity}
                       onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })}
                     />
+                    {editNameError && (
+                      <p className="col-span-3 text-red-500 text-sm mt-1">{editNameError}</p>
+                    )}
                     <div className="col-span-3 flex gap-2 mt-2">
                       <Button size="sm" onClick={handleSaveEdit}>
                         Save
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => setEditingId(null)}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setEditingId(null);
+                          setEditNameError('');
+                        }}
+                      >
                         Cancel
                       </Button>
                     </div>

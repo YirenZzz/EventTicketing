@@ -1,9 +1,8 @@
-// src/app/api/organizers/[userId]/events/[eventId]/ticket-types/route.ts
-
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { nanoid } from "nanoid"; // ✅ 自动生成唯一票号
 
+// ────────── GET 所有票种 ──────────
 export async function GET(
   _: NextRequest,
   context: { params: Promise<{ userId: string; eventId: string }> },
@@ -31,6 +30,7 @@ export async function GET(
   }
 }
 
+// ────────── POST 创建新票种 ──────────
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ userId: string; eventId: string }> },
@@ -38,10 +38,25 @@ export async function POST(
   const { eventId } = await context.params;
   const eventIdNum = Number(eventId);
   const body = await req.json();
-  const { name, price, quantity, code } = body;
+  const { name, price, quantity } = body;
 
   if (isNaN(eventIdNum)) {
     return NextResponse.json({ error: "Invalid event ID" }, { status: 400 });
+  }
+
+  // ✅ 检查是否存在相同 name 的票种
+  const existing = await db.ticketType.findFirst({
+    where: {
+      eventId: eventIdNum,
+      name: name,
+    },
+  });
+
+  if (existing) {
+    return NextResponse.json(
+      { error: "This ticket type name already exists for the event." },
+      { status: 400 }
+    );
   }
 
   try {
