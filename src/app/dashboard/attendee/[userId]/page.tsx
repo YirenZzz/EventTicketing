@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import AppShell from '@/components/layout/AppShell';
-
+import PurchasedTicketList from "@/components/ticket/attendee-purchased-ticketList";
 export default function AttendeeDashboardPage({
   params,
 }: {
@@ -11,7 +11,7 @@ export default function AttendeeDashboardPage({
 }) {
   // unwrap the promise
   const { userId } = use(params);
-
+  const numericId = Number(userId);
   const { data: session, status } = useSession();
   const [stats, setStats] = useState({
     totalTickets: 0,
@@ -134,6 +134,10 @@ export default function AttendeeDashboardPage({
               </div>
             </button>
           </div>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-lg font-medium mb-4">Your Purchased Tickets</h2>
+          <PurchasedTicketList userId={numericId} />
         </div>
       </div>
     </AppShell>
