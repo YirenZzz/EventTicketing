@@ -43,6 +43,7 @@ export default function Sidebar() {
   } else if (role === "staff") {
     navItems = [
       { name: "Dashboard", href: dashboardHref, icon: Gauge },
+      { name: "Reports", href: reportsHref, icon: BarChart },
       { name: "Events", href: eventsHref, icon: Ticket },
       { name: "Check-In Lists", href: checkinHref, icon: QrCode },
     ];
