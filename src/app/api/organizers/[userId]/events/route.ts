@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getRandomCoverImage } from '@/lib/randomCover';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { NextRequest, NextResponse } from "next/server";
@@ -13,8 +14,11 @@ export async function GET(
     return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
   }
 
+  const { searchParams } = req.nextUrl;
+  const filterStatus = searchParams.get("status") || "UPCOMING";
+
   try {
-    const events = await db.event.findMany({
+    const allEvents = await db.event.findMany({
       where: { organizerId: userIdNum },
       include: {
         ticketTypes: {
@@ -28,7 +32,14 @@ export async function GET(
       orderBy: { startDate: "asc" },
     });
 
-    return NextResponse.json({ data: events });
+    const now = new Date();
+
+    const filteredEvents = allEvents.filter((ev) => {
+      const isEnded = new Date(ev.endDate) < now;
+      return filterStatus === "ENDED" ? isEnded : !isEnded;
+    });
+
+    return NextResponse.json({ data: filteredEvents });
   } catch (error) {
     console.error("Failed to fetch organizer events:", error);
     return NextResponse.json(
@@ -49,7 +60,7 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
-  const { name, description, location, startDate, endDate } = body;
+  const { name, description, location, startDate, endDate, coverImage } = body;
 
   try {
     const event = await db.event.create({
@@ -60,6 +71,7 @@ export async function POST(req: Request) {
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         status: "UPCOMING",
+        coverImage: coverImage || getRandomCoverImage('coding'),
         organizer: { connect: { id: Number(session.user.id) } },
       },
     });

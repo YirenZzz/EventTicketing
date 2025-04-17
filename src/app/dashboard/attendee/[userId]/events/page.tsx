@@ -15,13 +15,13 @@ interface EventWithStatus {
   isRegistered: boolean;
   hasAvailableTickets: boolean;
   minTicketPrice: number;
+  coverImage?: string | null;
 }
 
 export default function AttendeeEventListPage() {
   const params = useParams();
   const userId = params?.userId?.toString();
   const [events, setEvents] = useState<EventWithStatus[]>([]);
-
   const router = useRouter();
 
   useEffect(() => {
@@ -38,56 +38,67 @@ export default function AttendeeEventListPage() {
 
   return (
     <AppShell>
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Explore Events</h1>
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-6">Explore Events</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {events.map(event => (
-          <div key={event.id} className="bg-white rounded-lg shadow p-6 space-y-2">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold">{event.name}</h2>
-              {event.isRegistered ? (
-                <span className="text-green-700 bg-green-100 px-2 py-1 text-xs rounded">Registered</span>
-              ) : (
-                <span className="text-blue-700 bg-blue-100 px-2 py-1 text-xs rounded">Not Registered</span>
-              )}
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {events.map(event => (
+            <div key={event.id} className="bg-white rounded-lg shadow overflow-hidden">
+              <img
+                src={event.coverImage?.trim() || `https://picsum.photos/seed/${event.id}/400/200`}
+                alt="Event cover"
+                className="w-full h-40 object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = `https://picsum.photos/400/200?random=${event.id}`;
+                }}
+              />
 
-            <div className="text-sm text-gray-600 flex items-center">
-              <Calendar className="w-4 h-4 mr-1" />
-              {format(new Date(event.startDate), 'PPpp')}
-            </div>
+              <div className="p-6 space-y-2">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-semibold">{event.name}</h2>
+                  {event.isRegistered ? (
+                    <span className="text-green-700 bg-green-100 px-2 py-1 text-xs rounded">Registered</span>
+                  ) : (
+                    <span className="text-blue-700 bg-blue-100 px-2 py-1 text-xs rounded">Not Registered</span>
+                  )}
+                </div>
 
-            <div className="text-sm text-gray-600 flex items-center">
-              <MapPin className="w-4 h-4 mr-1" />
-              {event.location}
-            </div>
+                <div className="text-sm text-gray-600 flex items-center">
+                  <Calendar className="w-4 h-4 mr-1" />
+                  {format(new Date(event.startDate), 'PPpp')}
+                </div>
 
-            <div className="text-sm text-gray-600 flex items-center">
-              <Ticket className="w-4 h-4 mr-1" />
-              {event.hasAvailableTickets ? (
-                <span>From ${event.minTicketPrice}</span>
-              ) : (
-                <span className="text-red-500">Sold Out</span>
-              )}
-            </div>
+                <div className="text-sm text-gray-600 flex items-center">
+                  <MapPin className="w-4 h-4 mr-1" />
+                  {event.location}
+                </div>
 
-            <div className="text-right mt-2">
-              <Link
-                href={`/dashboard/attendee/${userId}/events/${event.id}`}
-                className={`inline-block px-4 py-2 text-sm rounded transition ${
-                  event.hasAvailableTickets
-                    ? 'bg-purple-600 text-white hover:bg-purple-700'
-                    : 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                }`}
-              >
-                {event.hasAvailableTickets ? 'Buy Now' : 'Sold Out'}
-              </Link>
+                <div className="text-sm text-gray-600 flex items-center">
+                  <Ticket className="w-4 h-4 mr-1" />
+                  {event.hasAvailableTickets ? (
+                    <span>From ${event.minTicketPrice}</span>
+                  ) : (
+                    <span className="text-red-500">Sold Out</span>
+                  )}
+                </div>
+
+                <div className="text-right mt-2">
+                  <Link
+                    href={`/dashboard/attendee/${userId}/events/${event.id}`}
+                    className={`inline-block px-4 py-2 text-sm rounded transition ${
+                      event.hasAvailableTickets
+                        ? 'bg-purple-600 text-white hover:bg-purple-700'
+                        : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                    }`}
+                  >
+                    {event.hasAvailableTickets ? 'Buy Now' : 'Sold Out'}
+                  </Link>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
     </AppShell>
   );
 }

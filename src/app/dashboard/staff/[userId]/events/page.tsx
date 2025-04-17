@@ -77,6 +77,7 @@ export default function StaffEventsPage() {
                 endDate: event.endDate,
                 status: event.status,
                 organizerName: event.organizerName,
+                coverImage: event.coverImage,
               }}
               href={`/dashboard/staff/${userId}/events/${event.id}`} // 👈 正确路径
               showActions={false} // 👈 禁用编辑和删除按钮
