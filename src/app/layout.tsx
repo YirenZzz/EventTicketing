@@ -34,7 +34,7 @@ import Providers from "../components/Providers";  // 注意路径根据你的项
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Hi.Events",
+  title: "Ticket.Events",
   description: "Event Ticketing and Check-in System",
 };
 
