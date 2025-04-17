@@ -6,7 +6,13 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import EditEventModal from '../modals/EditEventModal';
 
-export const EventCard = ({ event }: { event: any }) => {
+interface EventCardProps {
+  event: any;
+  href?: string; // 👈 可选自定义跳转路径
+  showActions?: boolean; // 控制是否显示 Edit/Delete
+}
+
+export const EventCard = ({ event, href, showActions = true }: EventCardProps) => {
   const [openEdit, setOpenEdit] = useState(false);
   const { data: session } = useSession();
 
@@ -43,19 +49,22 @@ export const EventCard = ({ event }: { event: any }) => {
   return (
     <div className="p-4 rounded border shadow-sm bg-white space-y-2">
       <div className="flex justify-between items-center">
-        <Link href={`/dashboard/organizer/${session?.user?.id}/events/${event.id}`}>
+        <Link href={href || `/dashboard/organizer/${session?.user?.id}/events/${event.id}`}>
           <h3 className="text-lg font-semibold text-gray-800 hover:underline cursor-pointer">
             {event.name}
           </h3>
         </Link>
-        <div className="flex gap-2">
-          <button onClick={() => setOpenEdit(true)}>
-            <Pencil className="w-4 h-4 text-gray-600 hover:text-purple-700" />
-          </button>
-          <button onClick={handleDelete}>
-            <Trash2 className="w-4 h-4 text-gray-600 hover:text-red-600" />
-          </button>
-        </div>
+
+        {showActions && (
+          <div className="flex gap-2">
+            <button onClick={() => setOpenEdit(true)}>
+              <Pencil className="w-4 h-4 text-gray-600 hover:text-purple-700" />
+            </button>
+            <button onClick={handleDelete}>
+              <Trash2 className="w-4 h-4 text-gray-600 hover:text-red-600" />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center text-sm text-gray-600 gap-2">
@@ -67,11 +76,13 @@ export const EventCard = ({ event }: { event: any }) => {
         {event.status}
       </span>
 
-      <EditEventModal
-        open={openEdit}
-        onClose={() => setOpenEdit(false)}
-        event={{ ...event, organizerId: session?.user?.id }}
-      />
+      {showActions && (
+        <EditEventModal
+          open={openEdit}
+          onClose={() => setOpenEdit(false)}
+          event={{ ...event, organizerId: session?.user?.id }}
+        />
+      )}
     </div>
   );
 };
