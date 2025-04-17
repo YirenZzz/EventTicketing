@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { Calendar, MapPin } from 'lucide-react';
-import { format } from 'date-fns';
-import AppShell from '@/components/layout/AppShell';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { Calendar, MapPin } from "lucide-react";
+import { format } from "date-fns";
+import AppShell from "@/components/layout/AppShell";
+import { useRouter } from "next/navigation";
 
 interface TicketType {
   id: number;
@@ -32,13 +33,14 @@ export default function AttendeeEventDetailPage() {
   const [promoCodes, setPromoCodes] = useState<Record<number, string>>({});
   const [purchasedIds, setPurchasedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     (async () => {
       try {
         const [eventRes, purchaseRes] = await Promise.all([
           fetch(`/api/attendees/${userId}/events/${eventId}/ticket-types`),
-          fetch(`/api/attendees/${userId}/purchased`)
+          fetch(`/api/attendees/${userId}/purchased`),
         ]);
 
         if (eventRes.ok) {
@@ -64,35 +66,37 @@ export default function AttendeeEventDetailPage() {
     const promoCode = promoCodes[ticketTypeId]?.trim() || null;
 
     const res = await fetch(`/api/attendees/${userId}/purchased`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ticketTypeId, promoCode }),
     });
 
     if (!res.ok) {
       try {
         const { error } = await res.json();
-        alert(error ?? 'Purchase failed');
+        alert(error ?? "Purchase failed");
       } catch {
-        alert('Purchase failed');
+        alert("Purchase failed");
       }
       return;
     }
 
-    const { remaining } = await res.json();
+    const { remaining, purchaseId } = await res.json();
 
-    setTickets(prev =>
-      prev.map(t =>
-        t.id === ticketTypeId ? { ...t, available: remaining } : t
-      )
+    setTickets((prev) =>
+      prev.map((t) =>
+        t.id === ticketTypeId ? { ...t, available: remaining } : t,
+      ),
     );
 
-    setPurchasedIds(prev => [...prev, ticketTypeId]);
-    alert('Ticket purchased!');
+    setPurchasedIds((prev) => [...prev, ticketTypeId]);
+    // alert('Ticket purchased!');
+    router.push(`/dashboard/attendee/${userId}/orders/${purchaseId}`);
   }
 
   if (loading) return <p className="p-8 text-center">Loading …</p>;
-  if (!event) return <p className="p-8 text-center text-red-500">Event not found.</p>;
+  if (!event)
+    return <p className="p-8 text-center text-red-500">Event not found.</p>;
 
   return (
     <AppShell>
@@ -102,15 +106,18 @@ export default function AttendeeEventDetailPage() {
         <div className="text-gray-600 space-y-1">
           <div className="flex items-center text-sm">
             <Calendar className="w-4 h-4 mr-2" />
-            {format(new Date(event.startDate), 'PPpp')} – {format(new Date(event.endDate), 'PPpp')}
-          </div> 
+            {format(new Date(event.startDate), "PPpp")} –{" "}
+            {format(new Date(event.endDate), "PPpp")}
+          </div>
           <div className="flex items-center text-sm">
             <MapPin className="w-4 h-4 mr-2" />
-            {event.location ?? 'TBA'}
+            {event.location ?? "TBA"}
           </div>
         </div>
 
-        {event.description && <p className="text-gray-700">{event.description}</p>}
+        {event.description && (
+          <p className="text-gray-700">{event.description}</p>
+        )}
 
         <h2 className="text-xl font-semibold mt-6">Ticket Types</h2>
 
@@ -127,18 +134,34 @@ export default function AttendeeEventDetailPage() {
                     <div className="text-sm text-gray-600">
                       ${t.price.toFixed(2)}
                       {!isPurchased && soldOut && (
-                        <> ・ <span className="text-red-500 font-medium">Sold Out</span></>
+                        <>
+                          {" "}
+                          ・{" "}
+                          <span className="text-red-500 font-medium">
+                            Sold Out
+                          </span>
+                        </>
                       )}
                       {!isPurchased && t.available > 0 && t.available <= 3 && (
-                        <> ・ <span className="text-red-500 font-medium">only {t.available} left</span></>
+                        <>
+                          {" "}
+                          ・{" "}
+                          <span className="text-red-500 font-medium">
+                            only {t.available} left
+                          </span>
+                        </>
                       )}
                     </div>
                   </div>
 
                   {isPurchased ? (
-                    <span className="text-sm text-green-600 font-medium">Already Purchased</span>
+                    <span className="text-sm text-green-600 font-medium">
+                      Already Purchased
+                    </span>
                   ) : soldOut ? (
-                    <span className="text-sm text-red-500 font-medium">Sold Out</span>
+                    <span className="text-sm text-red-500 font-medium">
+                      Sold Out
+                    </span>
                   ) : (
                     <button
                       onClick={() => buy(t.id)}
@@ -153,9 +176,12 @@ export default function AttendeeEventDetailPage() {
                   <input
                     type="text"
                     placeholder="Promo code (optional)"
-                    value={promoCodes[t.id] || ''}
+                    value={promoCodes[t.id] || ""}
                     onChange={(e) =>
-                      setPromoCodes((prev) => ({ ...prev, [t.id]: e.target.value }))
+                      setPromoCodes((prev) => ({
+                        ...prev,
+                        [t.id]: e.target.value,
+                      }))
                     }
                     className="mt-1 w-full border rounded px-3 py-1 text-sm text-gray-700"
                   />
