@@ -42,6 +42,9 @@ export default function OrganizerReportPage({
   const [eventAttendanceRates, setEventAttendanceRates] = useState<
     { eventId: number; name: string; attendanceRate: number }[]
   >([]);
+  const [eventRevenues, setEventRevenues] = useState<
+    { eventId: number; name: string; totalRevenue: number }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -66,6 +69,19 @@ export default function OrganizerReportPage({
           };
         });
         setEventAttendanceRates(rates);
+
+        const revenues = events.map((e: any) => {
+          const revenue = (e.ticketTypes || []).reduce((sum: number, tt: any) => {
+            const sold = (tt.tickets || []).filter((t: any) => t.purchased).length;
+            return sum + (tt.price || 0) * sold;
+          }, 0);
+          return {
+            eventId: e.id,
+            name: e.name,
+            totalRevenue: revenue,
+          };
+        });
+        setEventRevenues(revenues);
       } catch (err) {
         console.error(err);
         setError('Unable to load event data');
@@ -83,16 +99,10 @@ export default function OrganizerReportPage({
       if (!selectedEventId) return;
 
       const res1 = await fetch(`/api/organizers/${userId}/events/${selectedEventId}/summary`);
-
       if (res1.ok) {
         const data = await res1.json();
         setSummary(data);
       }
-
-      // if (res2.ok) {
-      //   const { stats } = await res2.json();
-      //   setCheckinStats(stats);
-      // }
     }
 
     fetchDetails();
@@ -175,6 +185,56 @@ export default function OrganizerReportPage({
                 </div>
               )}
             </div>
+            
+            {/* Total Revenue by Event */}
+<div className="border rounded p-6 bg-gray-50 space-y-4">
+  <h3 className="text-lg font-semibold">Total Revenue by Event</h3>
+  {eventRevenues.length === 0 ? (
+    <p className="text-sm text-gray-500">No data available.</p>
+  ) : (
+    <div className="max-w-2xl">
+      <Bar
+        data={{
+          labels: eventRevenues.map((e) => e.name),
+          datasets: [
+            {
+              label: 'Total Revenue (CAD)',
+              data: eventRevenues.map((e) => e.totalRevenue),
+              backgroundColor: '#F2AE4E',
+              borderRadius: 6,
+            },
+          ],
+        }}
+        options={{
+          indexAxis: 'y',
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: {
+                callback: (v) => `$${v}`,
+                font: { size: 14 },
+                color: '#4B5563',
+              },
+              grid: { color: '#E5E7EB' },
+            },
+            y: {
+              ticks: { font: { size: 14 }, color: '#6B7280' },
+              grid: { display: false },
+            },
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `$${ctx.raw}`,
+              },
+            },
+          },
+        }}
+      />
+    </div>
+  )}
+</div>
 
             {/* Selected Event Section */}
             {summary && (

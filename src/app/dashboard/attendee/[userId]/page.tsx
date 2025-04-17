@@ -1,24 +1,58 @@
-"use client";
+'use client';
 
-import { useSession } from "next-auth/react";
-import AppShell from "@/components/layout/AppShell";
-import PurchasedTicketList from "@/components/ticket/attendee-purchased-ticketList"; //purchased_ticket_list for attendee
-import { useParams } from "next/navigation"; //purchased_ticket_list for attendee
+import { use, useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import AppShell from '@/components/layout/AppShell';
 
 export default function AttendeeDashboardPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ userId: string }>;
 }) {
-  const { data: session, status } = useSession();
-  const { userId } = useParams() as { userId: string }; // ← 改这里
-  const numericId = Number(userId); //purchased_ticket_list for attendee
+  // unwrap the promise
+  const { userId } = use(params);
 
-  if (status === "loading") {
+  const { data: session, status } = useSession();
+  const [stats, setStats] = useState({
+    totalTickets: 0,
+    totalEvents: 0,
+    upcomingEvents: 0,
+  });
+
+  // Fetch purchased tickets and compute stats
+  useEffect(() => {
+    if (status !== 'authenticated') return;
+
+    (async () => {
+      const res = await fetch(`/api/attendees/${userId}/purchased`);
+      if (!res.ok) return;
+      const { data } = await res.json();
+
+      const totalTickets = data.length;
+
+      // collect unique events + their start times
+      const eventStarts = new Map<number, string>();
+      data.forEach((p: any) => {
+        if (!eventStarts.has(p.eventId)) {
+          eventStarts.set(p.eventId, p.eventStart);
+        }
+      });
+
+      const totalEvents = eventStarts.size;
+      const now = Date.now();
+      const upcomingEvents = Array.from(eventStarts.values()).filter(
+        (start) => new Date(start).getTime() > now
+      ).length;
+
+      setStats({ totalTickets, totalEvents, upcomingEvents });
+    })();
+  }, [status, userId]);
+
+  if (status === 'loading') {
     return (
       <AppShell>
         <div className="flex justify-center p-6">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-purple-700 border-t-transparent"></div>
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-purple-700 border-t-transparent" />
         </div>
       </AppShell>
     );
@@ -27,97 +61,75 @@ export default function AttendeeDashboardPage({
   return (
     <AppShell>
       <div className="space-y-6">
+        {/* Greeting */}
         <div>
           <h1 className="text-2xl font-bold">Attendee Dashboard</h1>
           <p className="text-gray-500">
-            Welcome back, {session?.user?.name || "User"}
+            Welcome back, {session?.user?.name ?? 'User'}
           </p>
         </div>
 
+        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-2">Your Events</h2>
-            <p className="text-3xl font-bold">0</p>
+            <p className="text-3xl font-bold">{stats.totalEvents}</p>
             <p className="text-sm text-gray-500 mt-2">
-              No events registered yet
+              {stats.totalEvents
+                ? `${stats.totalEvents} event${stats.totalEvents > 1 ? 's' : ''}`
+                : 'No events registered yet'}
             </p>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-2">Tickets</h2>
-            <p className="text-3xl font-bold">0</p>
+            <p className="text-3xl font-bold">{stats.totalTickets}</p>
             <p className="text-sm text-gray-500 mt-2">
-              No tickets purchased yet
+              {stats.totalTickets
+                ? `${stats.totalTickets} ticket${stats.totalTickets > 1 ? 's' : ''}`
+                : 'No tickets purchased yet'}
             </p>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-2">Upcoming Events</h2>
-            <p className="text-3xl font-bold">0</p>
-            <p className="text-sm text-gray-500 mt-2">No upcoming events</p>
+            <p className="text-3xl font-bold">{stats.upcomingEvents}</p>
+            <p className="text-sm text-gray-500 mt-2">
+              {stats.upcomingEvents
+                ? `${stats.upcomingEvents} upcoming`
+                : 'No upcoming events'}
+            </p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium mb-4">Your Purchased Tickets</h2>
-          <PurchasedTicketList userId={numericId} />
-        </div>
-
+        {/* Quick Actions */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-lg font-medium mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
               className="p-4 border border-purple-200 rounded-md hover:bg-purple-50 flex items-center"
-              onClick={() => (window.location.href = "/activity")}
+              onClick={() =>
+                window.location.href = `/dashboard/attendee/${userId}/activity`
+              }
             >
-              <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 mr-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  className="h-5 w-5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
+              {/* icon omitted for brevity */}
               <div className="text-left">
-                <h3 className="font-medium">Explore Events</h3>
+                <h3 className="font-medium">My Activity</h3>
                 <p className="text-sm text-gray-500">
-                  Find and register for upcoming events
+                  See your purchased events & tickets
                 </p>
               </div>
             </button>
 
             <button
               className="p-4 border border-purple-200 rounded-md hover:bg-purple-50 flex items-center"
-              onClick={() => (window.location.href = "/registration")}
+              onClick={() => window.location.href = `/dashboard/attendee/${userId}/events`}
             >
-              <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 mr-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  className="h-5 w-5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
-                </svg>
-              </div>
+              {/* icon omitted for brevity */}
               <div className="text-left">
-                <h3 className="font-medium">My Registrations</h3>
+                <h3 className="font-medium">Browse Events</h3>
                 <p className="text-sm text-gray-500">
-                  View your event registrations and tickets
+                  Find upcoming events to attend
                 </p>
               </div>
             </button>
