@@ -77,7 +77,6 @@ export default function AttendeeDashboardPage({
         onSearchChange={handleSearch}
         searchValue={searchQuery}
         showBackButton={true}
-        backUrl={`/dashboard`}
       />
 
       <div className="space-y-6">
