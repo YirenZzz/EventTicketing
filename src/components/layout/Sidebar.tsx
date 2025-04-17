@@ -54,10 +54,10 @@ export default function Sidebar() {
       { name: "Dashboard", href: dashboardHref, icon: Gauge },
       { name: "Events", href: eventsHref, icon: Ticket },
       { name: "Activity", href: activityHref, icon: Calendar },
-      { name: "Registration", href: "/registration", icon: Inbox },
+      // { name: "Registration", href: "/registration", icon: Inbox },
       { name: "Orders & Payments", href: orderHref, icon: Receipt },
-      { name: "Messages", href: "/messages", icon: MessageSquare },
-      { name: "Account", href: accountHref, icon: User },
+      // { name: "Messages", href: "/messages", icon: MessageSquare },
+      // { name: "Account", href: accountHref, icon: User },
       { name: "Help Center", href: "/help_center", icon: HelpCircle },
     ];
   }
