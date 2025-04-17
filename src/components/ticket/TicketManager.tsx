@@ -104,18 +104,34 @@ export default function TicketManager({
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure?')) return;
-    const res = await fetch(`/api/organizers/${userId}/events/${eventId}/ticket-types/${id}`, {
-      method: 'DELETE',
-    });
-    if (res.ok) {
+    if (!confirm('Are you sure you want to delete this ticket type?')) return;
+  
+    try {
+      const res = await fetch(
+        `/api/organizers/${userId}/events/${eventId}/ticket-types/${id}`,
+        { method: 'DELETE' }
+      );
+  
+      const result = await res.json();
+  
+      if (!res.ok) {
+        alert(result?.error ?? 'Delete failed');
+        return;
+      }
+  
       setTicketTypes((prev) => prev.filter((tt) => tt.id !== id));
-    } else {
-      alert('Delete failed');
+    } catch (error) {
+      alert('An unexpected error occurred while deleting.');
     }
   };
 
   const handleEdit = (tt: TicketType) => {
+    const sold = (tt.tickets ?? []).filter((t) => t.purchased).length;
+    if (sold > 0) {
+      alert('This ticket type has already been sold and cannot be edited.');
+      return;
+    }
+  
     setEditingId(tt.id);
     setEditForm({
       name: tt.name,
