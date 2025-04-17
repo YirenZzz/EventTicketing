@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getIO } from "@/lib/socket";
+import { Resend } from 'resend';
+import QRCode from 'qrcode';
+// import { render } from '@react-email/render';
+// import PurchaseConfirmationEmail from '@/emails/PurchaseConfirmationEmail'; 
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /* ─────────────── GET: 查询已购票 ─────────────── */
 export async function GET(
@@ -53,7 +59,7 @@ export async function GET(
 /* ─────────────── POST: 用户购票 ─────────────── */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ userId: string }> },
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   const { userId: raw } = await params;
   const userId = Number(raw);
@@ -104,7 +110,6 @@ export async function POST(
       );
     }
 
-    // 应用优惠信息
     appliedPromotion = {
       id: promo.id,
       code: promo.code,
@@ -112,21 +117,15 @@ export async function POST(
       amount: promo.amount,
     };
 
-    // 使用次数减少
     await prisma.promoCode.update({
       where: { id: promo.id },
-      data: {
-        usageCount: { increment: 1 },
-      },
+      data: { usageCount: { increment: 1 } },
     });
   }
 
   /* ───── 分配未售出 Ticket ───── */
   const ticket = await prisma.ticket.findFirst({
-    where: {
-      ticketTypeId,
-      purchased: false,
-    },
+    where: { ticketTypeId, purchased: false },
   });
 
   if (!ticket) {
@@ -138,18 +137,14 @@ export async function POST(
     data: {
       purchased: true,
       purchasedTicket: {
-        create: {
-          userId,
-        },
+        create: { userId },
       },
     },
     include: {
       ticketType: {
         select: {
           id: true,
-          tickets: {
-            where: { purchased: false },
-          },
+          tickets: { where: { purchased: false } },
         },
       },
     },
@@ -157,7 +152,7 @@ export async function POST(
 
   const remaining = updated.ticketType.tickets.length;
 
-  /* ───── Socket 广播（可选）───── */
+  // Socket 广播
   try {
     const io = getIO?.();
     io?.emit("ticketPurchased", {
@@ -165,6 +160,48 @@ export async function POST(
       ticketId: updated.id,
     });
   } catch {}
+
+  /* ───── Email Confirmation ───── */
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (user?.email) {
+    try {
+      // const html = render(
+      //   React.createElement(PurchaseConfirmationEmail, {
+      //     userName: user.name || "Attendee",
+      //     eventName: ticketType.event.name,
+      //     startDate: ticketType.event.startDate,
+      //     endDate: ticketType.event.endDate,
+      //     ticketType: ticketType.name,
+      //     price: ticketType.price,
+      //   })
+      // );
+      console.log("Sending email with:", {
+        from: process.env.EMAIL_FROM,
+        to: user.email,
+        subject: `🎟️ Your ticket for ${ticketType.event.name}`,
+      });
+      const qrDataUrl = await QRCode.toDataURL(ticket.code);
+      const data = await resend.emails.send({
+        from: process.env.EMAIL_FROM,
+        to: user.email,
+        subject: `🎟️ Your ticket for ${ticketType.event.name}`,
+        html: `
+        <p>Hi ${user.name || 'Attendee'},</p>
+        <p>Thank you for purchasing a ticket for <strong>${ticketType.event.name}</strong>!</p>
+        <p><strong>Event Time:</strong> ${new Date(ticketType.event.startDate).toLocaleString()} – ${new Date(ticketType.event.endDate).toLocaleString()}</p>
+        <p><strong>Ticket Type:</strong> ${ticketType.name}</p>
+        <p><strong>Ticket Code:</strong> ${ticket.code}</p>
+        <p><strong>QR Code:</strong><br />
+        <img src="${qrDataUrl}" alt="QR Code" width="200" height="200" />
+        </p>
+        <p>Please bring this code to check in. See you there!</p>
+      `,
+      });
+    } catch (error) {
+      console.error("Email failed to send:", error);
+    }
+  }
 
   return NextResponse.json({
     message: "Purchase successful",
