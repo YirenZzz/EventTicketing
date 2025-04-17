@@ -48,7 +48,7 @@ export default function Sidebar() {
     ];
   } else if (role === "attendee") {
     const activityHref = role && userId ? `/dashboard/${role}/${userId}/activity` : '/dashboard';
-    const orderHref = role && userId ? `/dashboard/${role}/${userId}/order` : '/dashboard';
+    const orderHref = role && userId ? `/dashboard/${role}/${userId}/orders` : '/dashboard';
     const accountHref =  role && userId ? `/dashboard/${role}/${userId}/account` : '/dashboard';
     navItems = [
       { name: "Dashboard", href: dashboardHref, icon: Gauge },

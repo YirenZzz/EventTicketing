@@ -1,26 +1,23 @@
 // src/app/api/organizers/[userId]/events/[eventId]/route.ts
 import { db } from '@/lib/db';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { NextRequest, NextResponse } from 'next/server';
 
+/* ─────────────── GET ─────────────── */
 export async function GET(
-  _: NextRequest,
-  { params }: { params: { userId: string; eventId: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ userId: string; eventId: string }> }
 ) {
-  const eventId = Number(params.eventId);
-  if (isNaN(eventId)) {
-    return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 });
-  }
+  const { eventId } = await params;                     // ✅ await
+  const id = Number(eventId);
+  if (isNaN(id)) return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 });
 
   const event = await db.event.findUnique({
-    where: { id: eventId },
+    where: { id },
     include: { organizer: true },
   });
-
-  if (!event) {
-    return NextResponse.json({ error: 'Event not found' }, { status: 404 });
-  }
+  if (!event) return NextResponse.json({ error: 'Event not found' }, { status: 404 });
 
   return NextResponse.json({
     event: {
@@ -30,21 +27,23 @@ export async function GET(
       startDate: event.startDate,
       endDate: event.endDate,
       status: event.status,
-      organizerName: event.organizer?.name || 'Unknown',
+      organizerName: event.organizer?.name ?? 'Unknown',
     },
   });
 }
 
+/* ─────────────── PATCH ─────────────── */
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { userId: string; eventId: string } }
+  { params }: { params: Promise<{ userId: string; eventId: string }> }
 ) {
-  const eventId = Number(params.eventId);
+  const { eventId } = await params;                     // ✅ await
+  const id = Number(eventId);
   const { name, description, startDate, endDate, status } = await req.json();
 
   try {
     const updated = await db.event.update({
-      where: { id: eventId },
+      where: { id },
       data: {
         name,
         description,
@@ -53,76 +52,51 @@ export async function PATCH(
         status,
       },
     });
-
     return NextResponse.json({ event: updated });
-  } catch (error) {
-    console.error('Failed to update event:', error);
+  } catch (e) {
+    console.error('Failed to update event:', e);
     return NextResponse.json({ error: 'Failed to update event' }, { status: 500 });
   }
 }
 
+/* ─────────────── DELETE ─────────────── */
 export async function DELETE(
-  _: NextRequest,
-  { params }: { params: { userId: string; eventId: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ userId: string; eventId: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  const userId = Number(params.userId);
-  const eventId = Number(params.eventId);
+  const { userId, eventId } = await params;             // ✅ await
+  const uid = Number(userId);
+  const eid = Number(eventId);
 
-  if (
-    !session?.user ||
-    session.user.role !== 'Organizer' ||
-    Number(session.user.id) !== userId
-  ) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || session.user.role !== 'Organizer' || Number(session.user.id) !== uid) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
   try {
-    // 找出所有 ticketType.id 属于这个 event 的
-    const ticketTypeIds = (
-      await db.ticketType.findMany({
-        where: { eventId },
-        select: { id: true },
-      })
-    ).map((tt) => tt.id);
+    /* ……原有删除逻辑保持不变，使用 eid …… */
+    // 1) 找 ticketTypeIds
+    const ticketTypeIds = (await db.ticketType.findMany({
+      where: { eventId: eid },
+      select: { id: true },
+    })).map(tt => tt.id);
 
-    if (ticketTypeIds.length > 0) {
-      const ticketIds = (
-        await db.ticket.findMany({
-          where: { ticketTypeId: { in: ticketTypeIds } },
-          select: { id: true },
-        })
-      ).map((t) => t.id);
-
-      // Step 1: 删除所有 CheckIn（依赖 ticketId）
-      await db.checkIn.deleteMany({
-        where: { ticketId: { in: ticketIds } },
-      });
-
-      // Step 2: 删除所有 PurchasedTicket（依赖 ticketId）
-      await db.purchasedTicket.deleteMany({
-        where: { ticketId: { in: ticketIds } },
-      });
-
-      // Step 3: 删除所有 Ticket（依赖 ticketTypeId）
-      await db.ticket.deleteMany({
+    if (ticketTypeIds.length) {
+      const ticketIds = (await db.ticket.findMany({
         where: { ticketTypeId: { in: ticketTypeIds } },
-      });
+        select: { id: true },
+      })).map(t => t.id);
 
-      // Step 4: 删除所有 TicketType（依赖 eventId）
-      await db.ticketType.deleteMany({
-        where: { id: { in: ticketTypeIds } },
-      });
+      await db.checkIn.deleteMany({ where: { ticketId: { in: ticketIds } } });
+      await db.purchasedTicket.deleteMany({ where: { ticketId: { in: ticketIds } } });
+      await db.ticket.deleteMany({ where: { ticketTypeId: { in: ticketTypeIds } } });
+      await db.ticketType.deleteMany({ where: { id: { in: ticketTypeIds } } });
     }
 
-    // Step 5: 删除 Event 本身
-    await db.event.delete({
-      where: { id: eventId },
-    });
-
+    await db.event.delete({ where: { id: eid } });
     return NextResponse.json({ message: 'Event deleted successfully' });
-  } catch (error) {
-    console.error('Failed to delete event:', error);
+  } catch (e) {
+    console.error('Failed to delete event:', e);
     return NextResponse.json({ error: 'Failed to delete event' }, { status: 500 });
   }
 }
