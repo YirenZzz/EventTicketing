@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { use, useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import AppShell from '@/components/layout/AppShell';
+import { use, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import AppShell from "@/components/layout/AppShell";
 import PurchasedTicketList from "@/components/ticket/attendee-purchased-ticketList";
 export default function AttendeeDashboardPage({
   params,
@@ -21,10 +21,12 @@ export default function AttendeeDashboardPage({
 
   // Fetch purchased tickets and compute stats
   useEffect(() => {
-    if (status !== 'authenticated') return;
+    if (status !== "authenticated") return;
 
     (async () => {
-      const res = await fetch(`/api/attendees/${userId}/purchased`);
+      const res = await fetch(`/api/attendees/${userId}/purchased`, {
+        cache: "no-store",
+      });
       if (!res.ok) return;
       const { data } = await res.json();
 
@@ -41,14 +43,14 @@ export default function AttendeeDashboardPage({
       const totalEvents = eventStarts.size;
       const now = Date.now();
       const upcomingEvents = Array.from(eventStarts.values()).filter(
-        (start) => new Date(start).getTime() > now
+        (start) => new Date(start).getTime() > now,
       ).length;
 
       setStats({ totalTickets, totalEvents, upcomingEvents });
     })();
   }, [status, userId]);
 
-  if (status === 'loading') {
+  if (status === "loading") {
     return (
       <AppShell>
         <div className="flex justify-center p-6">
@@ -65,7 +67,7 @@ export default function AttendeeDashboardPage({
         <div>
           <h1 className="text-2xl font-bold">Attendee Dashboard</h1>
           <p className="text-gray-500">
-            Welcome back, {session?.user?.name ?? 'User'}
+            Welcome back, {session?.user?.name ?? "User"}
           </p>
         </div>
 
@@ -76,8 +78,8 @@ export default function AttendeeDashboardPage({
             <p className="text-3xl font-bold">{stats.totalEvents}</p>
             <p className="text-sm text-gray-500 mt-2">
               {stats.totalEvents
-                ? `${stats.totalEvents} event${stats.totalEvents > 1 ? 's' : ''}`
-                : 'No events registered yet'}
+                ? `${stats.totalEvents} event${stats.totalEvents > 1 ? "s" : ""}`
+                : "No events registered yet"}
             </p>
           </div>
 
@@ -86,8 +88,8 @@ export default function AttendeeDashboardPage({
             <p className="text-3xl font-bold">{stats.totalTickets}</p>
             <p className="text-sm text-gray-500 mt-2">
               {stats.totalTickets
-                ? `${stats.totalTickets} ticket${stats.totalTickets > 1 ? 's' : ''}`
-                : 'No tickets purchased yet'}
+                ? `${stats.totalTickets} ticket${stats.totalTickets > 1 ? "s" : ""}`
+                : "No tickets purchased yet"}
             </p>
           </div>
 
@@ -97,7 +99,7 @@ export default function AttendeeDashboardPage({
             <p className="text-sm text-gray-500 mt-2">
               {stats.upcomingEvents
                 ? `${stats.upcomingEvents} upcoming`
-                : 'No upcoming events'}
+                : "No upcoming events"}
             </p>
           </div>
         </div>
@@ -109,7 +111,7 @@ export default function AttendeeDashboardPage({
             <button
               className="p-4 border border-purple-200 rounded-md hover:bg-purple-50 flex items-center"
               onClick={() =>
-                window.location.href = `/dashboard/attendee/${userId}/activity`
+                (window.location.href = `/dashboard/attendee/${userId}/activity`)
               }
             >
               {/* icon omitted for brevity */}
@@ -123,7 +125,9 @@ export default function AttendeeDashboardPage({
 
             <button
               className="p-4 border border-purple-200 rounded-md hover:bg-purple-50 flex items-center"
-              onClick={() => window.location.href = `/dashboard/attendee/${userId}/events`}
+              onClick={() =>
+                (window.location.href = `/dashboard/attendee/${userId}/events`)
+              }
             >
               {/* icon omitted for brevity */}
               <div className="text-left">

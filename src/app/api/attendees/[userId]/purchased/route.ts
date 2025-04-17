@@ -16,13 +16,15 @@ export async function GET(
 
   // 拉取所有已购买的票，并把 ticketType.event 一并 include
   const purchases = await prisma.purchasedTicket.findMany({
-    where: { userId },
+    where: {
+      userId,
+    },
     include: {
       ticket: {
         include: {
           ticketType: {
             include: {
-              event: true,   // 把活动信息也拉进来
+              event: true, // 把活动信息也拉进来
             },
           },
         },
@@ -31,15 +33,15 @@ export async function GET(
     orderBy: { createdAt: "desc" },
   });
 
-  // 构造前端需要的字段列表
+  // construct front end需要的字段列表
   const data = purchases.map((p) => ({
-    purchaseId:     p.id,
-    purchasedAt:    p.createdAt.toISOString(),
-    eventId:        p.ticket.ticketType.event.id,
-    eventName:      p.ticket.ticketType.event.name,
-    eventStart:     p.ticket.ticketType.event.startDate.toISOString(),  // 新增
-    eventEnd:       p.ticket.ticketType.event.endDate.toISOString(),    // 新增
-    ticketTypeId:   p.ticket.ticketType.id,
+    purchaseId: p.id,
+    purchasedAt: p.createdAt.toISOString(),
+    eventId: p.ticket.ticketType.event.id,
+    eventName: p.ticket.ticketType.event.name,
+    eventStart: p.ticket.ticketType.event.startDate.toISOString(), // 新增
+    eventEnd: p.ticket.ticketType.event.endDate.toISOString(), // 新增
+    ticketTypeId: p.ticket.ticketType.id,
     ticketTypeName: p.ticket.ticketType.name,
     price: p.ticket.ticketType.price,
     checkedIn: p.checkedIn,
@@ -152,10 +154,18 @@ export async function POST(
           },
         },
       },
+      purchasedTicket: true,
     },
   });
 
   const remaining = updated.ticketType.tickets.length;
+
+  const purchase = await prisma.purchasedTicket.findFirst({
+    where: {
+      ticketId: ticket.id, // 就是刚刚分配的那张票
+      userId, // 是这个用户的
+    },
+  });
 
   /* ───── Socket 广播（可选）───── */
   try {
@@ -170,5 +180,7 @@ export async function POST(
     message: "Purchase successful",
     remaining,
     promo: appliedPromotion,
+    // purchaseId: updated.purchasedTicket?.[0]?.id,
+    purchaseId: purchase?.id,
   });
 }
