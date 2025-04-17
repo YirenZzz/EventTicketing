@@ -50,6 +50,7 @@ export async function GET(
         startDate: evt.startDate,
         endDate: evt.endDate,
         status: evt.status,
+        coverImage: evt.coverImage, 
         organizerName: evt.organizer.name,
         totalTickets,
         soldTickets,

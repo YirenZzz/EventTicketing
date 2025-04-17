@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
-import { use, useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import AppShell from "@/components/layout/AppShell";
+import { use, useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import AppShell from '@/components/layout/AppShell';
+
 import PurchasedTicketList from "@/components/ticket/attendee-purchased-ticketList";
 export default function AttendeeDashboardPage({
   params,

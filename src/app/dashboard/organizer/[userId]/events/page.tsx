@@ -63,15 +63,15 @@ export default function OrganizerEventsPage({ params }: { params: Promise<{ user
         />
 
         <div className="flex gap-4 mb-4">
-          {['UPCOMING', 'ENDED', 'ARCHIVED'].map((s) => (
-            <Button
-              key={s}
-              variant={status === s ? 'default' : 'ghost'}
-              onClick={() => updateSearchParams('status', s)}
-            >
-              {s}
-            </Button>
-          ))}
+        {['UPCOMING', 'ENDED'].map((s) => (
+          <Button
+            key={s}
+            variant={status === s ? 'default' : 'ghost'}
+            onClick={() => updateSearchParams('status', s)}
+          >
+            {s}
+          </Button>
+        ))}
         </div>
 
         <Input

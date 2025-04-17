@@ -35,6 +35,8 @@ model Event {
   status      String   @default("UPCOMING")
   createdAt   DateTime @default(now())
 
+  coverImage  String?
+
   // 与 User 建立关系
   organizer   User? @relation(fields: [organizerId], references: [id])
   organizerId Int?
