@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import AppShell from '@/components/layout/AppShell';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import SearchBackHeader from '@/components/layout/SearchBackHeader';
+
 
 interface Purchase {
   purchaseId: number;
@@ -21,7 +23,16 @@ export default function AttendeeActivityPage() {
   const { userId } = useParams() as { userId: string };
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
+
+  // Handle search function
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    // Additional search logic would go here
+    // For example, filtering the tickets displayed in PurchasedTicketList
+  };
+
 
   useEffect(() => {
     (async () => {

@@ -4,20 +4,31 @@ import { use, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import AppShell from '@/components/layout/AppShell';
 import PurchasedTicketList from "@/components/ticket/attendee-purchased-ticketList";
+import SearchBackHeader from '@/components/layout/SearchBackHeader';
+
 export default function AttendeeDashboardPage({
   params,
 }: {
   params: Promise<{ userId: string }>;
 }) {
-  // unwrap the promise
-  const { userId } = use(params);
+  // Unwrap the Promise using React.use()
+  const unwrappedParams = use(params);
+  const { userId } = unwrappedParams;
   const numericId = Number(userId);
+  
   const { data: session, status } = useSession();
+  const [searchQuery, setSearchQuery] = useState('');
   const [stats, setStats] = useState({
     totalTickets: 0,
     totalEvents: 0,
     upcomingEvents: 0,
   });
+
+  // Handle search function - this will be passed to the SearchBackHeader
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    // This search query will be passed to PurchasedTicketList via props
+  };
 
   // Fetch purchased tickets and compute stats
   useEffect(() => {
@@ -60,6 +71,15 @@ export default function AttendeeDashboardPage({
 
   return (
     <AppShell>
+      {/* Search header at the top */}
+      <SearchBackHeader
+        searchPlaceholder="Search your tickets and events..."
+        onSearchChange={handleSearch}
+        searchValue={searchQuery}
+        showBackButton={true}
+        backUrl={`/dashboard`}
+      />
+
       <div className="space-y-6">
         {/* Greeting */}
         <div>
@@ -137,7 +157,11 @@ export default function AttendeeDashboardPage({
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-lg font-medium mb-4">Your Purchased Tickets</h2>
-          <PurchasedTicketList userId={numericId} />
+          {/* Pass the searchQuery to PurchasedTicketList */}
+          <PurchasedTicketList 
+            userId={numericId} 
+            searchQuery={searchQuery} 
+          />
         </div>
       </div>
     </AppShell>

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, HelpCircle, ChevronRight, Mail, PhoneCall, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { HelpCircle, ChevronRight, Mail, PhoneCall } from 'lucide-react';
+import SearchBackHeader from '@/components/layout/SearchBackHeader';
 
 export default function HelpCenter() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
@@ -63,29 +63,18 @@ export default function HelpCenter() {
     }
   };
 
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+  };
+
   return (
     <div className="flex-1 overflow-auto">
-      <header className="bg-white p-4 shadow-sm">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <Link href="/dashboard/attendee/1" className="inline-flex items-center text-purple-600 hover:text-purple-800 transition-colors">
-            <ArrowLeft className="h-5 w-5 mr-1" />
-            <span>Back to Dashboard</span>
-          </Link>
-
-          <div className="relative w-full sm:max-w-md">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search help topics..."
-              className="pl-10 pr-4 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
-      </header>
+      <SearchBackHeader
+        title="Help Center"
+        searchPlaceholder="Search help topics..."
+        onSearchChange={handleSearchChange}
+        searchValue={searchQuery}
+      />
 
       <div className="bg-purple-50 py-12">
         <div className="max-w-5xl mx-auto text-center">
