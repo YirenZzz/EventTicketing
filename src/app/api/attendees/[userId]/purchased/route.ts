@@ -1,17 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { getIO } from '@/lib/socket';
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { getIO } from "@/lib/socket";
 
 /* ─────────────── GET: 查询已购票 ─────────────── */
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   const { userId: raw } = await params;
   const userId = Number(raw);
 
   if (isNaN(userId)) {
-    return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
   }
 
   const tickets = await prisma.purchasedTicket.findMany({
@@ -25,19 +25,20 @@ export async function GET(
         },
       },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: "desc" },
   });
 
-  const data = tickets.map(p => ({
-    purchaseId:     p.id,
-    purchasedAt:    p.createdAt,
-    eventId:        p.ticket.ticketType.event.id,
-    eventName:      p.ticket.ticketType.event.name,
-    ticketTypeId:   p.ticket.ticketType.id,
+  const data = tickets.map((p) => ({
+    purchaseId: p.id,
+    purchasedAt: p.createdAt,
+    eventId: p.ticket.ticketType.event.id,
+    eventName: p.ticket.ticketType.event.name,
+    ticketTypeId: p.ticket.ticketType.id,
     ticketTypeName: p.ticket.ticketType.name,
-    price:          p.ticket.ticketType.price,
-    checkedIn:      p.checkedIn,
-    ticketId:       p.ticket.id,
+    price: p.ticket.ticketType.price,
+    checkedIn: p.checkedIn,
+    ticketId: p.ticket.id,
+    code: p.ticket.code,
   }));
 
   return NextResponse.json({ data });
@@ -46,18 +47,21 @@ export async function GET(
 /* ─────────────── POST: 用户购票 ─────────────── */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   const { userId: raw } = await params;
   const userId = Number(raw);
   if (isNaN(userId)) {
-    return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
   }
 
   const { ticketTypeId, promoCode } = await req.json();
 
   if (!ticketTypeId) {
-    return NextResponse.json({ error: 'Missing ticketTypeId' }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing ticketTypeId" },
+      { status: 400 },
+    );
   }
 
   const ticketType = await prisma.ticketType.findUnique({
@@ -66,7 +70,7 @@ export async function POST(
   });
 
   if (!ticketType) {
-    return NextResponse.json({ error: 'Invalid ticket type' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid ticket type" }, { status: 400 });
   }
 
   /* ───── Validate Promo Code ───── */
@@ -82,13 +86,16 @@ export async function POST(
           { ticketTypeId: null, eventId: ticketType.eventId },
         ],
         startDate: { lte: now },
-        endDate:   { gte: now },
-        maxUsage:  { gt: 0 },
+        endDate: { gte: now },
+        maxUsage: { gt: 0 },
       },
     });
 
     if (!promo) {
-      return NextResponse.json({ error: 'Invalid or expired promo code' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid or expired promo code" },
+        { status: 400 },
+      );
     }
 
     // 应用优惠信息
@@ -117,7 +124,7 @@ export async function POST(
   });
 
   if (!ticket) {
-    return NextResponse.json({ error: 'No available ticket' }, { status: 400 });
+    return NextResponse.json({ error: "No available ticket" }, { status: 400 });
   }
 
   const updated = await prisma.ticket.update({
@@ -147,14 +154,14 @@ export async function POST(
   /* ───── Socket 广播（可选）───── */
   try {
     const io = getIO?.();
-    io?.emit('ticketPurchased', {
+    io?.emit("ticketPurchased", {
       ticketTypeId: updated.ticketType.id,
       ticketId: updated.id,
     });
   } catch {}
 
   return NextResponse.json({
-    message: 'Purchase successful',
+    message: "Purchase successful",
     remaining,
     promo: appliedPromotion,
   });
