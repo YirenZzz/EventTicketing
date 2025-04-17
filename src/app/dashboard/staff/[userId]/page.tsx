@@ -1,25 +1,20 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState, useRef } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter, useParams } from "next/navigation";
-import { OrganizerShell } from "@/components/layout/OrganizerShell";
-import { StatCard } from "@/components/ui/StatCard";
-import { StepCard } from "@/components/ui/StepCard";
-import { EventCard } from "@/components/ui/EventCard";
-import {
-  ShoppingCart,
-  Users,
-  CreditCard,
-  Wallet,
-  Eye,
-  FileCheck,
-  QrCode,
-  BarChart3,
-  ListPlus,
-} from "lucide-react";
+import React, { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter, useParams } from 'next/navigation';
+import { OrganizerShell } from '@/components/layout/OrganizerShell';
+import { StepCard } from '@/components/ui/StepCard';
+import { EventCard } from '@/components/ui/EventCard';
 
-import { Html5QrcodeScanner } from "html5-qrcode";
+interface Event {
+  id: number;
+  name: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  organizerName: string;
+}
 
 export default function StaffDashboard() {
   const { data: session, status } = useSession();
@@ -27,24 +22,41 @@ export default function StaffDashboard() {
   const params = useParams();
   const userId = params?.userId?.toString();
 
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === 'loading') return;
 
     const sessionUserId = String(session?.user?.id);
     const isAuthorized =
-      session?.user?.role === "Staff" && sessionUserId === userId;
+      session?.user?.role === 'Staff' && sessionUserId === userId;
 
     if (!isAuthorized) {
-      router.replace("/login");
+      router.replace('/login');
+      return;
     }
+
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch(`/api/staffs/${userId}/events`);
+        if (!res.ok) throw new Error('Failed to fetch events');
+        const { data } = await res.json();
+        setEvents(data || []);
+      } catch (err) {
+        console.error('Error loading events:', err);
+        setEvents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
   }, [session, status, userId, router]);
 
-  if (status === "loading") return null;
-
+  if (status === 'loading' || loading) return null;
   const sessionUserId = String(session?.user?.id);
-  if (session?.user?.role !== "Staff" || sessionUserId !== userId) {
-    return null; // unauthorized
-  }
+  if (session?.user?.role !== 'Staff' || sessionUserId !== userId) return null;
 
   return (
     <OrganizerShell>
@@ -62,32 +74,34 @@ export default function StaffDashboard() {
             description="Scan attendee QR codes to validate tickets."
             actionLabel="Go to Check-in"
             onClick={() => router.push(`/dashboard/staff/${userId}/checkin`)}
-            //icon={QrCode}
           />
         </div>
       </div>
 
       <div className="mt-10 space-y-4">
+  <h2 className="text-xl font-semibold mb-2">Assigned Events</h2>
+  {events.length === 0 ? (
+    <p className="text-gray-500">No events assigned yet.</p>
+  ) : (
+    <div className="space-y-4"> {/* 👈 每行一个 */}
+      {events.map((event) => (
         <EventCard
+          key={event.id}
           event={{
-            id: "1",
-            name: "AI Summit 2025",
-            startDate: "2025-05-20T10:00:00Z",
-            endDate: "2025-05-20T12:00:00Z",
-            status: "Draft",
+            id: event.id.toString(),
+            name: event.name,
+            startDate: event.startDate,
+            endDate: event.endDate,
+            status: event.status,
+            organizerName: event.organizerName,
           }}
+          href={`/dashboard/staff/${userId}/events/${event.id}`}
+          showActions={false}
         />
-        <EventCard
-          event={{
-            id: "2",
-            name: "Startup Expo",
-            startDate: "2025-06-10T10:00:00Z",
-            endDate: "2025-06-10T15:00:00Z",
-            status: "Live",
-          }}
-        />
-      </div>
-      {/* <CheckInScanner /> */}
+      ))}
+    </div>
+  )}
+</div>
     </OrganizerShell>
   );
 }
