@@ -9,7 +9,7 @@ import CreateEventModal from '@/components/modals/CreateEventModal';
 import AppShell from '@/components/layout/AppShell';
 
 export default function OrganizerEventsPage({ params }: { params: Promise<{ userId: string }> }) {
-  const { userId } = use(params); // ✅ use 解包
+  const { userId } = use(params); 
 
   const searchParams = useSearchParams();
   const router = useRouter();

@@ -6,9 +6,9 @@ import AppShell from "@/components/layout/AppShell";
 export default async function EventDetailPage({
   params,
 }: {
-  params: { userId: string; eventId: string };
+  params: Promise<{ userId: string; eventId: string }>;
 }) {
-  const { userId, eventId } = params;
+  const { userId, eventId } = await params; 
 
   // 获取 Event 信息
   const eventRes = await fetch(
