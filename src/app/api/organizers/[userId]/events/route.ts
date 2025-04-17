@@ -1,44 +1,41 @@
 import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status");
-  const q = searchParams.get("q");
-  const page = Number(searchParams.get("page") || 1);
-  const pageSize = 10;
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ userId: string }> }
+) {
+  const { userId } = await context.params;
+  const userIdNum = Number(userId);
+  if (isNaN(userIdNum)) {
+    return NextResponse.json({ error: "Invalid user ID" }, { status: 400 });
+  }
 
-  const where = {
-    ...(status ? { status } : {}),
-    ...(q
-      ? {
-          name: {
-            contains: q,
-            mode: "insensitive",
+  try {
+    const events = await db.event.findMany({
+      where: { organizerId: userIdNum },
+      include: {
+        ticketTypes: {
+          include: {
+            tickets: {
+              select: { purchased: true, checkedIn: true },
+            },
           },
-        }
-      : {}),
-  };
+        },
+      },
+      orderBy: { startDate: "asc" },
+    });
 
-  const events = await db.event.findMany({
-    where,
-    orderBy: { startDate: "asc" },
-    skip: (page - 1) * pageSize,
-    take: pageSize,
-  });
-
-  const total = await db.event.count({ where });
-
-  return NextResponse.json({
-    data: events,
-    meta: {
-      page,
-      total,
-      totalPages: Math.ceil(total / pageSize),
-    },
-  });
+    return NextResponse.json({ data: events });
+  } catch (error) {
+    console.error("Failed to fetch organizer events:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(req: Request) {

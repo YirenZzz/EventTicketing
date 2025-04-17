@@ -29,10 +29,28 @@ export async function GET(
       },
     });
 
+    // ✅ 新增计算 Revenue
+    const revenueData = await db.ticket.findMany({
+      where: {
+        ticketType: { eventId: eventIdNum },
+        purchased: true,
+      },
+      select: {
+        ticketType: {
+          select: {
+            price: true,
+          },
+        },
+      },
+    });
+
+    const totalRevenue = revenueData.reduce((sum, t) => sum + t.ticketType.price, 0);
+
     return NextResponse.json({
       totalTickets,
       soldTickets,
       checkedIn,
+      totalRevenue, // 👈 返回新增字段
     });
   } catch (error) {
     console.error('Failed to fetch summary:', error);
