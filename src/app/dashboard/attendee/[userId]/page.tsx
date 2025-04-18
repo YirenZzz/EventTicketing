@@ -11,6 +11,8 @@ import {
   XCircle,
   Ticket,
 } from 'lucide-react';
+import { QRCodeCanvas } from "qrcode.react";
+
 
 export default function AttendeeDashboardPage({
   params,
@@ -76,8 +78,7 @@ export default function AttendeeDashboardPage({
   const filtered = tickets.filter((t) => {
     const kw = search.trim().toLowerCase();
     return (
-      t.eventName.toLowerCase().includes(kw) ||
-      t.ticketTypeName.toLowerCase().includes(kw)
+      t.eventName.toLowerCase().includes(kw)
     );
   });
 
@@ -150,78 +151,104 @@ export default function AttendeeDashboardPage({
 
         {/* Tickets */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-medium mb-4">Your Purchased Tickets</h2>
+  <h2 className="text-lg font-medium mb-4 flex justify-between items-center">
+    Your Purchased Tickets
+  </h2>
 
-          {/* 搜索框 */}
-          <div className="relative max-w-sm mb-6">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search tickets"
-              className="w-full pl-10 py-2 border rounded-md focus:outline-none focus:ring focus:border-purple-400"
-            />
-          </div>
+  {/* 搜索 */}
+  <div className="relative max-w-sm mb-6">
+    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+    <input
+      type="text"
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      placeholder="Search tickets"
+      className="w-full pl-10 py-2 border rounded-md focus:outline-none focus:ring focus:border-purple-400"
+    />
+  </div>
 
-          {loadingTickets ? (
-            <p className="text-gray-500 text-center">Loading tickets…</p>
-          ) : filtered.length === 0 ? (
-            <div className="text-center text-gray-500 py-10">
-              <Ticket className="w-8 h-8 mx-auto mb-2" />
-              No tickets found.
+  {filtered.length === 0 ? (
+    <div className="text-center text-gray-500 py-10">
+      <Ticket className="w-8 h-8 mx-auto mb-2" />
+      No tickets found.
+    </div>
+  ) : (
+    <div className="flex flex-col space-y-4">
+      {filtered.map((t) => (
+        <div
+          key={t.purchaseId}
+          className="bg-white border rounded-lg p-4 shadow-sm hover:shadow-md transition"
+        >
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            {/* Left: Info */}
+            <div>
+              <h3 className="text-lg font-semibold">{t.eventName}</h3>
+              <p className="text-sm text-gray-500">{t.ticketTypeName}</p>
+              <p className="text-sm text-gray-600">
+                Purchased {format(new Date(t.purchasedAt), 'PPpp')}
+              </p>
             </div>
-          ) : (
-            <div className="flex flex-col space-y-4">
-            {filtered.map((t) => (
-              <Link
-                key={t.purchaseId}
-                href={`/dashboard/attendee/${userId}/orders/${t.purchaseId}`}
-                className="block bg-white shadow-sm hover:shadow-md rounded-lg border p-4 transition"
+
+            {/* Middle: Price */}
+            <div className="text-purple-700 text-xl font-bold whitespace-nowrap">
+              ${t.price.toFixed(2)}
+            </div>
+
+            {/* Right: Status + Actions */}
+            <div className="flex flex-col sm:items-end space-y-2">
+              <span
+                className={`inline-flex items-center text-sm font-medium rounded-full px-2 py-1 ${
+                  t.checkedIn
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-blue-100 text-blue-700'
+                }`}
               >
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                  {/* 左侧：票务信息 */}
-                  <div>
-                    <h3 className="text-lg font-semibold">{t.eventName}</h3>
-                    <p className="text-sm text-gray-500">{t.ticketTypeName}</p>
-                    <p className="text-sm text-gray-600">
-                      Purchased {format(new Date(t.purchasedAt), 'PPpp')}
-                    </p>
-                  </div>
-          
-                  {/* 中间：价格 */}
-                  <div className="text-purple-700 text-xl font-bold whitespace-nowrap">
-                    ${t.price.toFixed(2)}
-                  </div>
-          
-                  {/* 右侧：状态 */}
-                  <div>
-                    <span
-                      className={`inline-flex items-center text-sm font-medium rounded-full px-2 py-1 ${
-                        t.checkedIn
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-blue-100 text-blue-700'
-                      }`}
-                    >
-                      {t.checkedIn ? (
-                        <>
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          Checked In
-                        </>
-                      ) : (
-                        <>
-                          <XCircle className="w-4 h-4 mr-1" />
-                          Valid
-                        </>
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                {t.checkedIn ? (
+                  <>
+                    <CheckCircle className="w-4 h-4 mr-1" />
+                    Checked In
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-4 h-4 mr-1" />
+                    Valid
+                  </>
+                )}
+              </span>
+
+              {/* Action buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() =>
+                    window.open(
+                      `/dashboard/attendee/${userId}/orders/${t.purchaseId}/print`,
+                      '_blank'
+                    )
+                  }
+                  className="text-xs px-3 py-1 border rounded hover:bg-gray-50"
+                >
+                  Print
+                </button>
+                <Link
+                  href={`/dashboard/attendee/${userId}/orders/${t.purchaseId}`}
+                  className="text-xs px-3 py-1 border rounded hover:bg-gray-50"
+                >
+                  View
+                </Link>
+              </div>
+            </div>
           </div>
-          )}
+
+          {/* QR code preview */}
+          <div className="mt-4 border-t pt-4">
+            <p className="text-xs text-gray-500 mb-1">QR Code:</p>
+            <QRCodeCanvas value={t.code} size={96} />
+          </div>
         </div>
+      ))}
+    </div>
+  )}
+</div>
       </div>
     </AppShell>
   );
