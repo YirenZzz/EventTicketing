@@ -3,37 +3,49 @@
 import { use, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import AppShell from '@/components/layout/AppShell';
+import Link from 'next/link';
+import { format } from 'date-fns';
+import {
+  Search as SearchIcon,
+  CheckCircle,
+  XCircle,
+  Ticket,
+} from 'lucide-react';
 
-import PurchasedTicketList from "@/components/ticket/attendee-purchased-ticketList";
 export default function AttendeeDashboardPage({
   params,
 }: {
   params: Promise<{ userId: string }>;
 }) {
-  // unwrap the promise
   const { userId } = use(params);
   const numericId = Number(userId);
   const { data: session, status } = useSession();
+
   const [stats, setStats] = useState({
     totalTickets: 0,
     totalEvents: 0,
     upcomingEvents: 0,
   });
 
-  // Fetch purchased tickets and compute stats
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [loadingTickets, setLoadingTickets] = useState(true);
+  const [search, setSearch] = useState('');
+
+  // Fetch stats + tickets
   useEffect(() => {
-    if (status !== "authenticated") return;
+    if (status !== 'authenticated') return;
 
     (async () => {
       const res = await fetch(`/api/attendees/${userId}/purchased`, {
-        cache: "no-store",
+        cache: 'no-store',
       });
       if (!res.ok) return;
+
       const { data } = await res.json();
+      setTickets(data);
+      setLoadingTickets(false);
 
       const totalTickets = data.length;
-
-      // collect unique events + their start times
       const eventStarts = new Map<number, string>();
       data.forEach((p: any) => {
         if (!eventStarts.has(p.eventId)) {
@@ -44,14 +56,14 @@ export default function AttendeeDashboardPage({
       const totalEvents = eventStarts.size;
       const now = Date.now();
       const upcomingEvents = Array.from(eventStarts.values()).filter(
-        (start) => new Date(start).getTime() > now,
+        (start) => new Date(start).getTime() > now
       ).length;
 
       setStats({ totalTickets, totalEvents, upcomingEvents });
     })();
   }, [status, userId]);
 
-  if (status === "loading") {
+  if (status === 'loading') {
     return (
       <AppShell>
         <div className="flex justify-center p-6">
@@ -61,6 +73,14 @@ export default function AttendeeDashboardPage({
     );
   }
 
+  const filtered = tickets.filter((t) => {
+    const kw = search.trim().toLowerCase();
+    return (
+      t.eventName.toLowerCase().includes(kw) ||
+      t.ticketTypeName.toLowerCase().includes(kw)
+    );
+  });
+
   return (
     <AppShell>
       <div className="space-y-6">
@@ -68,41 +88,30 @@ export default function AttendeeDashboardPage({
         <div>
           <h1 className="text-2xl font-bold">Attendee Dashboard</h1>
           <p className="text-gray-500">
-            Welcome back, {session?.user?.name ?? "User"}
+            Welcome back, {session?.user?.name ?? 'User'}
           </p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-2">Your Events</h2>
-            <p className="text-3xl font-bold">{stats.totalEvents}</p>
-            <p className="text-sm text-gray-500 mt-2">
-              {stats.totalEvents
-                ? `${stats.totalEvents} event${stats.totalEvents > 1 ? "s" : ""}`
-                : "No events registered yet"}
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-2">Tickets</h2>
-            <p className="text-3xl font-bold">{stats.totalTickets}</p>
-            <p className="text-sm text-gray-500 mt-2">
-              {stats.totalTickets
-                ? `${stats.totalTickets} ticket${stats.totalTickets > 1 ? "s" : ""}`
-                : "No tickets purchased yet"}
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-2">Upcoming Events</h2>
-            <p className="text-3xl font-bold">{stats.upcomingEvents}</p>
-            <p className="text-sm text-gray-500 mt-2">
-              {stats.upcomingEvents
-                ? `${stats.upcomingEvents} upcoming`
-                : "No upcoming events"}
-            </p>
-          </div>
+          {[
+            { label: 'Your Events', value: stats.totalEvents },
+            { label: 'Tickets', value: stats.totalTickets },
+            { label: 'Upcoming Events', value: stats.upcomingEvents },
+          ].map(({ label, value }) => (
+            <div
+              key={label}
+              className="bg-white p-6 rounded-lg shadow text-center"
+            >
+              <h2 className="text-lg font-medium mb-2">{label}</h2>
+              <p className="text-3xl font-bold">{value}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                {value === 0
+                  ? `No ${label.toLowerCase()} yet`
+                  : `${value} ${label.toLowerCase()}`}
+              </p>
+            </div>
+          ))}
         </div>
 
         {/* Quick Actions */}
@@ -115,7 +124,6 @@ export default function AttendeeDashboardPage({
                 (window.location.href = `/dashboard/attendee/${userId}/activity`)
               }
             >
-              {/* icon omitted for brevity */}
               <div className="text-left">
                 <h3 className="font-medium">My Activity</h3>
                 <p className="text-sm text-gray-500">
@@ -130,7 +138,6 @@ export default function AttendeeDashboardPage({
                 (window.location.href = `/dashboard/attendee/${userId}/events`)
               }
             >
-              {/* icon omitted for brevity */}
               <div className="text-left">
                 <h3 className="font-medium">Browse Events</h3>
                 <p className="text-sm text-gray-500">
@@ -140,9 +147,80 @@ export default function AttendeeDashboardPage({
             </button>
           </div>
         </div>
+
+        {/* Tickets */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-lg font-medium mb-4">Your Purchased Tickets</h2>
-          <PurchasedTicketList userId={numericId} />
+
+          {/* 搜索框 */}
+          <div className="relative max-w-sm mb-6">
+            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search tickets"
+              className="w-full pl-10 py-2 border rounded-md focus:outline-none focus:ring focus:border-purple-400"
+            />
+          </div>
+
+          {loadingTickets ? (
+            <p className="text-gray-500 text-center">Loading tickets…</p>
+          ) : filtered.length === 0 ? (
+            <div className="text-center text-gray-500 py-10">
+              <Ticket className="w-8 h-8 mx-auto mb-2" />
+              No tickets found.
+            </div>
+          ) : (
+            <div className="flex flex-col space-y-4">
+            {filtered.map((t) => (
+              <Link
+                key={t.purchaseId}
+                href={`/dashboard/attendee/${userId}/orders/${t.purchaseId}`}
+                className="block bg-white shadow-sm hover:shadow-md rounded-lg border p-4 transition"
+              >
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                  {/* 左侧：票务信息 */}
+                  <div>
+                    <h3 className="text-lg font-semibold">{t.eventName}</h3>
+                    <p className="text-sm text-gray-500">{t.ticketTypeName}</p>
+                    <p className="text-sm text-gray-600">
+                      Purchased {format(new Date(t.purchasedAt), 'PPpp')}
+                    </p>
+                  </div>
+          
+                  {/* 中间：价格 */}
+                  <div className="text-purple-700 text-xl font-bold whitespace-nowrap">
+                    ${t.price.toFixed(2)}
+                  </div>
+          
+                  {/* 右侧：状态 */}
+                  <div>
+                    <span
+                      className={`inline-flex items-center text-sm font-medium rounded-full px-2 py-1 ${
+                        t.checkedIn
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-blue-100 text-blue-700'
+                      }`}
+                    >
+                      {t.checkedIn ? (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Checked In
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="w-4 h-4 mr-1" />
+                          Valid
+                        </>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+          )}
         </div>
       </div>
     </AppShell>

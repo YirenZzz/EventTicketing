@@ -2,14 +2,22 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { format } from 'date-fns';
 import {
   Receipt,
   Ticket,
   CheckCircle,
   XCircle,
+  Search as SearchIcon,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
+
+// shadcn/ui 组件
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 interface OrderItem {
   purchaseId: number;
@@ -26,8 +34,8 @@ export default function AttendeeOrdersPage() {
   const { userId } = useParams() as { userId: string };
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
 
-  /* ─────────── Fetch attendee orders ─────────── */
   useEffect(() => {
     (async () => {
       const res = await fetch(`/api/attendees/${userId}/purchased`);
@@ -38,55 +46,87 @@ export default function AttendeeOrdersPage() {
     })();
   }, [userId]);
 
-  /* ─────────── UI ─────────── */
-  if (loading) return <p className="p-8 text-center">Loading …</p>;
+  if (loading) {
+    return (
+      <AppShell>
+        <p className="p-8 text-center">Loading…</p>
+      </AppShell>
+    );
+  }
+
+  const filtered = orders.filter(o =>
+    o.eventName.toLowerCase().includes(search.toLowerCase())
+    // o.ticketTypeName.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <AppShell>
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* Header */}
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <Receipt className="w-6 h-6" />
-          My Orders
-        </h1>
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        {/* Header + Search */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <Receipt className="w-6 h-6" />
+            My Orders
+          </h1>
+          <div className="relative max-w-sm w-full">
+            <SearchIcon className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
+            <Input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search by event or ticket type"
+              className="pl-10"
+            />
+          </div>
+        </div>
 
-        {orders.length === 0 ? (
+        {filtered.length === 0 ? (
           <div className="border-dashed border-2 rounded-lg p-10 text-center text-gray-500">
             <Ticket className="w-10 h-10 mx-auto mb-4" />
-            You haven’t purchased any tickets yet.
+            No orders found.
           </div>
         ) : (
-          <div className="space-y-4">
-            {orders.map(o => (
-              <div
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map(o => (
+              <Card
                 key={o.purchaseId}
-                className="border rounded-lg p-4 flex justify-between items-center"
+                className="hover:shadow-lg transition cursor-pointer"
               >
-                <div className="space-y-1">
-                  <div className="font-medium">{o.eventName}</div>
-                  <div className="text-sm text-gray-600">
-                    {o.ticketTypeName} ・ ${o.price.toFixed(2)}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Purchased&nbsp;
-                    {format(new Date(o.purchasedAt), 'PPpp')}
-                  </div>
-                </div>
+                <Link
+                  href={`/dashboard/attendee/${userId}/orders/${o.purchaseId}`}
+                  className="flex flex-col h-full"
+                >
+                  <CardHeader>
+                    <CardTitle className="text-lg">{o.eventName}</CardTitle>
+                    <p className="text-sm text-gray-500">{o.ticketTypeName}</p>
+                  </CardHeader>
 
-                <div className="flex items-center gap-2">
-                  {o.checkedIn ? (
-                    <span className="inline-flex items-center text-green-600 text-sm font-medium">
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      Checked In
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center text-blue-600 text-sm font-medium">
-                      <XCircle className="w-4 h-4 mr-1" />
-                      Valid
-                    </span>
-                  )}
-                </div>
-              </div>
+                  <CardContent className="mt-2 flex-grow">
+                    <p className="text-sm text-gray-600">
+                      Purchased {format(new Date(o.purchasedAt), 'PPpp')}
+                    </p>
+                    <p className="mt-3 text-xl font-semibold">
+                      ${o.price.toFixed(2)}
+                    </p>
+                  </CardContent>
+
+                  <CardFooter className="flex items-center justify-between">
+                    {o.checkedIn ? (
+                      <Badge variant="outline" className="text-green-600">
+                        <CheckCircle className="mr-1 h-4 w-4" />
+                        Checked In
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-blue-600">
+                        <XCircle className="mr-1 h-4 w-4" />
+                        Valid
+                      </Badge>
+                    )}
+                    <Button variant="ghost" size="sm">
+                      View Details
+                    </Button>
+                  </CardFooter>
+                </Link>
+              </Card>
             ))}
           </div>
         )}
