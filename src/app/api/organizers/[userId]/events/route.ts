@@ -3,6 +3,8 @@ import { getRandomCoverImage } from '@/lib/randomCover';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { NextRequest, NextResponse } from "next/server";
+import { uploadCoverImageFromURL } from '@/lib/aws';
+import { uploadImageFromUrlToS3 } from '@/lib/aws/upload';
 
 export async function GET(
   req: NextRequest,
@@ -79,17 +81,21 @@ export async function GET(
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user || session.user.role !== "Organizer") {
-    return NextResponse.json(
-      { error: "Only organizers can create events" },
-      { status: 403 },
-    );
+  if (!session?.user || session.user.role !== 'Organizer') {
+    return NextResponse.json({ error: 'Only organizers can create events' }, { status: 403 });
   }
 
   const body = await req.json();
   const { name, description, location, startDate, endDate, coverImage } = body;
 
   try {
+    // 如果没有上传图片，自动从随机图生成并上传到 S3
+    let finalCoverImage = coverImage;
+    if (!coverImage) {
+      const tempImage = getRandomCoverImage('coding'); // e.g. picsum/photos
+      finalCoverImage = await uploadImageFromUrlToS3(tempImage); // 上传到 AWS S3
+    }
+
     const event = await db.event.create({
       data: {
         name,
@@ -97,19 +103,16 @@ export async function POST(req: Request) {
         location,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        status: "UPCOMING",
-        coverImage: coverImage || getRandomCoverImage('coding'),
+        status: 'UPCOMING',
+        coverImage: finalCoverImage,
         organizer: { connect: { id: Number(session.user.id) } },
       },
     });
 
     return NextResponse.json({ event });
   } catch (error) {
-    console.error("Create event error:", error);
-    return NextResponse.json(
-      { error: "Failed to create event" },
-      { status: 500 },
-    );
+    console.error('Create event error:', error);
+    return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
   }
 }
 
