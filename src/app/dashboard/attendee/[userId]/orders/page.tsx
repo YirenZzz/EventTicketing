@@ -73,7 +73,7 @@ export default function AttendeeOrdersPage() {
             <Input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search by event or ticket type"
+              placeholder="Search by event"
               className="pl-10"
             />
           </div>
