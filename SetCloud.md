@@ -66,10 +66,10 @@ EMAIL_FROM=YourEmail
 NEXT_PUBLIC_SOCKET_URL="http://localhost:3000"
 
 # AWS S3 Configuration
-AWS_REGION= us-east-2
-AWS_S3_BUCKET_NAME=event-ticketing-assets-yt
-AWS_ACCESS_KEY_ID=AKIA6BVM24XJDMQSYZHY
-AWS_SECRET_ACCESS_KEY=KKb39qsWhoRVcHb9YpMnPvxow5/OBYpZ+nq0ng1T
+AWS_REGION= 
+AWS_S3_BUCKET_NAME=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
 
 
 LOCAL_DATABASE_URL="postgresql://YourLocalUsername:YourLocalPassword@localhost:5432/postgres"
