@@ -15,7 +15,7 @@ export async function GET(
   }
 
   const { searchParams } = req.nextUrl;
-  const filterStatus = searchParams.get("status") || "UPCOMING";
+  const filterStatus = searchParams.get("status");
 
   try {
     const allEvents = await db.event.findMany({
@@ -36,7 +36,9 @@ export async function GET(
 
     const filteredEvents = allEvents.filter((ev) => {
       const isEnded = new Date(ev.endDate) < now;
-      return filterStatus === "ENDED" ? isEnded : !isEnded;
+    
+      if (!filterStatus || filterStatus === 'ALL') return true; // 返回全部
+      return filterStatus === "ENDED" ? isEnded : !isEnded; // UPCOMING 或 ENDED
     });
 
     const data = filteredEvents.map((ev) => {
@@ -60,7 +62,7 @@ export async function GET(
       };
     });
 
-    return NextResponse.json({ data }); // ✅ 返回 data 而不是 filteredEvents
+    return NextResponse.json({ data: filteredEvents}); 
   } catch (error) {
     console.error("Failed to fetch organizer events:", error);
     return NextResponse.json(

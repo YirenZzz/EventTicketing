@@ -40,7 +40,7 @@ export default function OrganizerDashboard() {
 
     async function fetchEvents() {
       try {
-        const res = await fetch(`/api/organizers/${userId}/events`);
+        const res = await fetch(`/api/organizers/${userId}/events?status=UPCOMING`);
         if (!res.ok) throw new Error('Failed to fetch events');
         const data = await res.json();
         const evts = data.data || [];
@@ -98,7 +98,7 @@ export default function OrganizerDashboard() {
       </div>
 
       <div className="mt-10 space-y-4">
-        <h2 className="text-lg font-semibold">Your Events</h2>
+        <h2 className="text-lg font-semibold">Your Upcoming Events</h2>
         {loading ? (
           <p className="text-gray-500">Loading events...</p>
         ) : events.length === 0 ? (
