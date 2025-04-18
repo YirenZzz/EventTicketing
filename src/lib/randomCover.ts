@@ -12,8 +12,13 @@
 //     return sampleCovers[index];
 //   }
 
-export function getRandomCoverImage(style: string = 'tech'): string {
-    // 用风格 + 随机字符串 作为 seed，确保每种风格都有多个不同图
-    const seed = `${style}-${Math.random().toString(36).substring(2, 8)}`;
-    return `https://picsum.photos/seed/${encodeURIComponent(seed)}/400/200`;
+// export function getRandomCoverImage(style: string = 'tech'): string {
+//     // 用风格 + 随机字符串 作为 seed，确保每种风格都有多个不同图
+//     const seed = `${style}-${Math.random().toString(36).substring(2, 8)}`;
+//     return `https://picsum.photos/seed/${encodeURIComponent(seed)}/400/200`;
+//   }
+
+// lib/randomCover.ts
+export function getRandomCoverImage(seed: string): string {
+    return `https://picsum.photos/seed/${encodeURIComponent(seed)}/800/400`;
   }

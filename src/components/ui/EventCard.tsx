@@ -20,7 +20,11 @@ interface EventCardProps {
   showActions?: boolean;
 }
 
-export const EventCard = ({ event, href, showActions = true }: EventCardProps) => {
+export const EventCard = ({
+  event,
+  href,
+  showActions = true,
+}: EventCardProps) => {
   const [openEdit, setOpenEdit] = useState(false);
   const { data: session } = useSession();
 
@@ -28,33 +32,39 @@ export const EventCard = ({ event, href, showActions = true }: EventCardProps) =
     if (!confirm('Delete this event?')) return;
     const organizerId = session?.user?.id;
     if (!organizerId) return alert('Not logged in');
-    const res = await fetch(`/api/organizers/${organizerId}/events/${event.id}`, { method: 'DELETE' });
+    const res = await fetch(
+      `/api/organizers/${organizerId}/events/${event.id}`,
+      { method: 'DELETE' }
+    );
     if (res.ok) window.location.reload();
     else alert('Delete failed');
   };
 
-  // 如果没有封面就用随机图
+  // 优先使用后端持久化的 coverImage，否则用 picsum seed 接口生成固定图
   const coverImage =
     event.coverImage?.trim() ||
-    `https://source.unsplash.com/random/400x200?sig=${event.id}`;
+    `https://picsum.photos/seed/${event.id}/400/200`;
 
   return (
-    <div className="p-0 rounded overflow-hidden border shadow-sm bg-white">
-      {/* 1) 用原生 <img> */}
+    <div className="rounded overflow-hidden border shadow-sm bg-white">
       <img
         src={coverImage}
         alt="Event cover"
         className="w-full h-48 object-cover"
         onError={(e) => {
-          // 出错时再 fallback 到另一个 placeholder
-          (e.currentTarget as HTMLImageElement).src =
-            'https://picsum.photos/400/200?random=' + event.id;
+          // 若意外加载失败，再次尝试相同 seed
+          e.currentTarget.src = `https://picsum.photos/seed/${event.id}/400/200`;
         }}
       />
 
       <div className="p-4 space-y-2">
         <div className="flex justify-between items-center">
-          <Link href={href || `/dashboard/organizer/${session?.user?.id}/events/${event.id}`}>
+          <Link
+            href={
+              href ||
+              `/dashboard/organizer/${session?.user?.id}/events/${event.id}`
+            }
+          >
             <h3 className="text-lg font-semibold text-gray-800 hover:underline cursor-pointer">
               {event.name}
             </h3>

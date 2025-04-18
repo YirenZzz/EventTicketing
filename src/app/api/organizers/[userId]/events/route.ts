@@ -89,11 +89,13 @@ export async function POST(req: Request) {
   const { name, description, location, startDate, endDate, coverImage } = body;
 
   try {
-    // 如果没有上传图片，自动从随机图生成并上传到 S3
     let finalCoverImage = coverImage;
+
+    // ✅ 如果没传封面图，自动使用稳定 seed + picsum 随机图并上传至 S3
     if (!coverImage) {
-      const tempImage = getRandomCoverImage('coding'); // e.g. picsum/photos
-      finalCoverImage = await uploadImageFromUrlToS3(tempImage); // 上传到 AWS S3
+      const seed = `${name}-${Date.now()}`; // 可加入 style 前缀也行
+      const tempImage = getRandomCoverImage(seed); // https://picsum.photos/seed/xxx
+      finalCoverImage = await uploadImageFromUrlToS3(tempImage); // 上传到 S3，返回 URL
     }
 
     const event = await db.event.create({

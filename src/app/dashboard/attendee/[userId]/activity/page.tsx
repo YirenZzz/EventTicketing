@@ -44,7 +44,7 @@ export default function AttendeeActivityPage() {
     return (
       <AppShell>
         <div className="max-w-3xl mx-auto p-8 text-center text-gray-500">
-          You haven’t purchased any tickets yet.
+          You haven't purchased any tickets yet.
         </div>
       </AppShell>
     );

@@ -8,8 +8,12 @@ import { EventCard } from '@/components/ui/EventCard';
 import CreateEventModal from '@/components/modals/CreateEventModal';
 import AppShell from '@/components/layout/AppShell';
 
-export default function OrganizerEventsPage({ params }: { params: Promise<{ userId: string }> }) {
-  const { userId } = use(params); 
+export default function OrganizerEventsPage({
+  params,
+}: {
+  params: Promise<{ userId: string }>;
+}) {
+  const { userId } = use(params);
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -63,15 +67,15 @@ export default function OrganizerEventsPage({ params }: { params: Promise<{ user
         />
 
         <div className="flex gap-4 mb-4">
-        {['UPCOMING', 'ENDED'].map((s) => (
-          <Button
-            key={s}
-            variant={status === s ? 'default' : 'ghost'}
-            onClick={() => updateSearchParams('status', s)}
-          >
-            {s}
-          </Button>
-        ))}
+          {['UPCOMING', 'ENDED'].map((s) => (
+            <Button
+              key={s}
+              variant={status === s ? 'default' : 'ghost'}
+              onClick={() => updateSearchParams('status', s)}
+            >
+              {s}
+            </Button>
+          ))}
         </div>
 
         <Input
@@ -88,7 +92,20 @@ export default function OrganizerEventsPage({ params }: { params: Promise<{ user
             {events.length === 0 ? (
               <p className="text-gray-500">No events created yet.</p>
             ) : (
-              events.map((event) => <EventCard key={event.id} event={event} />)
+              events.map((event) => {
+                // 如果后端没有 coverImage，就用 picsum.seed 生成固定图
+                const fixedCover =
+                  event.coverImage?.trim() ||
+                  `https://picsum.photos/seed/${event.id}/400/200`;
+
+                // 将 coverImage 强制覆盖，传给 EventCard
+                return (
+                  <EventCard
+                    key={event.id}
+                    event={{ ...event, coverImage: fixedCover }}
+                  />
+                );
+              })
             )}
           </div>
         )}
