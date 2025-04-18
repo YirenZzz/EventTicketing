@@ -45,9 +45,13 @@ export default function OrganizerDashboard() {
         const data = await res.json();
         const evts = data.data || [];
         setEvents(evts);
+        
+        const resAll = await fetch(`/api/organizers/${userId}/events?status=ALL`);
+        const allJson = await resAll.json();
+        const allEvents = allJson.data || [];
 
         // 计算所有活动的总收入
-        const total = evts.reduce((accEvent: number, event: any) => {
+        const total = allEvents.reduce((accEvent: number, event: any) => {
           const revenuePerEvent = (event.ticketTypes || []).reduce(
             (accType: number, tt: any) => {
               // tt.price + tt.tickets: purchased flags

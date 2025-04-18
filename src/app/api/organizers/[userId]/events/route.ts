@@ -16,6 +16,7 @@ export async function GET(
 
   const { searchParams } = req.nextUrl;
   const filterStatus = searchParams.get("status");
+  const query = searchParams.get("q")?.toLowerCase() || ""; // 👈 搜索关键词（默认空）
 
   try {
     const allEvents = await db.event.findMany({
@@ -34,12 +35,15 @@ export async function GET(
 
     const now = new Date();
 
-    const filteredEvents = allEvents.filter((ev) => {
-      const isEnded = new Date(ev.endDate) < now;
-    
-      if (!filterStatus || filterStatus === 'ALL') return true; // 返回全部
-      return filterStatus === "ENDED" ? isEnded : !isEnded; // UPCOMING 或 ENDED
-    });
+    const filteredEvents = allEvents
+      .filter((ev) => {
+        const isEnded = new Date(ev.endDate) < now;
+        if (!filterStatus || filterStatus === 'ALL') return true;
+        return filterStatus === "ENDED" ? isEnded : !isEnded;
+      })
+      .filter((ev) =>
+        ev.name.toLowerCase().includes(query) // 👈 搜索过滤（忽略大小写）
+      );
 
     const data = filteredEvents.map((ev) => {
       const allTickets = ev.ticketTypes.flatMap((tt) => tt.tickets);
@@ -54,7 +58,7 @@ export async function GET(
         startDate: ev.startDate,
         endDate: ev.endDate,
         status: ev.status,
-        coverImage: ev.coverImage, // ✅ 关键字段
+        coverImage: ev.coverImage,
         ticketTypes: ev.ticketTypes,
         totalTickets: allTickets.length,
         soldTickets: sold,
@@ -62,7 +66,7 @@ export async function GET(
       };
     });
 
-    return NextResponse.json({ data: filteredEvents}); 
+    return NextResponse.json({ data });
   } catch (error) {
     console.error("Failed to fetch organizer events:", error);
     return NextResponse.json(
