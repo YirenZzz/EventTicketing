@@ -40,7 +40,7 @@ export async function PATCH(
 ) {
   const { eventId } = await params;                     
   const id = Number(eventId);
-  const { name, description, startDate, endDate, status } = await req.json();
+  const { name, description, location, startDate, endDate, status } = await req.json();
 
   try {
     const updated = await db.event.update({
