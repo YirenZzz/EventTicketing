@@ -30,7 +30,7 @@ export async function GET(
         ticketTypes: {
           include: {
             tickets: {
-              select: { purchased: true, checkedIn: true },
+              select: { purchased: true, waitlisted: true, checkedIn: true },
             },
           },
         },

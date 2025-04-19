@@ -15,6 +15,8 @@ import {
   Search,
   BarChart4
 } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 let socket: ReturnType<typeof io> | null = null;
 
@@ -28,6 +30,7 @@ export default function TicketTypeLivePage() {
   const [ticketType, setTicketType] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [numAddTickets, setNumAddTickets] = useState("");
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -109,6 +112,7 @@ export default function TicketTypeLivePage() {
   // Calculate stats
   const totalTickets = ticketType.quantity;
   const soldTickets = ticketType.tickets.filter((t: any) => !!t.purchasedTicket).length;
+  const waitlistTickets = ticketType.tickets.filter((t: any) => t.waitlisted).length;
   const checkedInTickets = ticketType.tickets.filter((t: any) => t.checkedIn).length;
   const availableTickets = totalTickets - soldTickets;
 
@@ -122,6 +126,35 @@ export default function TicketTypeLivePage() {
     
     return code.includes(searchLower) || userName.includes(searchLower);
   });
+
+  async function handleAddTickets() {
+    const numTickets = parseInt(numAddTickets, 10);
+
+    if (!isNaN(numTickets) && numTickets > 0) {
+      const res = await fetch(
+        `/api/organizers/${userId}/events/${eventId}/ticket-types/${ticketTypeId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({numAddTickets: numTickets}),
+          cache: "no-store"
+        }
+      );
+      if (!res.ok) {
+        setIsUpdating(false);
+        return;
+      }
+      const { ticketType } = await res.json();
+      setTicketType(ticketType);
+      setLoading(false);
+      setLastUpdate(new Date());
+      setIsUpdating(false);
+    } else {
+      alert('Please enter a valid positive number');
+    }
+
+    alert(`Successfully added ${numAddTickets} new tickets!`);
+  };
 
   return (
     <AppShell>
@@ -151,27 +184,42 @@ export default function TicketTypeLivePage() {
               >
                 <RefreshCw className={`h-5 w-5 ${isUpdating ? 'animate-spin' : ''}`} />
               </button>
+              <Input
+                type="text"
+                placeholder="# of new tickets"
+                value={numAddTickets}
+                onChange={(e) => setNumAddTickets(e.target.value)}
+                style={{ width: "9rem" }}
+              />
+              <Button onClick={handleAddTickets} type="submit">
+                Add new tickets
+              </Button>
             </div>
           </div>
           
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-purple-50 rounded-lg p-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
+            <div className="bg-purple-50 rounded-lg p-5">
               <div className="text-purple-600 text-sm font-medium">Total Tickets</div>
               <div className="text-2xl font-bold mt-1">{totalTickets}</div>
             </div>
             
-            <div className="bg-green-50 rounded-lg p-4">
+            <div className="bg-green-50 rounded-lg p-5">
               <div className="text-green-600 text-sm font-medium">Sold</div>
               <div className="text-2xl font-bold mt-1">{soldTickets}</div>
             </div>
             
-            <div className="bg-blue-50 rounded-lg p-4">
+            <div className="bg-blue-50 rounded-lg p-5">
               <div className="text-blue-600 text-sm font-medium">Available</div>
               <div className="text-2xl font-bold mt-1">{availableTickets}</div>
             </div>
             
-            <div className="bg-amber-50 rounded-lg p-4">
+            <div className="bg-zinc-200 rounded-lg p-5">
+              <div className="text-zinc-900 text-sm font-medium">Waitlist</div>
+              <div className="text-2xl font-bold mt-1">{waitlistTickets}</div>
+            </div>
+
+            <div className="bg-amber-50 rounded-lg p-5">
               <div className="text-amber-600 text-sm font-medium">Checked In</div>
               <div className="text-2xl font-bold mt-1">{checkedInTickets}</div>
             </div>
@@ -232,7 +280,11 @@ export default function TicketTypeLivePage() {
                     const purchaseTime = purchased
                       ? new Date(ticket.purchasedTicket.createdAt).toLocaleString()
                       : 'N/A';
-                      
+                    const waitlisted = ticket.waitedlisted;
+                    const waitlister = waitlisted ? ticket.waitlistedTicket.user.name : 'N/A';
+                    const waitlisteTime = waitlisted
+                      ? new Date(ticket.waitlistedTicket.createdAt).toLocaleString()
+                      : 'N/A';
                     return (
                       <tr key={ticket.code} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -246,7 +298,11 @@ export default function TicketTypeLivePage() {
                             <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                               Sold
                             </span>
-                          ) : (
+                          ) : ticket.waitlisted ? (
+                            <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-zinc-200 text-zinc-900">
+                            Waitlist
+                          </span>
+                          ): (
                             <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                               Available
                             </span>
@@ -255,13 +311,13 @@ export default function TicketTypeLivePage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <User className="h-4 w-4 text-gray-400 mr-2" />
-                            <span>{purchaser}</span>
+                            <span>{waitlisted ? waitlister : (purchased ? purchaser : 'N/A')}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <Clock className="h-4 w-4 text-gray-400 mr-2" />
-                            <span>{purchaseTime}</span>
+                            <span>{waitlisted ? waitlisteTime : (purchased ? purchaseTime : 'N/A')}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">

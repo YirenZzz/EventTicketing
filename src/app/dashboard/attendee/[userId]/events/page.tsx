@@ -139,7 +139,9 @@ export default function AttendeeEventListPage() {
                       {event.hasAvailableTickets ? (
                         <span>From ${event.minTicketPrice}</span>
                       ) : (
-                        <span className="text-red-500">Sold Out</span>
+                        <div className="flex flex-col items-end">
+                        <span className="text-red-500">Sold out</span>
+                        </div>
                       )}
                     </div>
 
@@ -152,7 +154,7 @@ export default function AttendeeEventListPage() {
                             : 'bg-gray-300 text-gray-600 cursor-not-allowed'
                         }`}
                       >
-                        {event.hasAvailableTickets ? 'Buy Now' : 'Sold Out'}
+                        {event.hasAvailableTickets ? 'Buy Now' : 'Join Waitlist'}
                       </Link>
                     </div>
                   </div>
