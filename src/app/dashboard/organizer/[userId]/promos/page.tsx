@@ -142,6 +142,16 @@ export default function OrganizerGroupedPromoPage() {
     setData(results);
     const creation: Record<number, boolean> = {};
     const form: Record<number, PromoForm> = {};
+
+    // Get current date/time in ISO format and trim it to match datetime-local input format
+    const now = new Date();
+    const formattedNow = now.toISOString().slice(0, 16);
+
+    // Calculate default end date (e.g., 30 days from now)
+    const defaultEndDate = new Date();
+    defaultEndDate.setDate(defaultEndDate.getDate() + 30);
+    const formattedEndDate = defaultEndDate.toISOString().slice(0, 16);
+
     results.forEach(({ event }) => {
       creation[event.id] = false;
       form[event.id] = {
@@ -150,10 +160,11 @@ export default function OrganizerGroupedPromoPage() {
         amount: "",
         ticketTypeId: "",
         maxUsage: "",
-        startDate: "",
-        endDate: "",
+        startDate: formattedNow, // Set default start date to now
+        endDate: formattedEndDate, // Set default end date to 30 days from now
       };
     });
+
     setNewPromoForms(form);
     setIsCreating(creation);
     setEditingPromo(null);
@@ -583,7 +594,7 @@ export default function OrganizerGroupedPromoPage() {
                                       {p.startDate
                                         ? format(
                                             new Date(p.startDate),
-                                            "MMM d, yyyy"
+                                            "MMM d, yyyy h:mm a"
                                           )
                                         : "—"}
                                     </div>
@@ -593,7 +604,7 @@ export default function OrganizerGroupedPromoPage() {
                                       {p.endDate
                                         ? format(
                                             new Date(p.endDate),
-                                            "MMM d, yyyy"
+                                            "MMM d, yyyy h:mm a"
                                           )
                                         : "—"}
                                     </div>

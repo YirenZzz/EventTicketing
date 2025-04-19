@@ -44,7 +44,7 @@ export async function GET(
 
   const types = await prisma.ticketType.findMany({
     where: { eventId },
-    include: { tickets: { select: { purchased: true } } },
+    include: { tickets: { select: { purchased: true, waitlisted: true } } },
   });
 
   const ticketTypes = types.map(t => ({
@@ -52,7 +52,8 @@ export async function GET(
     name: t.name,
     price: t.price,
     total: t.tickets.length,
-    available: t.tickets.filter(x => !x.purchased).length,
+    available: t.tickets.filter((x) => !x.purchased && !x.waitlisted).length,
+    waitlistSize: t.tickets.filter((x) => !x.purchased && x.waitlisted).length,
   }));
 
   return NextResponse.json({ event, ticketTypes });
