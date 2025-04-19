@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Calendar, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import AppShell from "@/components/layout/AppShell";
-import { useRouter } from "next/navigation";
 
 interface TicketType {
   id: number;
@@ -25,15 +24,16 @@ interface EventDetail {
 }
 
 export default function AttendeeEventDetailPage() {
-  const params = useParams();
-  const { userId, eventId } = params as { userId: string; eventId: string };
+  const { userId, eventId } = useParams() as { userId: string; eventId: string };
+  const router = useRouter();
 
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [tickets, setTickets] = useState<TicketType[]>([]);
   const [promoCodes, setPromoCodes] = useState<Record<number, string>>({});
+  const [discounts, setDiscounts] = useState<Record<number, { discountType: "percentage" | "fixed"; discountAmount: number; finalPrice: number }>>({});
+  const [promoErrors, setPromoErrors] = useState<Record<number, string>>({});
   const [purchasedIds, setPurchasedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     (async () => {
@@ -88,10 +88,48 @@ export default function AttendeeEventDetailPage() {
         t.id === ticketTypeId ? { ...t, available: remaining } : t,
       ),
     );
-
     setPurchasedIds((prev) => [...prev, ticketTypeId]);
-    // alert('Ticket purchased!');
     router.push(`/dashboard/attendee/${userId}/orders/${purchaseId}`);
+  }
+
+  async function applyPromo(ticketTypeId: number) {
+    const code = promoCodes[ticketTypeId]?.trim();
+    if (!code) return;
+  
+    try {
+      const res = await fetch(`/api/attendees/${userId}/purchased`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ticketTypeId,
+          promoCode: code,
+          dryRun: true,
+        }),
+      });
+  
+      if (!res.ok) {
+        const { error } = await res.json();
+        setPromoErrors((prev) => ({ ...prev, [ticketTypeId]: error || "Invalid promo code" }));
+        return;
+      }
+  
+      const { promo, finalPrice } = await res.json();
+      setDiscounts((prev) => ({
+        ...prev,
+        [ticketTypeId]: {
+          discountType: promo.type,
+          discountAmount: promo.amount,
+          finalPrice,
+        },
+      }));
+      setPromoErrors((prev) => {
+        const next = { ...prev };
+        delete next[ticketTypeId];
+        return next;
+      });
+    } catch {
+      setPromoErrors((prev) => ({ ...prev, [ticketTypeId]: "Failed to apply promo" }));
+    }
   }
 
   if (loading) return <p className="p-8 text-center">Loading …</p>;
@@ -125,6 +163,8 @@ export default function AttendeeEventDetailPage() {
           {tickets.map((t) => {
             const isPurchased = purchasedIds.includes(t.id);
             const soldOut = t.available === 0;
+            const discount = discounts[t.id];
+            const error = promoErrors[t.id];
 
             return (
               <div key={t.id} className="border rounded-lg p-4 space-y-2">
@@ -132,21 +172,25 @@ export default function AttendeeEventDetailPage() {
                   <div>
                     <div className="font-medium">{t.name}</div>
                     <div className="text-sm text-gray-600">
-                      ${t.price.toFixed(2)}
-                      {!isPurchased && soldOut && (
+                      原价:{" "}
+                      <span className={discount ? "line-through text-gray-400" : ""}>
+                        ${t.price.toFixed(2)}
+                      </span>
+                      {discount && (
                         <>
-                          {" "}
-                          ・{" "}
-                          <span className="text-red-500 font-medium">
-                            Sold Out
+                          {" "}→ 折后:{" "}
+                          <span className="text-green-600 font-semibold">
+                            ${discount.finalPrice.toFixed(2)}
                           </span>
                         </>
                       )}
+                      {!isPurchased && soldOut && (
+                        <> ・ <span className="text-red-500">Sold Out</span></>
+                      )}
                       {!isPurchased && t.available > 0 && t.available <= 3 && (
                         <>
-                          {" "}
-                          ・{" "}
-                          <span className="text-red-500 font-medium">
+                          {" "}・{" "}
+                          <span className="text-red-500">
                             only {t.available} left
                           </span>
                         </>
@@ -173,18 +217,31 @@ export default function AttendeeEventDetailPage() {
                 </div>
 
                 {!isPurchased && !soldOut && (
-                  <input
-                    type="text"
-                    placeholder="Promo code (optional)"
-                    value={promoCodes[t.id] || ""}
-                    onChange={(e) =>
-                      setPromoCodes((prev) => ({
-                        ...prev,
-                        [t.id]: e.target.value,
-                      }))
-                    }
-                    className="mt-1 w-full border rounded px-3 py-1 text-sm text-gray-700"
-                  />
+                  <>
+                    <div className="flex gap-2 items-center">
+                      <input
+                        type="text"
+                        placeholder="Promo code (optional)"
+                        value={promoCodes[t.id] || ""}
+                        onChange={(e) =>
+                          setPromoCodes((prev) => ({
+                            ...prev,
+                            [t.id]: e.target.value,
+                          }))
+                        }
+                        className="mt-1 w-full border rounded px-3 py-1 text-sm text-gray-700"
+                      />
+                      <button
+                        onClick={() => applyPromo(t.id)}
+                        className="mt-1 px-3 py-1 bg-green-600 text-white rounded text-sm"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                    {error && (
+                      <p className="text-sm text-red-500">{error}</p>
+                    )}
+                  </>
                 )}
               </div>
             );
