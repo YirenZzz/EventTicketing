@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getIO } from "@/lib/socket";
-import { Resend } from 'resend';
-import QRCode from 'qrcode';
+import { Resend } from "resend";
+import QRCode from "qrcode";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-/* ─────────────── GET: 查询已购票 ─────────────── */
+/* ─────────────── GET: check purchased tickets ─────────────── */
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ userId: string }> },
@@ -50,10 +50,10 @@ export async function GET(
   return NextResponse.json({ data });
 }
 
-/* ─────────────── POST: 用户购票或前端试算 ─────────────── */
+/* ─────────────── POST: user purchase or frontend ─────────────── */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   const { userId: raw } = await params;
   const userId = Number(raw);
@@ -64,7 +64,10 @@ export async function POST(
   const { ticketTypeId, promoCode, dryRun } = await req.json();
 
   if (!ticketTypeId) {
-    return NextResponse.json({ error: "Missing ticketTypeId" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Missing ticketTypeId" },
+      { status: 400 },
+    );
   }
 
   const ticketType = await prisma.ticketType.findUnique({
@@ -99,7 +102,7 @@ export async function POST(
     if (!promo) {
       return NextResponse.json(
         { error: "Invalid or expired promo code" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -110,9 +113,10 @@ export async function POST(
       amount: promo.amount,
     };
 
-    finalPrice = promo.type === "percentage"
-      ? +(ticketType.price * (1 - promo.amount / 100)).toFixed(2)
-      : Math.max(0, +(ticketType.price - promo.amount).toFixed(2));
+    finalPrice =
+      promo.type === "percentage"
+        ? +(ticketType.price * (1 - promo.amount / 100)).toFixed(2)
+        : Math.max(0, +(ticketType.price - promo.amount).toFixed(2));
 
     if (!dryRun) {
       await prisma.promoCode.update({
@@ -122,7 +126,7 @@ export async function POST(
     }
   }
 
-  /* ───── Dry Run 只返回折扣，不购票 ───── */
+  /* ───── Dry Run only return the disccount, no purchase ───── */
   if (dryRun) {
     return NextResponse.json({
       message: "Promo validated",
@@ -131,7 +135,7 @@ export async function POST(
     });
   }
 
-  /* ───── 分配未售出 Ticket ───── */
+  /* ───── distribute Tickets not sold ───── */
   const ticket = await prisma.ticket.findFirst({
     where: { ticketTypeId, purchased: false },
   });
@@ -188,7 +192,7 @@ export async function POST(
         to: user.email,
         subject: `🎟️ Your ticket for ${ticketType.event.name}`,
         html: `
-          <p>Hi ${user.name || 'Attendee'},</p>
+          <p>Hi ${user.name || "Attendee"},</p>
           <p>Thank you for purchasing a ticket for <strong>${ticketType.event.name}</strong>!</p>
           <p><strong>Event Time:</strong> ${new Date(ticketType.event.startDate).toLocaleString()} – ${new Date(ticketType.event.endDate).toLocaleString()}</p>
           <p><strong>Ticket Type:</strong> ${ticketType.name}</p>
