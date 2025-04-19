@@ -51,6 +51,8 @@ export default function Sidebar() {
     const activityHref = role && userId ? `/dashboard/${role}/${userId}/activity` : '/dashboard';
     const orderHref = role && userId ? `/dashboard/${role}/${userId}/orders` : '/dashboard';
     const accountHref =  role && userId ? `/dashboard/${role}/${userId}/account` : '/dashboard';
+    const helpHref =  role && userId ? `/dashboard/${role}/${userId}/help_center` : '/dashboard';
+    
     navItems = [
       { name: "Dashboard", href: dashboardHref, icon: Gauge },
       { name: "Events", href: eventsHref, icon: Ticket },
@@ -59,7 +61,7 @@ export default function Sidebar() {
       { name: "Orders & Payments", href: orderHref, icon: Receipt },
       // { name: "Messages", href: "/messages", icon: MessageSquare },
       // { name: "Account", href: accountHref, icon: User },
-      { name: "Help Center", href: "/help_center", icon: HelpCircle },
+      { name: "Help Center", href: helpHref, icon: HelpCircle },
     ];
   }
 
