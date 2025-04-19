@@ -25,13 +25,25 @@ interface EventDetail {
 }
 
 export default function AttendeeEventDetailPage() {
-  const { userId, eventId } = useParams() as { userId: string; eventId: string };
+  const { userId, eventId } = useParams() as {
+    userId: string;
+    eventId: string;
+  };
   const router = useRouter();
 
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [tickets, setTickets] = useState<TicketType[]>([]);
   const [promoCodes, setPromoCodes] = useState<Record<number, string>>({});
-  const [discounts, setDiscounts] = useState<Record<number, { discountType: "percentage" | "fixed"; discountAmount: number; finalPrice: number }>>({});
+  const [discounts, setDiscounts] = useState<
+    Record<
+      number,
+      {
+        discountType: "percentage" | "fixed";
+        discountAmount: number;
+        finalPrice: number;
+      }
+    >
+  >({});
   const [promoErrors, setPromoErrors] = useState<Record<number, string>>({});
   const [purchasedIds, setPurchasedIds] = useState<number[]>([]);
   const [waitlistIds, setWaitlistIds] = useState<number[]>([]);
@@ -96,8 +108,8 @@ export default function AttendeeEventDetailPage() {
 
     setTickets((prev) =>
       prev.map((t) =>
-        t.id === ticketTypeId ? { ...t, available: remaining } : t,
-      ),
+        t.id === ticketTypeId ? { ...t, available: remaining } : t
+      )
     );
     setPurchasedIds((prev) => [...prev, ticketTypeId]);
     router.push(`/dashboard/attendee/${userId}/orders/${purchaseId}`);
@@ -106,7 +118,7 @@ export default function AttendeeEventDetailPage() {
   async function applyPromo(ticketTypeId: number) {
     const code = promoCodes[ticketTypeId]?.trim();
     if (!code) return;
-  
+
     try {
       const res = await fetch(`/api/attendees/${userId}/purchased`, {
         method: "POST",
@@ -117,13 +129,16 @@ export default function AttendeeEventDetailPage() {
           dryRun: true,
         }),
       });
-  
+
       if (!res.ok) {
         const { error } = await res.json();
-        setPromoErrors((prev) => ({ ...prev, [ticketTypeId]: error || "Invalid promo code" }));
+        setPromoErrors((prev) => ({
+          ...prev,
+          [ticketTypeId]: error || "Invalid promo code",
+        }));
         return;
       }
-  
+
       const { promo, finalPrice } = await res.json();
       setDiscounts((prev) => ({
         ...prev,
@@ -139,11 +154,13 @@ export default function AttendeeEventDetailPage() {
         return next;
       });
     } catch {
-      setPromoErrors((prev) => ({ ...prev, [ticketTypeId]: "Failed to apply promo" }));
+      setPromoErrors((prev) => ({
+        ...prev,
+        [ticketTypeId]: "Failed to apply promo",
+      }));
     }
   }
 
-  
   async function join_waitlist(ticketTypeId: number) {
     const promoCode = promoCodes[ticketTypeId]?.trim() || null;
 
@@ -214,24 +231,31 @@ export default function AttendeeEventDetailPage() {
                   <div>
                     <div className="font-medium">{t.name}</div>
                     <div className="text-sm text-gray-600">
-                      原价:{" "}
-                      <span className={discount ? "line-through text-gray-400" : ""}>
+                      Original price:{" "}
+                      <span
+                        className={discount ? "line-through text-gray-400" : ""}
+                      >
                         ${t.price.toFixed(2)}
                       </span>
                       {discount && (
                         <>
-                          {" "}→ 折后:{" "}
+                          {" "}
+                          → After discount:{" "}
                           <span className="text-green-600 font-semibold">
                             ${discount.finalPrice.toFixed(2)}
                           </span>
                         </>
                       )}
                       {!isPurchased && soldOut && (
-                        <> ・ <span className="text-red-500">Sold Out</span></>
+                        <>
+                          {" "}
+                          ・ <span className="text-red-500">Sold Out</span>
+                        </>
                       )}
                       {!isPurchased && t.available > 0 && t.available <= 3 && (
                         <>
-                          {" "}・{" "}
+                          {" "}
+                          ・{" "}
                           <span className="text-red-500">
                             only {t.available} left
                           </span>
@@ -291,9 +315,7 @@ export default function AttendeeEventDetailPage() {
                         Apply
                       </button>
                     </div>
-                    {error && (
-                      <p className="text-sm text-red-500">{error}</p>
-                    )}
+                    {error && <p className="text-sm text-red-500">{error}</p>}
                   </>
                 )}
               </div>
