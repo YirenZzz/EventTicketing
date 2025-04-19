@@ -1,11 +1,10 @@
-import prisma from '@/lib/prisma';
-import { NextRequest, NextResponse } from 'next/server';
+import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { userId: string; eventId: string } }
+  context: { params: { userId: string; eventId: string } },
 ) {
-  // 将 context.params 包装为 awaitable 对象
   const params = await Promise.resolve(context.params);
   const userIdNum = parseInt(params.userId);
   const eventIdNum = parseInt(params.eventId);
@@ -17,7 +16,7 @@ export async function GET(
     });
 
     if (!event || event.organizerId !== userIdNum) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     const promos = await prisma.promoCode.findMany({
@@ -25,19 +24,22 @@ export async function GET(
       include: {
         ticketType: { select: { id: true, name: true } },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json(promos);
   } catch (error) {
-    console.error('Error fetching promos:', error);
-    return NextResponse.json({ error: 'Failed to fetch promos' }, { status: 500 });
+    console.error("Error fetching promos:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch promos" },
+      { status: 500 },
+    );
   }
 }
 
 export async function POST(
   req: NextRequest,
-  context: { params: { userId: string; eventId: string } }
+  context: { params: { userId: string; eventId: string } },
 ) {
   const params = await Promise.resolve(context.params);
   const userIdNum = parseInt(params.userId);
@@ -51,7 +53,7 @@ export async function POST(
     });
 
     if (!event || event.organizerId !== userIdNum) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     const newPromo = await prisma.promoCode.create({
@@ -63,13 +65,18 @@ export async function POST(
         startDate: body.startDate ? new Date(body.startDate) : undefined,
         endDate: body.endDate ? new Date(body.endDate) : undefined,
         eventId: eventIdNum,
-        ticketTypeId: body.ticketTypeId ? parseInt(body.ticketTypeId) : undefined,
+        ticketTypeId: body.ticketTypeId
+          ? parseInt(body.ticketTypeId)
+          : undefined,
       },
     });
 
     return NextResponse.json(newPromo);
   } catch (error) {
-    console.error('Error creating promo code:', error);
-    return NextResponse.json({ error: 'Failed to create promo' }, { status: 500 });
+    console.error("Error creating promo code:", error);
+    return NextResponse.json(
+      { error: "Failed to create promo" },
+      { status: 500 },
+    );
   }
 }

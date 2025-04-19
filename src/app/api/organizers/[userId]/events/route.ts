@@ -1,14 +1,14 @@
 import { db } from "@/lib/db";
-import { getRandomCoverImage } from '@/lib/randomCover';
+import { getRandomCoverImage } from "@/lib/randomCover";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { NextRequest, NextResponse } from "next/server";
-import { uploadCoverImageFromURL } from '@/lib/aws';
-import { uploadImageFromUrlToS3 } from '@/lib/aws/upload';
+import { uploadCoverImageFromURL } from "@/lib/aws";
+import { uploadImageFromUrlToS3 } from "@/lib/aws/upload";
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ userId: string }> }
+  context: { params: Promise<{ userId: string }> },
 ) {
   const { userId } = await context.params;
   const userIdNum = Number(userId);
@@ -18,7 +18,7 @@ export async function GET(
 
   const { searchParams } = req.nextUrl;
   const filterStatus = searchParams.get("status");
-  const query = searchParams.get("q")?.toLowerCase() || ""; // 👈 搜索关键词（默认空）
+  const query = searchParams.get("q")?.toLowerCase() || "";
 
   try {
     const allEvents = await db.event.findMany({
@@ -40,12 +40,10 @@ export async function GET(
     const filteredEvents = allEvents
       .filter((ev) => {
         const isEnded = new Date(ev.endDate) < now;
-        if (!filterStatus || filterStatus === 'ALL') return true;
+        if (!filterStatus || filterStatus === "ALL") return true;
         return filterStatus === "ENDED" ? isEnded : !isEnded;
       })
-      .filter((ev) =>
-        ev.name.toLowerCase().includes(query) // 👈 搜索过滤（忽略大小写）
-      );
+      .filter((ev) => ev.name.toLowerCase().includes(query));
 
     const data = filteredEvents.map((ev) => {
       const allTickets = ev.ticketTypes.flatMap((tt) => tt.tickets);
@@ -73,7 +71,7 @@ export async function GET(
     console.error("Failed to fetch organizer events:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -81,8 +79,11 @@ export async function GET(
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user || session.user.role !== 'Organizer') {
-    return NextResponse.json({ error: 'Only organizers can create events' }, { status: 403 });
+  if (!session?.user || session.user.role !== "Organizer") {
+    return NextResponse.json(
+      { error: "Only organizers can create events" },
+      { status: 403 },
+    );
   }
 
   const body = await req.json();
@@ -91,11 +92,10 @@ export async function POST(req: Request) {
   try {
     let finalCoverImage = coverImage;
 
-    // ✅ 如果没传封面图，自动使用稳定 seed + picsum 随机图并上传至 S3
     if (!coverImage) {
-      const seed = `${name}-${Date.now()}`; // 可加入 style 前缀也行
-      const tempImage = getRandomCoverImage(seed); // https://picsum.photos/seed/xxx
-      finalCoverImage = await uploadImageFromUrlToS3(tempImage); // 上传到 S3，返回 URL
+      const seed = `${name}-${Date.now()}`;
+      const tempImage = getRandomCoverImage(seed);
+      finalCoverImage = await uploadImageFromUrlToS3(tempImage);
     }
 
     const event = await db.event.create({
@@ -105,7 +105,7 @@ export async function POST(req: Request) {
         location,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        status: 'UPCOMING',
+        status: "UPCOMING",
         coverImage: finalCoverImage,
         organizer: { connect: { id: Number(session.user.id) } },
       },
@@ -113,8 +113,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ event });
   } catch (error) {
-    console.error('Create event error:', error);
-    return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
+    console.error("Create event error:", error);
+    return NextResponse.json(
+      { error: "Failed to create event" },
+      { status: 500 },
+    );
   }
 }
 

@@ -1,7 +1,7 @@
 // app/api/purchase_ticket/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,10 +9,13 @@ export async function POST(req: NextRequest) {
     const { userId, ticketTypeId, userEmail } = body;
 
     if (!userId || !ticketTypeId || !userEmail) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
-    // 创建购买记录（示例）
+    // Create Purchase Records
     const purchased = await db.purchasedTicket.create({
       data: {
         userId,
@@ -27,13 +30,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const ticketCode = purchased.id.toString().padStart(8, '0');
+    const ticketCode = purchased.id.toString().padStart(8, "0");
     const eventName = purchased.ticketType.event.name;
 
-    // 调用邮件 API
+    // email API
     await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/email/confirmation`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         to: userEmail,
         eventName,
@@ -43,7 +46,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, purchased });
   } catch (error) {
-    console.error('Error purchasing ticket:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error purchasing ticket:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

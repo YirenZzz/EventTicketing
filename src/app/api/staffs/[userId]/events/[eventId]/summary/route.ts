@@ -1,15 +1,15 @@
-import { db } from '@/lib/db';
-import { NextRequest, NextResponse } from 'next/server';
+import { db } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   _req: NextRequest,
-  context: { params: Promise<{ userId: string; eventId: string }> }
+  context: { params: Promise<{ userId: string; eventId: string }> },
 ) {
   const { eventId } = await context.params;
   const eventIdNum = Number(eventId);
 
   if (isNaN(eventIdNum)) {
-    return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid event ID" }, { status: 400 });
   }
 
   try {
@@ -29,7 +29,6 @@ export async function GET(
       },
     });
 
-    // ✅ 新增计算 Revenue
     const revenueData = await db.ticket.findMany({
       where: {
         ticketType: { eventId: eventIdNum },
@@ -44,16 +43,22 @@ export async function GET(
       },
     });
 
-    const totalRevenue = revenueData.reduce((sum, t) => sum + t.ticketType.price, 0);
+    const totalRevenue = revenueData.reduce(
+      (sum, t) => sum + t.ticketType.price,
+      0,
+    );
 
     return NextResponse.json({
       totalTickets,
       soldTickets,
       checkedIn,
-      totalRevenue, // 👈 返回新增字段
+      totalRevenue,
     });
   } catch (error) {
-    console.error('Failed to fetch summary:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Failed to fetch summary:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

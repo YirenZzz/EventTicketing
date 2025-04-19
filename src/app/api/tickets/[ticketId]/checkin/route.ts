@@ -34,7 +34,6 @@ export async function POST(
       data: { checkedIn: true },
     });
 
-    // ✅ 找到对应的 PurchasedTicket
     const purchase = await db.purchasedTicket.findFirst({
       where: { ticketId },
     });
@@ -46,7 +45,6 @@ export async function POST(
       );
     }
 
-    // ✅ 更新 PurchasedTicket 的 checkedIn 字段
     await db.purchasedTicket.update({
       where: { id: purchase.id },
       data: { checkedIn: true },

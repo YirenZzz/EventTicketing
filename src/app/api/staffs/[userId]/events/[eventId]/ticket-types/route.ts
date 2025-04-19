@@ -1,8 +1,8 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { nanoid } from "nanoid"; // ✅ 自动生成唯一票号
+import { nanoid } from "nanoid";
 
-// ────────── GET 所有票种 ──────────
+// ────────── GET all ticketTypes ──────────
 export async function GET(
   _: NextRequest,
   context: { params: Promise<{ userId: string; eventId: string }> },
@@ -30,7 +30,7 @@ export async function GET(
   }
 }
 
-// ────────── POST 创建新票种 ──────────
+// ────────── POST create new ticketTypes ──────────
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ userId: string; eventId: string }> },
@@ -44,7 +44,6 @@ export async function POST(
     return NextResponse.json({ error: "Invalid event ID" }, { status: 400 });
   }
 
-  // ✅ 检查是否存在相同 name 的票种
   const existing = await db.ticketType.findFirst({
     where: {
       eventId: eventIdNum,
@@ -55,7 +54,7 @@ export async function POST(
   if (existing) {
     return NextResponse.json(
       { error: "This ticket type name already exists for the event." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
