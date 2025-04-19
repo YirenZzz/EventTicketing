@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { Calendar, MapPin, Ticket } from 'lucide-react';
-import { format } from 'date-fns';
-import Link from 'next/link';
-import AppShell from '@/components/layout/AppShell';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { Calendar, MapPin, Ticket } from "lucide-react";
+import { format } from "date-fns";
+import Link from "next/link";
+import AppShell from "@/components/layout/AppShell";
 
 interface EventWithStatus {
   id: number;
@@ -23,8 +23,8 @@ export default function AttendeeEventListPage() {
   const params = useParams();
   const userId = params?.userId?.toString();
   const [events, setEvents] = useState<EventWithStatus[]>([]);
-  const [view, setView] = useState<'upcoming' | 'ended'>('upcoming');
-  const [search, setSearch] = useState('');
+  const [view, setView] = useState<"upcoming" | "ended">("upcoming");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!userId) return;
@@ -40,7 +40,7 @@ export default function AttendeeEventListPage() {
   const filteredEvents = events.filter((e) => {
     // 用 endDate 判断是否结束（若没有 endDate 则当未结束处理）
     const start = e.startDate ? new Date(e.startDate) : new Date(0);
-    const matchStatus = view === 'upcoming' ? start > now : start <= now;
+    const matchStatus = view === "upcoming" ? start > now : start <= now;
     const matchSearch = e.name.toLowerCase().includes(search.toLowerCase());
     return matchStatus && matchSearch;
   });
@@ -55,17 +55,17 @@ export default function AttendeeEventListPage() {
           {/* Tabs */}
           <div className="flex space-x-2">
             <button
-              onClick={() => setView('upcoming')}
+              onClick={() => setView("upcoming")}
               className={`px-6 py-2 rounded-lg text-sm font-semibold transition ${
-                view === 'upcoming' ? 'bg-black text-white' : 'text-black'
+                view === "upcoming" ? "bg-black text-white" : "text-black"
               }`}
             >
               UPCOMING
             </button>
             <button
-              onClick={() => setView('ended')}
+              onClick={() => setView("ended")}
               className={`px-6 py-2 rounded-lg text-sm font-semibold transition ${
-                view === 'ended' ? 'bg-black text-white' : 'text-black'
+                view === "ended" ? "bg-black text-white" : "text-black"
               }`}
             >
               ENDED
@@ -85,7 +85,9 @@ export default function AttendeeEventListPage() {
         </div>
 
         {filteredEvents.length === 0 ? (
-          <div className="text-gray-500 text-center py-16">No events found.</div>
+          <div className="text-gray-500 text-center py-16">
+            No events found.
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEvents.map((event) => {
@@ -126,7 +128,7 @@ export default function AttendeeEventListPage() {
 
                     <div className="text-sm text-gray-600 flex items-center">
                       <Calendar className="w-4 h-4 mr-1" />
-                      {format(new Date(event.startDate), 'PPpp')}
+                      {format(new Date(event.startDate), "PPpp")}
                     </div>
 
                     <div className="text-sm text-gray-600 flex items-center">
@@ -140,7 +142,7 @@ export default function AttendeeEventListPage() {
                         <span>From ${event.minTicketPrice}</span>
                       ) : (
                         <div className="flex flex-col items-end">
-                        <span className="text-red-500">Sold out</span>
+                          <span className="text-red-500">Sold out</span>
                         </div>
                       )}
                     </div>
@@ -150,11 +152,13 @@ export default function AttendeeEventListPage() {
                         href={`/dashboard/attendee/${userId}/events/${event.id}`}
                         className={`inline-block px-4 py-2 text-sm rounded transition ${
                           event.hasAvailableTickets
-                            ? 'bg-purple-600 text-white hover:bg-purple-700'
-                            : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                            ? "bg-purple-600 text-white hover:bg-purple-700"
+                            : "bg-purple-300 text-white hover:bg-purple-400"
                         }`}
                       >
-                        {event.hasAvailableTickets ? 'Buy Now' : 'Join Waitlist'}
+                        {event.hasAvailableTickets
+                          ? "Buy Now"
+                          : "Join Waitlist"}
                       </Link>
                     </div>
                   </div>
