@@ -12,6 +12,7 @@ interface TicketType {
   price: number;
   total: number;
   available: number;
+  waitlistSize: number;
 }
 
 interface EventDetail {
@@ -33,14 +34,16 @@ export default function AttendeeEventDetailPage() {
   const [discounts, setDiscounts] = useState<Record<number, { discountType: "percentage" | "fixed"; discountAmount: number; finalPrice: number }>>({});
   const [promoErrors, setPromoErrors] = useState<Record<number, string>>({});
   const [purchasedIds, setPurchasedIds] = useState<number[]>([]);
+  const [waitlistIds, setWaitlistIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       try {
-        const [eventRes, purchaseRes] = await Promise.all([
+        const [eventRes, purchaseRes, waitlistRes] = await Promise.all([
           fetch(`/api/attendees/${userId}/events/${eventId}/ticket-types`),
           fetch(`/api/attendees/${userId}/purchased`),
+          fetch(`/api/attendees/${userId}/waitlist`),
         ]);
 
         if (eventRes.ok) {
@@ -55,6 +58,14 @@ export default function AttendeeEventDetailPage() {
             .filter((t: any) => t.eventId === Number(eventId))
             .map((t: any) => t.ticketTypeId);
           setPurchasedIds(purchased);
+        }
+
+        if (waitlistRes.ok) {
+          const { data } = await waitlistRes.json();
+          const waitlist = data
+            .filter((t: any) => t.eventId === Number(eventId))
+            .map((t: any) => t.ticketTypeId);
+          setWaitlistIds(waitlist);
         }
       } finally {
         setLoading(false);
@@ -85,8 +96,8 @@ export default function AttendeeEventDetailPage() {
 
     setTickets((prev) =>
       prev.map((t) =>
-        t.id === ticketTypeId ? { ...t, available: remaining } : t,
-      ),
+        t.id === ticketTypeId ? { ...t, available: remaining } : t
+      )
     );
     setPurchasedIds((prev) => [...prev, ticketTypeId]);
     router.push(`/dashboard/attendee/${userId}/orders/${purchaseId}`);
@@ -130,6 +141,7 @@ export default function AttendeeEventDetailPage() {
     } catch {
       setPromoErrors((prev) => ({ ...prev, [ticketTypeId]: "Failed to apply promo" }));
     }
+
   }
 
   if (loading) return <p className="p-8 text-center">Loading …</p>;
@@ -162,6 +174,7 @@ export default function AttendeeEventDetailPage() {
         <div className="space-y-4">
           {tickets.map((t) => {
             const isPurchased = purchasedIds.includes(t.id);
+            const isWaitlisted = waitlistIds.includes(t.id);
             const soldOut = t.available === 0;
             const discount = discounts[t.id];
             const error = promoErrors[t.id];
@@ -198,13 +211,24 @@ export default function AttendeeEventDetailPage() {
                     </div>
                   </div>
 
-                  {isPurchased ? (
-                    <span className="text-sm text-green-600 font-medium">
-                      Already Purchased
-                    </span>
+                  {isPurchased || isWaitlisted ? (
+                    isPurchased ? (
+                      <span className="text-sm text-green-600 font-medium">
+                        Already Purchased
+                      </span>
+                    ) : (
+                      <span className="text-sm text-green-600 font-medium">
+                        Current Waitlist Size: {t.waitlistSize}
+                      </span>
+                    )
                   ) : soldOut ? (
                     <span className="text-sm text-red-500 font-medium">
-                      Sold Out
+                      <button
+                        onClick={() => join_waitlist(t.id)}
+                        className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition"
+                      >
+                        Join Waitlist
+                      </button>
                     </span>
                   ) : (
                     <button
