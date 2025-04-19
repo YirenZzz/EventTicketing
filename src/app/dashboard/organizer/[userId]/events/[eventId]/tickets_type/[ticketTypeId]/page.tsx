@@ -149,11 +149,11 @@ export default function TicketTypeLivePage() {
       setLoading(false);
       setLastUpdate(new Date());
       setIsUpdating(false);
+
+      alert(`Successfully added ${numAddTickets} new tickets!`);
     } else {
       alert('Please enter a valid positive number');
     }
-
-    alert(`Successfully added ${numAddTickets} new tickets!`);
   };
 
   return (
