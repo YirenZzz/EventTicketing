@@ -73,7 +73,7 @@ export async function PATCH(
   const { name, price, quantity } = await req.json();
 
   try {
-    // 禁止编辑已售票的票种
+    // ① 检查是否已售票，禁止编辑已售票的票种
     const sold = await db.ticket.count({ where: { ticketTypeId: id, purchased: true } });
     if (sold > 0) {
       return NextResponse.json(
@@ -82,7 +82,7 @@ export async function PATCH(
       );
     }
 
-    // 重名检查（排除自己）
+    // ② 检查重名
     const duplicate = await db.ticketType.findFirst({
       where: { eventId: eventIdNum, name: name.trim(), NOT: { id } }
     });
@@ -90,10 +90,40 @@ export async function PATCH(
       return NextResponse.json({ error: 'Ticket type name already exists.' }, { status: 400 });
     }
 
+    // ③ 查询现有 tickets
+    const existingTickets = await db.ticket.findMany({
+      where: { ticketTypeId: id },
+      orderBy: { id: 'desc' }, // 优先删除创建时间靠后的
+    });
+
+    const delta = quantity - existingTickets.length;
+
+    // ④ 同步 tickets（不能删已售票）
+    if (delta > 0) {
+      await db.ticket.createMany({
+        data: Array.from({ length: delta }).map(() => ({ ticketTypeId: id })),
+      });
+    } else if (delta < 0) {
+      const unsold = existingTickets.filter(t => !t.purchased);
+      if (unsold.length < -delta) {
+        return NextResponse.json(
+          { error: `Cannot reduce to ${quantity}. Only ${unsold.length} unsold tickets can be deleted.` },
+          { status: 400 }
+        );
+      }
+
+      const toDelete = unsold.slice(0, -delta);
+      await db.ticket.deleteMany({
+        where: { id: { in: toDelete.map(t => t.id) } },
+      });
+    }
+
+    // ⑤ 更新 TicketType 主体字段
     const updated = await db.ticketType.update({
       where: { id },
       data: { name: name.trim(), price, quantity }
     });
+
     return NextResponse.json({ ticketType: updated });
   } catch (e) {
     console.error(e);
