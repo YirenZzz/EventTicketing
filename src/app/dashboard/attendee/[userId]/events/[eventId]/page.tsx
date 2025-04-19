@@ -269,7 +269,7 @@ export default function AttendeeEventDetailPage() {
                   )}
                 </div>
 
-                {!isPurchased && !soldOut && (
+                {((soldOut && !isWaitlisted) || (!soldOut && !isPurchased)) && (
                   <>
                     <div className="flex gap-2 items-center">
                       <input
