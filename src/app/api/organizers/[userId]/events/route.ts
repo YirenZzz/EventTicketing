@@ -1,10 +1,10 @@
 import { db } from "@/lib/db";
-import { getRandomCoverImage } from "@/lib/randomCover";
+import { getRandomCoverImage } from '@/lib/randomCover';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { NextRequest, NextResponse } from "next/server";
-import { uploadCoverImageFromURL } from "@/lib/aws";
-import { uploadImageFromUrlToS3 } from "@/lib/aws/upload";
+import { uploadCoverImageFromURL } from '@/lib/aws';
+import { uploadImageFromUrlToS3 } from '@/lib/aws/upload';
 
 export async function GET(
   req: NextRequest,
@@ -27,7 +27,7 @@ export async function GET(
         ticketTypes: {
           include: {
             tickets: {
-              select: { purchased: true, waitlisted: true, checkedIn: true },
+              select: { purchased: true, checkedIn: true },
             },
           },
         },
@@ -40,11 +40,11 @@ export async function GET(
     const filteredEvents = allEvents
       .filter((ev) => {
         const isEnded = new Date(ev.endDate) < now;
-        if (!filterStatus || filterStatus === "ALL") return true;
+        if (!filterStatus || filterStatus === 'ALL') return true;
         return filterStatus === "ENDED" ? isEnded : !isEnded;
       })
-      .filter(
-        (ev) => ev.name.toLowerCase().includes(query) // 👈 搜索过滤（忽略大小写）
+      .filter((ev) =>
+        ev.name.toLowerCase().includes(query) // 👈 搜索过滤（忽略大小写）
       );
 
     const data = filteredEvents.map((ev) => {
@@ -81,11 +81,8 @@ export async function GET(
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user || session.user.role !== "Organizer") {
-    return NextResponse.json(
-      { error: "Only organizers can create events" },
-      { status: 403 }
-    );
+  if (!session?.user || session.user.role !== 'Organizer') {
+    return NextResponse.json({ error: 'Only organizers can create events' }, { status: 403 });
   }
 
   const body = await req.json();
@@ -108,7 +105,7 @@ export async function POST(req: Request) {
         location,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
-        status: "UPCOMING",
+        status: 'UPCOMING',
         coverImage: finalCoverImage,
         organizer: { connect: { id: Number(session.user.id) } },
       },
@@ -116,11 +113,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ event });
   } catch (error) {
-    console.error("Create event error:", error);
-    return NextResponse.json(
-      { error: "Failed to create event" },
-      { status: 500 }
-    );
+    console.error('Create event error:', error);
+    return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
   }
 }
 
@@ -153,7 +147,7 @@ export async function DELETE(req: Request) {
     console.error("Delete event error:", error);
     return NextResponse.json(
       { error: "Failed to delete event" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

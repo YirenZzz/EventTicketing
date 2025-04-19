@@ -1,9 +1,9 @@
 // src/app/api/staffs/[userId]/events/route.ts
 
-import { db } from "@/lib/db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { NextRequest, NextResponse } from "next/server";
+import { db } from '@/lib/db';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   _req: NextRequest,
@@ -16,21 +16,21 @@ export async function GET(
   const session = await getServerSession(authOptions);
   if (
     !session?.user ||
-    session.user.role !== "Staff" ||
+    session.user.role !== 'Staff' ||
     Number(session.user.id) !== userIdNum
   ) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   }
 
   try {
     const events = await db.event.findMany({
-      orderBy: { startDate: "asc" },
+      orderBy: { startDate: 'asc' },
       include: {
         organizer: { select: { name: true } },
         ticketTypes: {
           include: {
             tickets: {
-              select: { purchased: true, checkedIn: true, waitlisted: true },
+              select: { purchased: true, checkedIn: true },
             },
           },
         },
@@ -42,9 +42,7 @@ export async function GET(
       const allTickets = evt.ticketTypes.flatMap((tt) => tt.tickets);
       const totalTickets = allTickets.length;
       const soldTickets = allTickets.filter((t) => t.purchased).length;
-      const checkedIn = allTickets.filter(
-        (t) => t.purchased && t.checkedIn
-      ).length;
+      const checkedIn = allTickets.filter((t) => t.purchased && t.checkedIn).length;
 
       return {
         id: evt.id,
@@ -52,7 +50,7 @@ export async function GET(
         startDate: evt.startDate,
         endDate: evt.endDate,
         status: evt.status,
-        coverImage: evt.coverImage,
+        coverImage: evt.coverImage, 
         organizerName: evt.organizer.name,
         totalTickets,
         soldTickets,
@@ -62,9 +60,9 @@ export async function GET(
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error("Failed to fetch staff-accessible events:", error);
+    console.error('Failed to fetch staff-accessible events:', error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

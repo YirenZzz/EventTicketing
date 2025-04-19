@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
 /**
  * GET /api/attendees/[userId]/events/[eventId]/ticket-types
@@ -14,17 +14,17 @@ export async function GET(
   { params }: { params: Promise<{ userId: string; eventId: string }> }
 ) {
   const { userId: rawUserId, eventId: rawEventId } = await params;
-  const userId = Number(rawUserId);
+  const userId  = Number(rawUserId);
   const eventId = Number(rawEventId);
 
   if (isNaN(userId) || isNaN(eventId)) {
-    return NextResponse.json({ error: "Invalid parameters" }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
   }
 
   // 可选：验证 attendee 是否存在
   const userExists = await prisma.user.findUnique({ where: { id: userId } });
   if (!userExists) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
   const event = await prisma.event.findUnique({
@@ -39,21 +39,20 @@ export async function GET(
     },
   });
   if (!event) {
-    return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    return NextResponse.json({ error: 'Event not found' }, { status: 404 });
   }
 
   const types = await prisma.ticketType.findMany({
     where: { eventId },
-    include: { tickets: { select: { purchased: true, waitlisted: true } } },
+    include: { tickets: { select: { purchased: true } } },
   });
 
-  const ticketTypes = types.map((t) => ({
+  const ticketTypes = types.map(t => ({
     id: t.id,
     name: t.name,
     price: t.price,
     total: t.tickets.length,
-    available: t.tickets.filter((x) => !x.purchased && !x.waitlisted).length,
-    waitlistSize: t.tickets.filter((x) => !x.purchased && x.waitlisted).length,
+    available: t.tickets.filter(x => !x.purchased).length,
   }));
 
   return NextResponse.json({ event, ticketTypes });

@@ -30,41 +30,18 @@ interface OrderItem {
   ticketId: number;
 }
 
-interface WaitlistItem {
-  waitlistId: number;
-  waitlistAt: string;
-  eventId: number;
-  eventName: string;
-  ticketTypeName: string;
-  price: number;
-  purchased: boolean;
-  ticketId: number;
-  waitlistRank: number;
-}
-
 export default function AttendeeOrdersPage() {
   const { userId } = useParams() as { userId: string };
   const [orders, setOrders] = useState<OrderItem[]>([]);
-  const [waitlists, setWaitlists] = useState<WaitlistItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     (async () => {
-      async function getPurchasedOrder() {
-        const res = await fetch(`/api/attendees/${userId}/purchased`);
-        if (!res.ok) { setLoading(false); return; }
-        const { data } = await res.json();
-        setOrders(data);
-      }
-      async function getWaitlistOrder() {
-        const res = await fetch(`/api/attendees/${userId}/waitlist`);
-        if (!res.ok) { setLoading(false); return; }
-        const { data } = await res.json();
-        setWaitlists(data);
-      }
-      await getPurchasedOrder();
-      await getWaitlistOrder();
+      const res = await fetch(`/api/attendees/${userId}/purchased`);
+      if (!res.ok) { setLoading(false); return; }
+      const { data } = await res.json();
+      setOrders(data);
       setLoading(false);
     })();
   }, [userId]);
@@ -77,12 +54,7 @@ export default function AttendeeOrdersPage() {
     );
   }
 
-  const filteredOrders = orders.filter(o =>
-    o.eventName.toLowerCase().includes(search.toLowerCase())
-    // o.ticketTypeName.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const filteredWaitlists = waitlists.filter(o =>
+  const filtered = orders.filter(o =>
     o.eventName.toLowerCase().includes(search.toLowerCase())
     // o.ticketTypeName.toLowerCase().includes(search.toLowerCase())
   );
@@ -107,16 +79,16 @@ export default function AttendeeOrdersPage() {
           </div>
         </div>
 
-        {(filteredOrders.length + filteredWaitlists.length) === 0 ? (
+        {filtered.length === 0 ? (
           <div className="border-dashed border-2 rounded-lg p-10 text-center text-gray-500">
             <Ticket className="w-10 h-10 mx-auto mb-4" />
             No orders found.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredOrders.map(o => (
+            {filtered.map(o => (
               <Card
-                key={o.ticketId}
+                key={o.purchaseId}
                 className="hover:shadow-lg transition cursor-pointer"
               >
                 <Link
@@ -154,36 +126,6 @@ export default function AttendeeOrdersPage() {
                     </Button>
                   </CardFooter>
                 </Link>
-              </Card>
-            ))}
-            {filteredWaitlists.map(o => (
-              <Card
-                key={o.ticketId}
-                className="hover:shadow-lg transition cursor-pointer"
-              >
-                  <CardHeader>
-                    <CardTitle className="text-lg">{o.eventName}</CardTitle>
-                    <p className="text-sm text-gray-500">{o.ticketTypeName}</p>
-                  </CardHeader>
-
-                  <CardContent className="mt-2 flex-grow">
-                    <p className="text-sm text-gray-600">
-                      {/* Waitlisted {format(new Date(o.waitlistAt), 'PPpp')} */}
-                    </p>
-                    <p className="mt-3 text-xl font-semibold">
-                      ${o.price.toFixed(2)}
-                    </p>
-                  </CardContent>
-
-                  <CardFooter className="flex items-center justify-between">
-                    <Badge variant="outline" className="text-grey-600">
-                      <XCircle className="mr-1 h-4 w-4" />
-                      Waitlist
-                    </Badge>
-                    <Button variant="ghost" size="sm" disabled>
-                      Rank: {o.waitlistRank}
-                    </Button>
-                  </CardFooter>
               </Card>
             ))}
           </div>
