@@ -48,11 +48,39 @@ export async function GET(
       0,
     );
 
+    const ticketTypes = await db.ticketType.findMany({
+      where: { eventId: eventIdNum },
+      include: {
+        tickets: {
+          include: {
+            purchasedTicket: true,
+          },
+        },
+      },
+    });
+
+    const ticketTypeStats = ticketTypes.map((tt) => {
+      const total = tt.quantity;
+      const sold = tt.tickets.filter((t) => t.purchased).length;
+      const checkedIn = tt.tickets.filter(
+        (t) => t.purchased && t.checkedIn,
+      ).length;
+
+      return {
+        ticketTypeId: tt.id,
+        name: tt.name,
+        total,
+        sold,
+        checkedIn,
+      };
+    });
+
     return NextResponse.json({
       totalTickets,
       soldTickets,
       checkedIn,
       totalRevenue,
+      ticketTypeStats,
     });
   } catch (error) {
     console.error("Failed to fetch summary:", error);
