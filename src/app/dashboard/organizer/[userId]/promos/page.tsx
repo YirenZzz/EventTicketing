@@ -203,8 +203,12 @@ export default function OrganizerGroupedPromoPage() {
                         <td className="px-2 py-1"><input name="maxUsage" value={editForm.maxUsage} onChange={(e) => setEditForm({ ...editForm, maxUsage: e.target.value })} className="w-full border border-grey-400 rounded" /></td>
                         <td className="px-2 py-1">
                           <div className="flex flex-col gap-1">
-                            <input type="datetime-local" name="startDate" value={editForm.startDate} onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })} />
-                            <input type="datetime-local" name="endDate" value={editForm.endDate} onChange={(e) => setEditForm({ ...editForm, endDate: e.target.value })} />
+                            <input type="datetime-local" name="startDate" value={editForm.startDate || ''} onChange={(e) => setEditForm({ ...editForm, startDate: e.target.value })} className={`w-full border border-grey-400 rounded ${
+                                form.startDate ? 'text-gray-900' : 'text-gray-400'
+                              }`}/>
+                            <input type="datetime-local" name="endDate" value={editForm.endDate || ''} onChange={(e) => setEditForm({ ...editForm, endDate: e.target.value })} className={`w-full border border-grey-400 rounded ${
+                                form.startDate ? 'text-gray-900' : 'text-gray-400'
+                              }`}/>                          
                           </div>
                         </td>
                         <td className="px-2 py-1 space-x-1">
@@ -246,8 +250,12 @@ export default function OrganizerGroupedPromoPage() {
                       </td>
                       <td className="px-2 py-1"><input name="maxUsage" value={form.maxUsage} onChange={(e) => handleInputChange(e, event.id)} className="w-full border border-grey-400 rounded"/></td>
                       <td className="px-2 py-1 flex flex-col gap-1">
-                        <input type="datetime-local" name="startDate" value={form.startDate} onChange={(e) => handleInputChange(e, event.id)} />
-                        <input type="datetime-local" name="endDate" value={form.endDate} onChange={(e) => handleInputChange(e, event.id)} />
+                        <input type="datetime-local" name="startDate" value={form.startDate} onChange={(e) => handleInputChange(e, event.id)} className={`w-full border border-grey-400 rounded ${
+                                form.startDate ? 'text-gray-900' : 'text-gray-400'
+                              }`}/>
+                        <input type="datetime-local" name="endDate" value={form.endDate} onChange={(e) => handleInputChange(e, event.id)} className={`w-full border border-grey-400 rounded ${
+                                form.startDate ? 'text-gray-900' : 'text-gray-400'
+                              }`}/>
                       </td>
                       <td className="px-2 py-1 space-x-1">
                         <Button size="sm" onClick={() => handleSave(event.id)}>Save</Button>
