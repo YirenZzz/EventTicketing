@@ -24,6 +24,7 @@ export default function EditEventModal({
   const { data: session } = useSession();
   const [name, setName] = useState(event.name);
   const [description, setDescription] = useState(event.description || '');
+  const [location, setLocation] = useState(event.location || '');
   const [startDate, setStartDate] = useState(event.startDate.slice(0, 16));
   const [endDate, setEndDate] = useState(event.endDate.slice(0, 16));
   const [loading, setLoading] = useState(false);
@@ -45,6 +46,7 @@ export default function EditEventModal({
         body: JSON.stringify({
           name,
           description,
+          location,
           startDate,
           endDate,
         }),
@@ -82,6 +84,15 @@ export default function EditEventModal({
               rows={4}
             />
           </div>
+          <div>
+            <Label>Location</Label>
+            <Input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Enter location"
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Start Date</Label>
