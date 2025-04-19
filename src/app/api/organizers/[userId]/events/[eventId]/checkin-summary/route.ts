@@ -15,6 +15,8 @@ export async function GET(
 
   try {
     // 查找该事件的所有票种及相关票
+
+
     const ticketTypes = await db.ticketType.findMany({
         where: { eventId: eventIdNum },
         include: {
@@ -27,13 +29,15 @@ export async function GET(
         },
       });
 
+
+
     // 构建 CSV 内容
     let csv = 'TicketType Name,Total, Sold, Checked-In\n';
 
     for (const tt of ticketTypes) {
       const total = tt.quantity;
-      const sold = tt.tickets.filter((t) => t.PurchasedTicket).length;
-      const checkedIn = tt.tickets.filter((t) => t.PurchasedTicket?.checkedIn).length;
+      const sold = tt.tickets.filter((t) => t.purchasedTicket).length;
+      const checkedIn = tt.tickets.filter((t) => t.purchasedTicket?.checkedIn).length;
       csv += `"${tt.name}",${total},${sold},${checkedIn}\n`;
     }
 

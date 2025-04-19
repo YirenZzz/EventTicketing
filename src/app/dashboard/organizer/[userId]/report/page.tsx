@@ -103,6 +103,24 @@ export default function OrganizerReportPage({
         const data = await res1.json();
         setSummary(data);
       }
+
+      const res2 = await fetch(`/api/organizers/${userId}/events/${selectedEventId}/checkin-summary`);
+      if (res2.ok) {
+        const csvText = await res2.text();
+        const lines = csvText.trim().split('\n');
+        const data = lines.slice(1).map((line) => {
+          const [name, total, sold, checkedIn] = line.split(',');
+          return {
+            ticketTypeId: 0, // 若无 ID，就设为 0
+            name: name.replace(/^"|"$/g, ''),
+            total: Number(total),
+            sold: Number(sold),
+            checkedIn: Number(checkedIn),
+          };
+        });
+        setCheckinStats(data);
+      }
+
     }
 
     fetchDetails();
@@ -310,8 +328,8 @@ export default function OrganizerReportPage({
                   {checkinStats.length === 0 ? (
                     <p className="text-sm text-gray-500">No ticket type data.</p>
                   ) : (
-                    checkinStats.map((s) => (
-                      <div key={s.ticketTypeId} className="p-4 bg-white border rounded shadow-sm">
+                    checkinStats.map((s, idx) => (
+                      <div key={`${s.ticketTypeId}-${idx}`} className="p-4 bg-white border rounded shadow-sm">
                         <p className="font-semibold text-purple-700">{s.name}</p>
                         <p className="text-sm text-gray-600">
                           Total: {s.total} | Sold: {s.sold} | Checked-In: {s.checkedIn}
