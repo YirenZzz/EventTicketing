@@ -37,12 +37,6 @@ export default async function EventDetailPage({
             Organizer: {event.organizerName}
           </p>
           <p className="text-gray-700 mb-4">{event.description}</p>
-          {/* <p className="text-gray-600">
-            📍 Location:{" "}
-            <span className="font-medium text-blue-600">
-              {event.location || "N/A"}
-            </span>
-          </p> */}
 
           <p className="text-gray-600">
             📍 Location:{" "}
