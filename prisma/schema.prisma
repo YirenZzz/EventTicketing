@@ -16,13 +16,14 @@ enum Role {
 }
 
 model User {
-  id               Int               @id @default(autoincrement())
-  email            String            @unique
-  name             String
-  password         String
-  role             Role // 使用枚举类型
-  events           Event[] // 如果是 Organizer，可以创建多个事件（1对多）
-  purchasedTickets PurchasedTicket[]
+  id                Int                @id @default(autoincrement())
+  email             String             @unique
+  name              String
+  password          String
+  role              Role // 使用枚举类型
+  events            Event[] // 如果是 Organizer，可以创建多个事件（1对多）
+  purchasedTickets  PurchasedTicket[]
+  waitlistedTickets WaitlistedTicket[]
 }
 
 model Event {
@@ -35,7 +36,7 @@ model Event {
   status      String   @default("UPCOMING")
   createdAt   DateTime @default(now())
 
-  coverImage  String?
+  coverImage String?
 
   // 与 User 建立关系
   organizer   User? @relation(fields: [organizerId], references: [id])
@@ -80,11 +81,13 @@ model Ticket {
   ticketType   TicketType @relation(fields: [ticketTypeId], references: [id])
   ticketTypeId Int
   purchased    Boolean    @default(false)
+  waitlisted   Boolean    @default(false)
   checkedIn    Boolean    @default(false)
   createdAt    DateTime   @default(now())
 
-  checkIn         CheckIn?
-  purchasedTicket PurchasedTicket?
+  checkIn          CheckIn?
+  purchasedTicket  PurchasedTicket?
+  waitlistedTicket WaitlistedTicket?
 
   code String @unique
 }
@@ -104,4 +107,14 @@ model PurchasedTicket {
   ticketId  Int      @unique
   createdAt DateTime @default(now())
   checkedIn Boolean  @default(false)
+}
+
+model WaitlistedTicket {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  ticketId  Int      @unique
+  createdAt DateTime @default(now())
+  purchased Boolean  @default(false)
 }
