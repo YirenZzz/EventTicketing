@@ -1,239 +1,615 @@
 # Event Ticketing and QR Code Check-in System
 
-## 1. Motivation
+# **Team Information**
 
-### Problem Statement
+| Name         | Student Number | Email                                                                         |
+| ------------ | -------------- | ----------------------------------------------------------------------------- |
+| Yiren Zhao   |                |                                                                               |
+| Yining Wang  | 1005728134     | [yning.wang@mail.utoronto.ca]               |                                                                               |
+| Yuting Zhang | 1011474897     | [ytlluvia.zhang@mail.utoronto.ca](img/mailto:ytlluvia.zhang@mail.utoronto.ca) |
 
-Event management continues to be a challenging process, particularly for small to medium-sized organizations, educational institutions, and community groups.
+# Motivation
 
-Current challenges include inefficient registration processes where many organizations still rely on manual registration methods such as paper forms, spreadsheets, and email that are time-consuming, error-prone, and difficult to scale.
+Small to medium organizations face significant event management challenges without enterprise-level resources. Current processes rely on manual methods—paper forms, spreadsheets, and emails—creating error-prone workflows that scale poorly. On-site check-in using printed lists causes long queues and inaccurate attendance records. Organizations lack analytical tools for data-driven planning and struggle to maintain consistent communication with attendees.
 
-Attendance tracking difficulties arise from traditional check-in methods using printed lists or manual verification, leading to long queues, errors in recording attendance, and lack of real-time visibility.
+These inefficiencies divert administrative resources away from improving core event experiences and create negative impressions for participants, potentially damaging reputation and reducing future attendance. Paper-based processes also conflict with growing sustainability priorities.
 
-Event organizers often lack tools to efficiently analyze attendance patterns, which prevents data-driven decision-making for future events. Without accurate predictions of attendance, organizers struggle to appropriately allocate resources such as space, staff, and refreshments.
+Our team, drawing from personal experience as both organizers and attendees, recognized the opportunity to create an accessible web-based platform addressing these challenges. Our solution streamlines the event lifecycle to reduce administrative overhead, enhance attendee experience, enable data-driven decisions, improve communication, and support sustainability goals while remaining intuitive for users of all technical backgrounds.
 
-Additionally, maintaining timely communication with registrants about event updates, reminders, and changes is difficult without a centralized system.
+# Objectives
 
-### Why This Project is Worth Pursuing
+Our primary objective was to develop a comprehensive, user-friendly event ticketing and check-in system that balances robust functionality with intuitive design. We aimed to create a platform accessible to users with varying technical expertise while providing sophisticated event management tools.
 
-This project addresses these challenges by creating a comprehensive, yet accessible web-based platform that streamlines the entire event management lifecycle.
+We sought to simplify event creation and registration through an intuitive interface for customizable events with multiple ticket types, tailored registration forms, and flexible pricing options including promotional discounts. This would allow precise event configuration without technical assistance.
 
-The system will increase operational efficiency by automating registration, ticket generation, and check-in processes, allowing organizations to reduce administrative overhead and focus on event content and experience.
+We focused on streamlining check-in through an efficient QR code verification system that functions effectively on mobile devices, eliminating manual procedures, reducing queues, and minimizing errors. Our goal was to enable staff to process attendees quickly regardless of location.
 
-It will improve attendee experience through streamlined registration and contactless check-in, creating a more professional and frictionless experience for participants.
+We aimed to provide real-time analytics and reporting for actionable insights into registration patterns, attendance metrics, and demographics, empowering data-driven decisions during planning and execution phases to optimize resources and improve experiences.
 
-The platform enables data-driven decision making with real-time analytics that provide organizers with valuable insights about attendance patterns, helping them optimize future events.
+Additionally, we prioritized robust waitlist management for addressing demand fluctuations through a transparent, automated system for handling capacity constraints and ticket reallocation when space becomes available.
 
-Communication is enhanced through automated confirmations, reminders, and updates to ensure attendees receive timely information about events. Additionally, by eliminating paper-based processes, the platform contributes to environmental sustainability goals.
+Finally, we committed to full responsive design across all device types, recognizing that both organizers and attendees frequently use mobile devices for event-related activities.
 
-### Target Users
+Through these objectives, our project delivers a cohesive solution addressing the multifaceted challenges of event management while remaining accessible to organizations without extensive technical resources.
 
-Our platform targets several distinct user groups.
+# Technical Stack
 
-Event organizers include staff from universities, clubs, non-profits, small businesses, and community organizations who need to efficiently create and manage events. They typically have limited technical resources but require professional event management capabilities.
+Our Event Ticketing and QR Code Check-in System implements a comprehensive technical stack that aligns with modern web development practices while fulfilling the course requirements. We selected the Next.js Full-Stack approach as our architectural foundation, using its integrated capabilities for both frontend and backend development within a unified framework.
 
-Event staff are individuals responsible for on-site operations including attendee check-in, who need intuitive, reliable tools that work efficiently even in challenging environments such as poor internet connectivity or time pressure.
+### Frontend
+We built the frontend using Next.js 15 with the App Router and React Server Components for efficient server-side data fetching. We used TypeScript throughout the application to ensure type safety and catch bugs early, aligning with the concepts introduced in lectures about TypeScript and Next.js. For styling, we adopted Tailwind CSS along with shadcn/ui to compose accessible, reusable UI components, following the best practices covered in Week 8’s lecture on Modern Styling Solutions. Interactive visualizations such as attendance rates and revenue stats are implemented with Chart.js, which is dynamically imported inside client components to avoid unnecessary server load. Our dashboards and check-in UI are all implemented in React, with client-side state management and routing, showing the core skills developed in Assignment 3.
 
-Attendees are participants who register for and attend events, ranging from students and community members to professionals. They expect straightforward registration processes and seamless check-in experiences.
+### Backend
+Our backend architecture combines Next.js API routes for most server-side logic, collaborating with the framework’s built-in support for backend development as introduced in the course. . This design is inspired by the backend development workflows demonstrated in early course weeks. For database interactions, we used Prisma ORM connected to a PostgreSQL instance hosted on Render, directly applying knowledge from Database Management lecture, enabling type-safe database queries and simplified database schema management. Critical update operations, such as check-ins and ticket modifications, are grouped logically and follow design principles introduced in the course. The  operations are kept isolated and minimal to guarantee data consistency.
 
-Administrators are technical personnel responsible for overseeing the platform, managing user permissions, and ensuring data integrity across multiple events and organizers.
+### Real‑time & State
+Socket.io 4 provides WebSockets; a single /lib/socket.ts keeps the client connection. Frontend state is co‑located: Server Components for immutable props, Zustand store for volatile real‑time counters, React‑Query for fetch/optimistic update.
 
-### Existing Solutions and Limitations
+Additional technologies incorporated into our stack include QRCode.js for generating unique ticket identifiers, React-QR-Reader for implementing the scanning functionality during check-in, and Chart.js for visualizing attendance data in the analytics dashboard. We implemented real-time updates for the check-in dashboard using WebSockets, ensuring immediate synchronization of attendance data across multiple devices.
 
-While several commercial platforms exist such as Eventbrite, Ticket Tailor, and Eventzilla, they present limitations that our solution aims to address.
+Email communications were handled using Nodemailer, enabling automated notifications for registrations, ticket issuance, and event updates. For frontend testing, we employed Jest and React Testing Library to ensure component functionality and user interaction reliability. The development workflow was enhanced through ESLint and Prettier for code quality enforcement and formatting consistency.
 
-Many existing platforms charge significant per-ticket fees or require expensive subscriptions, making them inaccessible for smaller organizations or free events.
 
-Commercial solutions often restrict branding and registration form customization without premium subscriptions. Many platforms have limited ability to integrate with existing organizational systems or export data in useful formats.
+# Features
 
-Enterprise-level solutions often include excessive features that create unnecessary complexity for smaller events.
+Our Event Ticketing and QR Code Check-in System provides a comprehensive set of features designed to address the challenges of event management. These features fulfill both the course requirements and our project objectives, delivering a valid solution for event ticketing management.
 
-Some commercial platforms impose restrictive terms on data collected through their systems, limiting organizers' ability to maintain relationships with their attendees.
+## Advanced and key features
 
-Our platform will focus on core functionality that addresses these pain points while remaining accessible and intuitive for users with varying levels of technical expertise.
+### Authentication + Authorisation – JWT + role‑aware middleware; guards every API route
+We implemented role-based authentication using NextAuth.js with a Credentials Provider, where each user receives a signed JWT that encodes both their user ID and role (Organizer, Staff, or Attendee). Upon login, the system verifies credentials using bcrypt and checks the selected role against the database before issuing the token. We use a stateless session strategy (strategy: "jwt"), allowing both the frontend and backend to access the user’s identity and role without querying a session store. A custom middleware layer parses the JWT on every request and attaches the user’s role and ID to the request context, enabling consistent, role-aware access control across frontend components and backend API routes. This ensures that only organizers can create events or manage promotions, only staff can perform event check-ins, and only attendees can view their purchased tickets. The implementation directly reflects the contnets covered with Better Auth—and mirrors the role-based guard structures , where building secure, authenticated flows and protecting sensitive routes based on user roles are main objectives.
 
-## 2. Objective and Key Features
+### Real‑time communication – Socket.io delivers purchase and check‑in events end‑to‑end
+We implemented Check-in and purchase events emit ticketCheckedIn and ticketPurchased messages via Socket.io. Organizers and staff clients subscribe using a shared context provider. Dashboards update instantly—mirroring the real-time components emphasized in class and showing advanced state management via Zustand and React Query.Organizers and Staff dashboards subscribe to these channels via a React Context wrapper, allowing components like counters, progress bars, and bar charts to update instantly—without requiring page reloads. This setup directly reflects the class coverage of real-time communication and demonstrates an applied understanding of WebSocket lifecycle management, as well as frontend reactivity (from Assignment 4).
 
-### Project Objectives
 
-The primary objective of this project is to create a comprehensive, user-friendly event ticketing and check-in system that enables organizations to create and manage customizable events with different ticket types.
+### File handling and processing: File / Cloud
+For image and QR code support, we implemented a flexible upload interface that accepts both image files and PDF documents, allowing staff to check in attendees using screenshots, printed tickets, or email attachments. Uploaded files are parsed on the client side using pdf.js (for PDFs) and html5-qrcode (for image-based decoding), with fallback text extraction for malformed codes.For PDFs, we stream the first page using pdfjs-dist, render it to a canvas, and attempt QR extraction. These functionalities demonstrate our understanding of client-side file processing and expand on the image-handling techniques. This feature demonstrates hands-on understanding of file handling and user experience design.
 
-The system will allow users to process registrations and generate tickets with unique QR codes, efficiently check in attendees using QR code scanning, monitor attendance in real-time, and analyze attendance data to improve future events.
+We also implemented pre-signed upload URLs for direct S3 uploads from the client, using PUT requests to cloud storage, a strategy directly covered in Week 12 on DigitalOcean Spaces. Although we used AWS S3 instead of Spaces, the API model and security mechanisms are fully compatible. QR codes for each ticket are generated on the fly as base64 Data URLs, removing the need for server-side temp files or binary blobs. This architecture reflects our grasp of client-cloud integration, media processing, and external service orchestration.
 
-The system will be designed with simplicity and efficiency as core principles, focusing on providing essential functionality rather than overwhelming users with unnecessary features.
+//TODO(?)
+### Advanced state management
 
-### Core Features
 
-#### Event Creation and Management
+### API integration with external services
+We integrated several external-service APIs to enhance functionality and user experience. For instance, the Google Maps Embed API is used on the Organizer Event Detail Page to provide a live map preview of the event location. When an organizer sets a location, it is encoded into a query string and passed to an embedded <iframe> powered by Google Maps, enabling people to visualize where the event takes place and improving usability. This implementation reflects the UI enrichment principles, where dynamic, data-driven components were emphasized. //TODO(?) Beyond Maps, Resend is used to dispatch HTML-based confirmation emails with embedded QR codes (a feature rooted in Week 8: API Integration II), and AWS S3 handles image uploads using the same API model as DigitalOcean Spaces introduced in Week 12. Finally, a Stripe skeleton is scaffolded for future payment integration. Each service is integrated with robust error handling and secured access, reflecting best practices from the course.
 
-Our platform will provide a form-based interface allowing organizers to create new events with customizable fields. The system will support various event types such as conferences, workshops, and social gatherings.
+### Event Creation with Schema-Driven Forms
+Organizers can dynamically configure registration forms—selecting which fields to include (e.g., description, location). These toggles are persisted in an EventFormField table and hydrated into React forms at runtime. This pattern of schema-driven UI and dynamic form rendering links to course contents in Week 4-5 (?) on advanced React state and reusable components.
 
-Organizers will have the ability to set event schedules, including multi-day events, and define venues with capacity limits.
+//TODO(?)
+### Tiered Ticket Types and Promo Codes
+Each event supports multiple ticket tiers (e.g., Early Bird, VIP, Student) with individual pricing and promotional discount settings. Promo codes support both percentage and fixed discounts, along with expiration dates and usage limits. Validation logic is executed inside Prisma.$transaction() blocks to ensure atomicity and reflect Week 3’s emphasis on ACID-compliant operations.
 
-The platform will include tools for adding custom fields to registration forms and managing event status including publishing, unpublishing, canceling, or rescheduling events.
+//TODO9(?) 感觉和前面file handeling有点点重复(?)
+### QR Code Generation and Validation: Real-Time QR-Code Check-In Interface (Camera, Images, and PDFs)
+Upon ticket purchase, a unique code (e.g., TICKET-xxxx) is generated and rendered into a QR image using the qrcode package. This image is embedded into an HTML email sent via the Resend API, showcasing real-world integration with external services as covered in lecture about API Integration.The Staff dashboard includes a real-time check-in system. It supports camera scanning via html5-qrcode, drag-and-drop image uploads, and even PDF parsing. For PDFs, we stream the first page using pdfjs-dist, render it to a canvas, and attempt QR extraction. These functionalities demonstrate our understanding of client-side file processing and expand on the image-handling techniques.
 
-#### Ticket Management
+//TODO(?)
+### PostgreSQL for transaction data: Data Consistency via Prisma Transactions
+Critical updates (like check-ins and promo validation) are provided by Prisma to guarantee updates across multiple tables (e.g., both Ticket and PurchasedTicket). This design reflects proper transaction usage discussed in class and implemented in Assignment 2.
 
-The ticket management system will support multiple ticket types such as Early Bird, Regular, and VIP options. Organizers can create free, paid, and donation-based ticketing options and generate promotional discount codes.
 
-The system will include tools to limit ticket quantities and set sales deadlines. Each ticket will automatically receive a unique QR code, which will be delivered to attendees via email with the QR code embedded.
+### Attendance analytics and reporting
+Both staff and organizers can view charts for attendance and revenue (Chart.js). Detailed statistics can also be  downloaded as CSV via server-generated Content-Disposition responses. Ticket type breakdowns (Total, Sold, Checked-In) are streamed from API routes and rendered into Excel-compatible file, satisfying Week 11’s emphasis on backend data processing and professional workflows.
 
-#### Registration and Attendee Management
+//TODO(?) 感觉这个可以加在qr validation和checkin 后面
+### Mobile-responsive check-in interface
+The check-in interface is fully mobile-responsive, optimized for phones and tablets without any native app. This mobile-first design highlights our ability to deliver production-grade UX beyond the desktop environment.
 
-The platform will offer user-friendly registration forms for attendees and provide tools for organizers to register multiple attendees at once. A centralized database will store attendee information across events.
 
-When events reach capacity, the system will automatically implement waitlist functionality. Attendees will have tools to modify their registration details, and the system will include processes for managing cancellations and refunds.
+# Development Guide
 
-#### Check-in System
+## Getting Started with Development
 
-Our check-in system will feature a mobile-responsive interface for scanning attendee QR codes and provide an option for manual check-in using attendee names.
+### 1. Dependencies Installation
 
-The system will instantly verify and update the database upon check-in and display visual indicators of check-in status.
+Begin by installing all required dependencies:
 
-For situations with limited internet connectivity, the platform will maintain basic functionality in offline mode.
+```bash
+npm install
+```
 
-#### Reporting and Analytics
+If you encounter a Tailwind CSS resolution error(probably won't) such as:
 
-The reporting system will include a real-time dashboard visualizing check-in statistics and tools to compare metrics across multiple events.
+```bash
+⨯ ./src/app/globals.css
+Error evaluating Node.js code
+Error: Can't resolve 'tailwindcss' in '/path/to/project/src/app'
+```
 
-Organizers can analyze attendance timing and patterns, generate customizable reports, and export attendance data for further analysis.
+Install the latest version of Tailwind CSS:
 
-#### Communication
+```bash
+npm install tailwindcss@latest
+```
 
-Our communication features will include automated emails for confirmations, reminders, and follow-ups.
+### 2. Database Setup
 
-The system will provide tools for communicating event changes and allow organizers to send targeted messages to specific attendee segments.
+Initialize and reset the database with:
 
-### Technical Implementation Approach
+```bash
+npx prisma migrate reset
+```
 
-We will implement this project using the Next.js Full-Stack approach, leveraging several key technologies.
+Create the initial database schema:
 
-On the frontend, we will use Next.js 13+ with the App Router for efficient page routing and rendering, React for building interactive UI components, Tailwind CSS for responsive design and styling, and shadcn/ui for consistent and accessible UI components.
+```bash
+npx prisma migrate dev --name init
+```
 
-We will incorporate React-QR-Reader for QR code scanning functionality and Chart.js for analytics visualization.
+### 3. Launch Development Server
 
-For the backend, we will utilize Next.js Server Components for server-side rendering and logic, API Routes for data handling and external integrations, and Server Actions for mutations and form handling.
+Start the application in development mode:
 
-Authentication and authorization will be implemented with NextAuth.js, and email communications will be handled using Nodemailer.
+```bash
+npm run dev
+```
 
-#### Database Schema and Relationships
+The application should now be running at http://localhost:3000.
 
-Our PostgreSQL database will include several core entities and their relationships.
+# Deployment Information
 
-The Users entity will store information about system users, including id as the primary key, name, email, hashed password, role (admin, organizer, or staff), and timestamps for creation and updates.
+Our Event Ticketing and QR Code Check-in System is deployed and accessible at https://github.com/YirenZzz/EventTicketing.
 
-The Events entity will track event details with fields such as id, organizer_id (foreign key to Users), title, description, start and end dates, location, capacity, status (draft, published, or cancelled), and timestamps.
+The deployed application maintains all functionality available in the development environment, including user authentication, event management, ticket generation, QR code scanning, and analytics reporting. Users can access the system through any modern web browser on both desktop and mobile devices without requiring additional software installation.
 
-TicketTypes will store information about different ticket options for each event, including id, event_id (foreign key to Events), name, description, price, quantity available, sales start and end dates, and timestamps.
+# **User Guide**
 
-The database will also include DiscountCodes with fields for id, event_id, code, discount percentage or amount, maximum uses, expiration date, and timestamps.
+## User Authentication System
 
-Registrations will track attendee sign-ups with fields for id, event_id, ticket_type_id, user_id (nullable), attendee name and email, registration date, status (confirmed, cancelled, or waitlisted), discount_code_id (nullable), and timestamps.
+### Account Creation Process
 
-The Tickets entity will store ticket information including id, registration_id, QR code data, check-in status, check-in time, and timestamps.
+The system supports three user roles: Organizer, Staff, and Attendee. To access the platform's features, users must first create an account through the registration process.
 
-For custom registration information, we will have CustomFields with id, event_id, field name, field type, required status, and timestamps, alongside RegistrationResponses which will store id, registration_id, custom_field_id, response value, and timestamps.
+### Registration Procedure
 
-### File Storage Requirements
+1. From the landing page, locate and select the "Sign Up" button in the top navigation bar to access the registration interface.
 
-Our system will use cloud storage for several types of assets. Event images will store promotional banners and images for events. QR code images will be generated for tickets.
+![Screenshot 2025-04-19 at 17.41.48.png](img/Screenshot_2025-04-19_at_17.41.48.png)
 
-User profile images will be stored for optional profile pictures. The system will also store event documentation for any supplementary files related to events and exported reports as PDF and CSV exports of attendance data.
+1. On the registration page, complete the required personal information fields and select the appropriate user role (Organizer, Staff, or Attendee) from the dropdown menu.
 
-The expected total storage requirements per organization will be relatively modest, primarily consisting of image files and small data exports. We anticipate an average of 5-10MB per event for most use cases.
+![Screenshot 2025-04-19 at 17.46.08.png](img/Screenshot_2025-04-19_at_17.46.08.png)
 
-### User Interface and Experience Design
+1. The registration process is identical for all user roles, though permissions and accessible features will differ based on the selected role.
 
-The user interface will follow several design principles to ensure a high-quality user experience. We will implement fully responsive design that functions properly on desktop, tablet, and mobile devices.
+![Screenshot 2025-04-19 at 17.50.42.png](img/Screenshot_2025-04-19_at_17.50.42.png)
 
-The navigation will be intuitive with clear information hierarchy and straightforward user flows. We will ensure WCAG 2.1 AA compliance for key user journeys to maintain accessibility.
+![Screenshot 2025-04-19 at 17.48.25.png](img/Screenshot_2025-04-19_at_17.48.25.png)
 
-The interface will employ progressive disclosure where complex features are revealed only when needed, and maintain consistent styling with a uniform design language throughout the application.
+1. The system validates email addresses to prevent duplicate registrations. If you attempt to register with an email address already in the database, the system will display an "Email already registered" notification and prompt you to use a different email address.
 
-Key user interfaces will include an organizer dashboard serving as a central hub for event management with metrics, quick actions, and event listings.
+![Screenshot 2025-04-19 at 17.49.25.png](img/Screenshot_2025-04-19_at_17.49.25.png)
 
-The event creation wizard will provide a step-by-step process for creating new events. A ticket management interface will offer tools for creating and managing ticket types.
+The registration of organizer and staff is the same as attendee.
 
-The registration form builder will feature a drag-and-drop interface for customizing registration forms. A mobile-optimized check-in application will serve event staff needs.
+### Authentication Process
 
-An analytics dashboard will visualize attendance data and key metrics. An attendee portal will provide a self-service area for registered attendees.
+1. After successful registration, you will be directed to the login page. Returning users can access this page directly by selecting the "Login" button from the homepage.
 
-### Integration with External Services
+![Screenshot 2025-04-19 at 17.51.43.png](img/Screenshot_2025-04-19_at_17.51.43.png)
 
-The system will integrate with several external services to enhance functionality. Email service integration via Nodemailer will handle sending automated communications.
+1. Enter your credentials in the designated fields. The system will verify this information against the database. If your credentials cannot be verified, the system will display an authentication error message.
 
-Calendar API integration will allow adding events to attendees' calendars, supporting Google Calendar and iCal formats.
+![Screenshot 2025-04-19 at 17.54.14.png](img/Screenshot_2025-04-19_at_17.54.14.png)
 
-Social media sharing capabilities will help promote events on various social platforms.
+1. Upon successful authentication, you will be redirected to the role-appropriate dashboard interface, which provides access to your authorized features and functions.
 
-### How Features Fulfill Course Requirements
+![Screenshot 2025-04-19 at 17.55.15.png](img/Screenshot_2025-04-19_at_17.55.15.png)
 
-Our implementation aligns well with course requirements across several dimensions.
+The dashboard serves as your central control panel for managing events, tickets, or registrations, depending on your assigned role in the system.
 
-For frontend requirements, we will use Next.js 13+ with App Router for our frontend development. All styling will utilize Tailwind utility classes, and we will leverage shadcn/ui components for consistent UI elements. Every interface will be designed with responsive principles to work across all device sizes.
+## Event Creation and Customization
 
-Regarding data storage requirements, our database will be implemented in PostgreSQL with appropriate relationships defined between entities. We will use cloud storage solutions for handling images and files within the application.
+The platform provides organizers with comprehensive tools to create and customize events with tailored registration forms. The following steps outline the event creation process:
 
-For the architecture approach, we have selected the Next.js Full-Stack option, implementing the project using Next.js Server Components, API Routes, and Server Actions as specified in the course requirements.
+### Accessing Event Management
 
-The system will implement several advanced features. We will create role-based authentication for organizers, staff, and attendees.
+1.  Navigate to the Events dashboard from the main organizer interface. This centralized location displays all your current and past events in a structured format.
 
-The check-in dashboard will update in real-time using WebSockets technology. Our file handling capabilities will generate and process QR codes while managing file uploads.
+![Screenshot 2025-04-19 at 17.55.15.png](img/Screenshot_2025-04-19_at_17.55.15.png)
 
-External service integration will connect the system with email and calendar services.
+### Creating a New Event
 
-### Project Scope and Feasibility
+1. Select the "Create Event" button located in the upper right corner of the Events dashboard to initiate the event creation process.
 
-The proposed system balances comprehensive functionality with realistic implementation constraints.
+   ![Screenshot 2025-04-19 at 17.56.48.png](img/Screenshot_2025-04-19_at_17.56.48.png)
 
-To ensure feasibility within the project timeline, we will focus on core functionality by prioritizing essential features over nice-to-have additions.
+   1. The system will present the Event Configuration interface, where you can define the essential parameters of your event.
 
-We will use established libraries to leverage existing solutions for complex functionality like QR scanning. Implementation will proceed iteratively, beginning with basic functionality and enhancing as time permits.
+![Screenshot 2025-04-19 at 17.57.14.png](img/Screenshot_2025-04-19_at_17.57.14.png)
 
-We will set clear boundaries to limit scope creep by establishing definitive feature boundaries.
+### Configuring Event Parameters
 
-Given our team size and the project timeline, we believe this scope is achievable while delivering a valuable, functional system. The modular nature of the features allows for flexible prioritization based on progress.
+1. Complete the event configuration form with the necessary details: Event name, Detailed description, Physical or virtual location, Date and time parameters (start and end).
 
-## 3. Tentative Plan
+![Screenshot 2025-04-19 at 17.58.23.png](img/Screenshot_2025-04-19_at_17.58.23.png)
 
-Our team will collaborate to implement the Event Ticketing and QR Code Check-in System over the next few weeks. We will divide responsibilities based on individual strengths while ensuring everyone gains experience across the full stack.
+1. Required fields are clearly marked with red asterisks (\*) to ensure all critical information is provided.
 
-Our general approach will involve setting up the development environment and project structure, implementing core data models and database schema, building essential UI components and pages, integrating authentication and authorization, implementing event creation and management features, developing the ticket generation and QR code system, creating the check-in functionality, building reporting and analytics features, testing and refining the system, and preparing documentation and deployment.
+![Screenshot 2025-04-19 at 17.59.37.png](img/Screenshot_2025-04-19_at_17.59.37.png)
 
-### Team Member Responsibilities
+3.  The system performs validation checks upon submission:
 
-Our Project Lead and Backend Specialist will coordinate overall project architecture and development workflow. They will design and implement the database schema and relationships, develop API endpoints for core functionality, implement Server Actions for data mutations, set up the authentication and authorization system, implement the email notification system, and ensure code quality and adherence to best practices.
+- If required fields are incomplete, the system will display targeted error messages directing you to complete the necessary information.
+- When all required fields are properly completed, the system will process your submission and create the event.
 
-The Frontend and UI/UX Specialist will design and implement user interfaces using Tailwind CSS and shadcn/ui. They will create responsive layouts for all device types, develop React components for key functionality, implement form validation and error handling, design and build the analytics dashboard, create user documentation and help resources, and ensure accessibility compliance.
+![Screenshot 2025-04-19 at 18.00.26.png](img/Screenshot_2025-04-19_at_18.00.26.png)
 
-Our Full-Stack Developer with QR and Check-in Focus will implement QR code generation and scanning functionality and develop the real-time check-in system with WebSocket integration.
+![Screenshot 2025-04-19 at 18.07.04.png](img/Screenshot_2025-04-19_at_18.07.04.png)
 
-They will create the mobile-responsive check-in interface, implement offline functionality for the check-in system, develop ticket management features, set up cloud storage integration, and assist with both frontend and backend tasks as needed.
+### Event Status Classification
 
-The Testing and Integration Specialist will develop a comprehensive testing strategy and write unit and integration tests for key functionality.
+The system automatically categorizes events based on their temporal relationship to the current date:
 
-They will implement the reporting and analytics system, create data export functionality, develop external service integrations for calendar and social media, set up continuous integration and deployment pipeline, and identify and address performance bottlenecks.
+- Events with start times in the future are classified as "Upcoming Events"
+- Events with start times in the past are classified as "Past Events"
 
-### Collaboration Strategy
+This automatic classification ensures proper organization and filtering of events within the management interface.
 
-To ensure effective collaboration and timely completion, we will hold regular standup meetings with brief daily check-ins to discuss progress and address blockers.
+![Screenshot 2025-04-19 at 18.07.49.png](img/Screenshot_2025-04-19_at_18.07.49.png)
 
-We will conduct peer code reviews for all code changes before merging. Shared documentation will be maintained in the project repository for technical decisions and implementation details.
+## Tiered Ticket Pricing and Discount Management
 
-We will follow a Git-based workflow with feature branches and pull requests for version control. Task tracking will use GitHub Issues for task management and progress monitoring.
+The system offers robust capabilities for implementing differentiated pricing strategies and promotional discounts. This section details the configuration of tiered ticket pricing and discount codes.
 
-A dedicated Slack channel will facilitate quick team communication.
+### Accessing Ticket Configuration
 
-### Risk Mitigation
+1.  From the Events dashboard, locate the desired event and select its name. Event titles appear with interactive underlining when hovering over them to indicate their clickable nature.
 
-We've identified potential challenges and developed mitigation strategies.
+![Screenshot 2025-04-19 at 18.13.58.png](img/Screenshot_2025-04-19_at_18.13.58.png)
 
-For technical complexity in features like real-time updates, we'll investigate existing libraries and begin implementation early in the development cycle.
+![Screenshot 2025-04-19 at 18.15.38.png](img/Screenshot_2025-04-19_at_18.15.38.png)
 
-To address potential integration issues, we'll create proof-of-concept implementations for external integrations early in the project.
+## Location Integration
 
-For scope management, we'll maintain a prioritized feature list and adjust scope based on progress.
+The system provides seamless integration with mapping services. Select the event location link to access the venue's precise location via Google Maps, offering attendees clear geographical context.
 
-To prevent timeline slippage, we've built buffer time into our schedule and identified non-critical features that could be simplified if necessary.
+![Screenshot 2025-04-19 at 18.16.21.png](img/Screenshot_2025-04-19_at_18.16.21.png)
 
-By dividing responsibilities clearly while maintaining collaborative oversight, we ensure that each team member contributes meaningfully to the project while building on their strengths. The modular nature of the features allows us to adjust priorities and focus as the project progresses, ensuring timely completion of a functional, valuable system.
+### Creating Tiered Ticket Options
+
+1. Within the event management interface, navigate to the ticket configuration section to establish various ticket categories.
+
+2. Select the "Add Ticket Type" button to create a new ticket category.
+
+3. For each ticket type, specify:
+
+- Descriptive name (e.g., "Early Bird," "Standard," "VIP")
+- Pricing parameters
+- Available quantity
+- Optional description of benefits or restrictions
+
+![Screenshot 2025-04-19 at 18.16.45.png](img/Screenshot_2025-04-19_at_18.16.45.png)
+
+4. The system supports multiple ticket tiers for a single event, allowing for sophisticated pricing strategies that can address different market segments or provide incentives for early registration.
+
+![Screenshot 2025-04-19 at 18.18.12.png](img/Screenshot_2025-04-19_at_18.18.12.png)
+
+### Implementing Promotional Discounts
+
+1. Access the discount management functionality by selecting "Promo Code" from the navigation sidebar.
+
+![Screenshot 2025-04-19 at 18.19.10.png](img/Screenshot_2025-04-19_at_18.19.10.png)
+
+2. Select "New Promo Code" to initiate the creation of a promotional discount.
+
+![Screenshot 2025-04-19 at 18.21.29.png](img/Screenshot_2025-04-19_at_18.21.29.png)
+
+3. Associate the discount code with a specific event and define its parameters:
+
+- Unique promotional code
+- Discount value (percentage or fixed amount)
+- Validity period
+- Usage limitations (if applicable)
+
+![Screenshot 2025-04-19 at 18.22.07.png](img/Screenshot_2025-04-19_at_18.22.07.png)
+
+![Screenshot 2025-04-19 at 18.22.28.png](img/Screenshot_2025-04-19_at_18.22.28.png)
+
+This comprehensive pricing and promotion system enables organizers to implement sophisticated marketing strategies, drive early registrations, and offer targeted incentives to specific attendee segments.
+
+## QR Code Generation and Validation System
+
+The platform implements a robust QR code system that facilitates efficient event check-in processes. This section outlines the ticket purchase, QR code generation, and validation workflow.
+
+### Attendee Ticket Acquisition
+
+1. After authenticating with attendee credentials, users can access available events through either the sidebar navigation menu or the "Browse Events" section of the attendee dashboard.
+
+![Screenshot 2025-04-19 at 18.25.41.png](img/Screenshot_2025-04-19_at_18.25.41.png)
+
+![Screenshot 2025-04-19 at 19.03.07.png](img/Screenshot_2025-04-19_at_19.03.07.png)
+
+2. Events with available tickets display an actionable "Buy Now" button adjacent to each event listing, indicating ticket availability. Select the "Buy Now" button to initiate the ticket purchase process for the desired event.
+
+![Screenshot 2025-04-19 at 19.04.18.png](img/Screenshot_2025-04-19_at_19.04.18.png)
+
+3.  Upon successful transaction completion, the system automatically generates a unique ticket with an embedded QR code.
+
+![Screenshot 2025-04-19 at 19.14.36.png](img/Screenshot_2025-04-19_at_19.14.36.png)
+
+### Ticket Management and Access
+
+The system redirects attendees to their personalized ticket view immediately after purchase, displaying the generated QR code and essential event information.
+
+Attendees can also access their tickets at any time through the dashboard interface, which provides a comprehensive overview of all purchased tickets across multiple events.
+
+![Screenshot 2025-04-19 at 19.16.02.png](img/Screenshot_2025-04-19_at_19.16.02.png)
+
+### Ticket Documentation
+
+The platform provides document export functionality through a "Print" option, enabling attendees to generate a PDF version of their ticket.The exported PDF includes:
+
+![Screenshot 2025-04-19 at 19.16.45.png](img/Screenshot_2025-04-19_at_19.16.45.png)
+
+- The unique QR code for event check-in
+- Essential event details (name, date, location)
+- Ticket-specific information (ticket type, attendee name)
+- Terms and conditions (if applicable)
+
+This digital ticket system eliminates the need for physical tickets while maintaining security through unique QR codes that are validated during the check-in process.
+
+## Real-Time Check-In Management System
+
+The platform provides staff members with a comprehensive real-time check-in system that enables efficient attendee verification and event access control. This section details the check-in process and monitoring capabilities.
+
+### Accessing the Check-In Interface
+
+Staff members can access the check-in functionality by navigating to the staff portal after authentication.
+
+![Screenshot 2025-04-19 at 19.20.01.png](img/Screenshot_2025-04-19_at_19.20.01.png)
+
+Select "Check-In Lists" from the navigation options to access the attendee verification interface.
+
+![Screenshot 2025-04-19 at 19.20.19.png](img/Screenshot_2025-04-19_at_19.20.19.png)
+
+### Multiple Verification Methods
+
+The system supports multiple verification methods to accommodate various operational scenarios:
+
+- **Document Upload Verification**: Staff can upload PDF tickets that attendees have previously downloaded or printed. The system processes the document to extract and validate the QR code.
+- **Image Scanning Capability**: The interface supports processing of screenshot images containing QR codes, providing flexibility when attendees present tickets on devices.
+- **Real-Time Camera Scanning**: Staff can activate the device camera to scan QR codes directly from attendees' physical or digital tickets, facilitating rapid verification.
+
+![Screenshot 2025-04-19 at 19.21.26.png](img/Screenshot_2025-04-19_at_19.21.26.png)
+
+![Screenshot 2025-04-19 at 19.24.36.png](img/Screenshot_2025-04-19_at_19.24.36.png)
+
+### Validation and Status Updates
+
+1. Upon scanning a valid ticket, the system immediately updates the attendee's status in the database to "Checked In."
+2. If a ticket has already been processed, the system displays an "Already Checked In" notification, preventing duplicate entries and potential unauthorized access.
+3. All check-in activities are recorded in real-time and displayed under the corresponding event in the events section, providing staff with continuous visibility of attendance status.
+
+![Screenshot 2025-04-19 at 19.35.04.png](img/Screenshot_2025-04-19_at_19.35.04.png)
+
+### Attendee Information Access
+
+The check-in system provides seamless navigation to detailed attendee information pages, where staff can view comprehensive ticket information and attendance history.
+
+![Screenshot 2025-04-19 at 19.26.28.png](img/Screenshot_2025-04-19_at_19.26.28.png)
+
+![Screenshot 2025-04-19 at 19.26.36.png](img/Screenshot_2025-04-19_at_19.26.36.png)
+
+![Screenshot 2025-04-19 at 19.26.48.png](img/Screenshot_2025-04-19_at_19.26.48.png)
+
+![Screenshot 2025-04-19 at 19.27.10.png](img/Screenshot_2025-04-19_at_19.27.10.png)
+
+This integrated check-in system enhances event security, streamlines attendee processing, and provides organizers with accurate, real-time attendance data for improved event management.
+
+## Attendance Analytics and Reporting System
+
+The platform provides comprehensive analytics and reporting capabilities that enable organizers and staff to monitor attendance metrics and gain actionable insights. This section details the analytical features available through various interfaces.
+
+### Organizer Analytics Dashboard
+
+Organizers can access consolidated attendance data through the primary dashboard interface, which presents key metrics in an intuitive visual format.
+
+![Screenshot 2025-04-19 at 19.27.58.png](img/Screenshot_2025-04-19_at_19.27.58.png)
+
+The system generates quantitative summaries of ticket distribution across different categories. For example, an event with 300 total tickets might display a breakdown showing 200 VIP tickets and 100 Basic tickets, providing clear visibility into registration patterns.
+
+Check-in status reports are accessible through dedicated reporting interfaces, allowing organizers to monitor attendance rates in real-time and identify potential issues with event access.
+
+![Screenshot 2025-04-19 at 19.28.51.png](img/Screenshot_2025-04-19_at_19.28.51.png)
+
+### Event-Specific Analytics
+
+Within individual event management screens, organizers can access detailed analytics specific to each event. The interface provides visualization of registration trends, ticket sales velocity, and attendance patterns to support data-driven decision-making.
+
+![Screenshot 2025-04-19 at 19.29.38.png](img/Screenshot_2025-04-19_at_19.29.38.png)
+
+### Ticket Category Analysis
+
+Organizers can drill down into specific ticket categories by selecting individual ticket type names within the analytics interface.
+
+This detailed view provides category-specific metrics including: Total tickets sold, Revenue generated, Attendance rate and Demographic information (when collected).
+
+![Screenshot 2025-04-19 at 19.30.17.png](img/Screenshot_2025-04-19_at_19.30.17.png)
+
+### Staff Analytical Tools
+
+Staff members have access to similar analytical capabilities through their dedicated interface, allowing them to monitor check-in progress and attendance patterns during event operations.
+
+The staff analytics dashboard emphasizes operational metrics relevant to entrance management and attendee flow.
+
+![Screenshot 2025-04-19 at 19.52.07.png](img/Screenshot_2025-04-19_at_19.52.07.png)
+
+![Screenshot 2025-04-19 at 19.50.25.png](img/Screenshot_2025-04-19_at_19.50.25.png)
+
+![Screenshot 2025-04-19 at 19.50.34.png](img/Screenshot_2025-04-19_at_19.50.34.png)
+
+### Data Filtering and Search Functionality
+
+The system incorporates advanced filtering and search capabilities that enable users to isolate specific segments of attendance data based on various parameters. And these data management tools support customized reporting and targeted analysis of specific attendee segments or ticket categories.
+
+![Screenshot 2025-04-19 at 19.51.19.png](img/Screenshot_2025-04-19_at_19.51.19.png)
+
+The analytics and reporting system serves as a valuable decision support tool, providing organizers with the quantitative insights necessary for continuous improvement of event management processes and attendee experiences.
+
+## Automated email confirmations
+
+## Waitlist Management System
+
+The platform implements a sophisticated waitlist management system that efficiently handles demand when ticket availability is limited. This section details the end-to-end waitlist process from both attendee and organizer perspectives.
+
+### Waitlist Entry Process
+
+When a specific ticket category reaches its allocation limit, the system automatically transitions from displaying a "Buy Now" option to offering a "Join Waitlist" alternative.
+
+![Screenshot 2025-04-19 at 20.14.35.png](img/Screenshot_2025-04-19_at_20.14.35.png)
+
+Attendees attempting to purchase sold-out tickets are presented with the option to join the waitlist for that specific ticket category.
+
+![Screenshot 2025-04-19 at 20.13.55.png](img/Screenshot_2025-04-19_at_20.13.55.png)
+
+![Screenshot 2025-04-19 at 20.15.21.png](img/Screenshot_2025-04-19_at_20.15.21.png)
+
+Upon selecting "Join Waitlist," the system registers the attendee's interest and assigns a sequential position in the waitlist queue.
+
+![Screenshot 2025-04-19 at 20.16.29.png](img/Screenshot_2025-04-19_at_20.16.29.png)
+
+### Attendee Waitlist Experience
+
+The attendee dashboard provides transparency regarding waitlist status, displaying the current queue position for each waitlisted ticket.
+
+![Screenshot 2025-04-19 at 20.16.40.png](img/Screenshot_2025-04-19_at_20.16.40.png)
+
+While waitlisted tickets do not appear in the attendee's active tickets section, the system maintains visibility of the waitlist position to set appropriate expectations.
+
+### Organizer Waitlist Management
+
+Organizers have comprehensive visibility of waitlist status through the event management interface, which displays:
+
+![Screenshot 2025-04-19 at 20.21.01.png](img/Screenshot_2025-04-19_at_20.21.01.png)
+
+The waitlist management interface empowers organizers to release additional tickets when capacity increases or cancellations occur.
+
+### Ticket Release Mechanism
+
+When additional capacity becomes available, organizers can specify the number of tickets to release through the numeric input field in the waitlist management interface.
+
+The system automatically allocates released tickets based on waitlist position, prioritizing attendees with lower queue numbers.
+
+![Screenshot 2025-04-19 at 20.21.49.png](img/Screenshot_2025-04-19_at_20.21.49.png)
+
+![Screenshot 2025-04-19 at 20.22.01.png](img/Screenshot_2025-04-19_at_20.22.01.png)
+
+Another attendee joined waitlist:
+
+![Screenshot 2025-04-19 at 20.23.25.png](img/Screenshot_2025-04-19_at_20.23.25.png)
+
+When organizers release tickets, the system processes the allocation in sequential order:
+
+1. If one ticket is released, it is assigned to the attendee in position 1.
+2. If multiple tickets are released, they are distributed sequentially through the waitlist until exhausted.
+
+![Screenshot 2025-04-19 at 20.25.18.png](img/Screenshot_2025-04-19_at_20.25.18.png)
+
+Organizer can set the number of tickets the input box in the upper left corner:
+
+![Screenshot 2025-04-19 at 20.25.52.png](img/Screenshot_2025-04-19_at_20.25.52.png)
+
+![Screenshot 2025-04-19 at 20.26.36.png](img/Screenshot_2025-04-19_at_20.26.36.png)
+
+![Screenshot 2025-04-19 at 20.29.27.png](img/Screenshot_2025-04-19_at_20.29.27.png)
+
+![Screenshot 2025-04-19 at 20.29.36.png](img/Screenshot_2025-04-19_at_20.29.36.png)
+
+As tickets are assigned to waitlisted attendees, the system automatically adjusts the remaining queue positions to maintain accurate sequencing.
+
+### Attendee Notification
+
+When a waitlisted attendee receives an allocated ticket, the system updates their dashboard to display the active ticket with the associated QR code.
+
+![Screenshot 2025-04-19 at 20.27.24.png](img/Screenshot_2025-04-19_at_20.27.24.png)
+
+![Screenshot 2025-04-19 at 20.27.30.png](img/Screenshot_2025-04-19_at_20.27.30.png)
+
+The previously displayed waitlist position is removed, confirming successful ticket acquisition.
+
+![Screenshot 2025-04-19 at 20.28.38.png](img/Screenshot_2025-04-19_at_20.28.38.png)
+
+### Dynamic Interface Updates
+
+The system maintains accurate status indicators throughout the platform:
+
+- Events with at least one available ticket category display "Buy Now" options
+- Events with all ticket categories sold out uniformly display "Join Waitlist" options
+
+![Screenshot 2025-04-19 at 20.33.51.png](img/Screenshot_2025-04-19_at_20.33.51.png)
+
+![Screenshot 2025-04-19 at 20.34.32.png](img/Screenshot_2025-04-19_at_20.34.32.png)
+
+![Screenshot 2025-04-19 at 20.35.25.png](img/Screenshot_2025-04-19_at_20.35.25.png)
+
+This comprehensive waitlist management system enhances the user experience by establishing clear expectations, maintaining transparency, and providing organizers with flexible tools to manage demand effectively.
+
+## Mobile-Responsive Check-In Interface
+
+The platform features a comprehensively optimized mobile experience that ensures all system functionality remains accessible and user-friendly across various device form factors. This section highlights the mobile responsiveness of the check-in system for both attendees and staff.
+
+### Responsive Design Implementation
+
+The system employs responsive design principles throughout the application, automatically adapting layout, typography, and interactive elements to accommodate different screen dimensions.
+
+Navigation elements reconfigure appropriately for mobile devices, maintaining intuitive access to all platform functions while optimizing for touch-based interaction.
+
+![21745109611_.pic.jpg](img/21745109611_.pic.jpg)
+
+![31745109613_.pic.jpg](img/31745109613_.pic.jpg)
+
+![51745109617_.pic.jpg](img/51745109617_.pic.jpg)
+
+![71745109717_.pic.jpg](img/71745109717_.pic.jpg)
+
+![91745109720_.pic.jpg](img/91745109720_.pic.jpg)
+
+The mobile ticket display presents QR codes at optimal resolution and size for reliable scanning, eliminating the need for physical tickets or desktop access.
+
+![101745109722_.pic.jpg](img/101745109722_.pic.jpg)
+
+### Mobile Staff Operations
+
+The check-in system is specifically engineered for mobile usage, recognizing that event staff frequently operate in dynamic environments where desktop access is impractical.
+
+![171745109747_.pic.jpg](img/171745109747_.pic.jpg)
+
+Staff members can perform all check-in functions directly from mobile devices, including:
+
+- QR code scanning using the device camera
+- Manual attendee lookup
+- Check-in status verification
+- Attendance monitoring
+
+![181745109749_.pic.jpg](img/181745109749_.pic.jpg)
+
+Real-time synchronization ensures that check-in operations performed on mobile devices immediately update the central database, maintaining data consistency across all platform access points.
+
+This mobile-optimized approach enhances operational efficiency for event staff while providing attendees with convenient access to their tickets, ultimately streamlining the check-in process and improving the overall event experience.
+
+## PostgreSQL for transaction data
+
+## Cloud storage for event assets
+
+
+# Individual Contributions
+
+# Lessons Learned and Concluding Remarks
+
+The development of our Event Ticketing and QR Code Check-in System provided valuable insights into both technical implementation strategies and effective project management approaches. Throughout this process, we encountered various challenges that ultimately enhanced our understanding of full-stack web development and collaborative software creation.
+
+One significant lesson emerged from our experience implementing the QR code scanning functionality. We initially underestimated the complexity of developing a reliable scanning mechanism that functions consistently across various devices and lighting conditions. Through iterative testing and refinement, we discovered the importance of incorporating error handling and fallback mechanisms to ensure operational reliability even in suboptimal conditions. This experience reinforced the value of progressive enhancement in feature development, ensuring core functionality remains accessible regardless of environmental variables.
+
+Our implementation of real-time synchronization for the check-in process revealed the challenges of managing concurrent operations and data consistency across multiple clients. By adopting WebSocket technology and implementing appropriate state management, we developed a deeper understanding of distributed system principles and their application in web development contexts. This knowledge proved invaluable for creating an efficient, responsive check-in experience that maintains data integrity even during high-volume events.
+
+The project also highlighted the importance of responsive design implementation from the outset rather than as a subsequent adaptation. By adopting a mobile-first approach, we created interfaces that naturally adapted to various screen sizes while maintaining functionality and usability. This strategy significantly reduced development time compared to retrofitting responsiveness onto desktop-oriented interfaces and ensured a consistent experience across all devices.
+
+From a project management perspective, we found that clearly defining feature priorities and maintaining a flexible implementation schedule allowed us to adapt to unexpected challenges while ensuring delivery of essential functionality. Our structured approach to GitHub-based collaboration, including branch management, pull requests, and code reviews, facilitated efficient parallel development while maintaining code quality and consistency.
+
+As we reflect on this project, we recognize several areas for potential enhancement in future iterations. Expanding analytics capabilities to include predictive attendance modeling could provide additional value for event planners. Implementing more sophisticated communication options, such as automated SMS notifications and in-app messaging, would further streamline organizer-attendee interactions. Additionally, enhancing the platform's integration capabilities with external services would increase its utility within broader organizational ecosystems.
+
+In conclusion, the development of our Event Ticketing and QR Code Check-in System provided both practical experience in modern web development techniques and valuable insights into effective software development practices. The resulting platform successfully addresses the challenges identified in our initial motivation, delivering a comprehensive solution that enhances efficiency, improves user experience, and enables data-driven decision making for event management. We believe this project demonstrates our ability to conceptualize, implement, and refine complex web applications while maintaining focus on user needs and operational requirements.
