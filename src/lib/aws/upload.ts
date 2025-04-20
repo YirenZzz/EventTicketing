@@ -1,21 +1,23 @@
 // lib/aws/upload.ts
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { randomUUID } from 'crypto';
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { randomUUID } from "crypto";
 
 const s3 = new S3Client({
-  region: 'us-east-2', // 替换为你创建 Bucket 的 region
+  region: "us-east-2",
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
   },
 });
 
-export async function uploadImageFromUrlToS3(imageUrl: string): Promise<string> {
+export async function uploadImageFromUrlToS3(
+  imageUrl: string,
+): Promise<string> {
   const res = await fetch(imageUrl);
   const buffer = await res.arrayBuffer();
   const fileBuffer = Buffer.from(buffer);
 
-  const extension = imageUrl.includes('.png') ? 'png' : 'jpg';
+  const extension = imageUrl.includes(".png") ? "png" : "jpg";
   const key = `event-covers/${randomUUID()}.${extension}`;
 
   await s3.send(
