@@ -79,22 +79,14 @@ export default function OrganizerReportPage({
         setEventAttendanceRates(rates);
 
         const revenues = events.map((e: any) => {
-          const revenue = (e.ticketTypes || []).reduce(
-            (sum: number, tt: any) => {
-              const sold = (tt.tickets || []).filter(
-                (t: any) => t.purchased,
-              ).length;
-              return sum + (tt.price || 0) * sold;
-            },
-            0,
-          );
-          return {
-            eventId: e.id,
-            name: e.name,
-            totalRevenue: revenue,
-          };
-        });
-        setEventRevenues(revenues);
+        return {
+          eventId: e.id,
+          name: e.name,
+          totalRevenue: e.totalRevenue ?? 0, 
+        };
+      });
+      setEventRevenues(revenues);
+
       } catch (err) {
         console.error(err);
         setError("Unable to load event data");

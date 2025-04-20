@@ -29,23 +29,22 @@ export async function GET(
       },
     });
 
-    // New Revenue Calculation
-    const revenueData = await db.ticket.findMany({
+    // ✅ Use actual finalPrice from PurchasedTicket
+    const purchased = await db.purchasedTicket.findMany({
       where: {
-        ticketType: { eventId: eventIdNum },
-        purchased: true,
-      },
-      select: {
-        ticketType: {
-          select: {
-            price: true,
+        ticket: {
+          ticketType: {
+            eventId: eventIdNum,
           },
         },
       },
+      select: {
+        finalPrice: true,
+      },
     });
 
-    const totalRevenue = revenueData.reduce(
-      (sum, t) => sum + t.ticketType.price,
+    const totalRevenue = purchased.reduce(
+      (sum, p) => sum + p.finalPrice,
       0,
     );
 
