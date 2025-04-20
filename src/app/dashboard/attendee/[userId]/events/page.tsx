@@ -38,7 +38,7 @@ export default function AttendeeEventListPage() {
 
   const now = new Date();
   const filteredEvents = events.filter((e) => {
-    // 用 endDate 判断是否结束（若没有 endDate 则当未结束处理）
+    // check ending by endDate
     const start = e.startDate ? new Date(e.startDate) : new Date(0);
     const matchStatus = view === "upcoming" ? start > now : start <= now;
     const matchSearch = e.name.toLowerCase().includes(search.toLowerCase());
@@ -106,7 +106,6 @@ export default function AttendeeEventListPage() {
                     alt="Event cover"
                     className="w-full h-40 object-cover"
                     onError={(e) => {
-                      // 失败时重试同一个 seed
                       (e.currentTarget as HTMLImageElement).src =
                         `https://picsum.photos/seed/${event.id}/400/200`;
                     }}

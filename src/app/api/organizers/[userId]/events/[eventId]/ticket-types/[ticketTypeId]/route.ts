@@ -1,19 +1,19 @@
 // src/app/api/organizers/[userId]/events/[eventId]/ticket-types/[ticketTypeId]/route.ts
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import { nanoid } from "nanoid"; // ✅ 自动生成唯一票号
+import { nanoid } from "nanoid";
 
 /* ─────────────────────── GET ─────────────────────── */
 export async function GET(
   _: NextRequest,
-  context: { params: Promise<{ ticketTypeId: string }> }
+  context: { params: Promise<{ ticketTypeId: string }> },
 ) {
   const { ticketTypeId } = await context.params;
   const id = Number(ticketTypeId);
   if (isNaN(id))
     return NextResponse.json(
       { error: "Invalid ticket type ID" },
-      { status: 400 }
+      { status: 400 },
     );
 
   try {
@@ -32,14 +32,14 @@ export async function GET(
     if (!ticketType)
       return NextResponse.json(
         { error: "Ticket type not found" },
-        { status: 404 }
+        { status: 404 },
       );
     return NextResponse.json({ ticketType });
   } catch (e) {
     console.error(e);
     return NextResponse.json(
       { error: "Failed to fetch ticket type" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -47,7 +47,7 @@ export async function GET(
 /* ─────────────────────── DELETE ─────────────────────── */
 export async function DELETE(
   _: NextRequest,
-  context: { params: Promise<{ ticketTypeId: string }> }
+  context: { params: Promise<{ ticketTypeId: string }> },
 ) {
   const { ticketTypeId } = await context.params;
   const id = Number(ticketTypeId);
@@ -61,7 +61,7 @@ export async function DELETE(
     if (sold > 0) {
       return NextResponse.json(
         { error: "Cannot delete ticket type that has already sold tickets." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -77,7 +77,7 @@ export async function DELETE(
 /* ─────────────────────── PATCH ─────────────────────── */
 export async function PATCH(
   req: NextRequest,
-  context: { params: Promise<{ eventId: string; ticketTypeId: string }> }
+  context: { params: Promise<{ eventId: string; ticketTypeId: string }> },
 ) {
   const { eventId, ticketTypeId } = await context.params;
   const id = Number(ticketTypeId);
@@ -89,37 +89,37 @@ export async function PATCH(
   const { name, price, quantity } = await req.json();
 
   try {
-    // ① 检查是否已售票，禁止编辑已售票的票种
+    // check if sold, can't edit ticketTypes that are already sold
     const sold = await db.ticket.count({
       where: { ticketTypeId: id, purchased: true },
     });
     if (sold > 0) {
       return NextResponse.json(
         { error: "Cannot edit ticket type that has already sold tickets." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // ② 检查重名
+    // check for repeated name
     const duplicate = await db.ticketType.findFirst({
       where: { eventId: eventIdNum, name: name.trim(), NOT: { id } },
     });
     if (duplicate) {
       return NextResponse.json(
         { error: "Ticket type name already exists." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // ③ 查询现有 tickets
+    // check current tickets
     const existingTickets = await db.ticket.findMany({
       where: { ticketTypeId: id },
-      orderBy: { id: "desc" }, // 优先删除创建时间靠后的
+      orderBy: { id: "desc" }, // delete later created times first
     });
 
     const delta = quantity - existingTickets.length;
 
-    // ④ 同步 tickets（不能删已售票）
+    // sync tickets
     if (delta > 0) {
       await db.ticketType.update({
         where: { id },
@@ -142,7 +142,7 @@ export async function PATCH(
           {
             error: `Cannot reduce to ${quantity}. Only ${unsold.length} unsold tickets can be deleted.`,
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -169,7 +169,7 @@ export async function PATCH(
 // Move the waitlist by putting/adding new tickets into a certain ticketType
 export async function PUT(
   req: NextRequest,
-  context: { params: Promise<{ eventId: string; ticketTypeId: string }> }
+  context: { params: Promise<{ eventId: string; ticketTypeId: string }> },
 ) {
   const { eventId, ticketTypeId } = await context.params;
   const id = Number(ticketTypeId);
@@ -241,7 +241,7 @@ export async function PUT(
                   purchased: false,
                   checkedIn: false,
                   code: `TICKET-${nanoid(8)}`,
-                })
+                }),
               ),
             },
           },
@@ -287,7 +287,7 @@ export async function PUT(
     console.error(e);
     return NextResponse.json(
       { error: "Failed to add/put new tickets" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
