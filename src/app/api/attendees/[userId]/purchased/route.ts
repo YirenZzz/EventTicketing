@@ -144,12 +144,15 @@ export async function POST(
     return NextResponse.json({ error: "No available ticket" }, { status: 400 });
   }
 
-  const updated = await prisma.ticket.update({
+   const updated = await prisma.ticket.update({
     where: { id: ticket.id },
     data: {
       purchased: true,
       purchasedTicket: {
-        create: { userId },
+        create: {
+          userId,
+          finalPrice, 
+        },
       },
     },
     include: {

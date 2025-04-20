@@ -107,6 +107,7 @@ model PurchasedTicket {
   ticketId  Int      @unique
   createdAt DateTime @default(now())
   checkedIn Boolean  @default(false)
+  finalPrice Float
 }
 
 model WaitlistedTicket {

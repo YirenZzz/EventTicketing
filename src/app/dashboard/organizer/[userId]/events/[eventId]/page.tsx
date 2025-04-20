@@ -10,32 +10,26 @@ export default async function EventDetailPage({
 }) {
   const { userId, eventId } = await params;
 
-  // Get Event info
-  const eventRes = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/organizers/${userId}/events/${eventId}`,
-    { cache: "no-store" },
-  );
-  if (!eventRes.ok) return notFound();
-  const { event } = await eventRes.json();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-  // Get all the ticktTypes of that Event
-  const ticketTypeRes = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/organizers/${userId}/events/${eventId}/ticket-types`,
-    { cache: "no-store" },
-  );
-  if (!ticketTypeRes.ok) return notFound();
+  const [eventRes, ticketTypeRes, purchasedTicketRes] = await Promise.all([
+    fetch(`${baseUrl}/api/organizers/${userId}/events/${eventId}`, { cache: "no-store" }),
+    fetch(`${baseUrl}/api/organizers/${userId}/events/${eventId}/ticket-types`, { cache: "no-store" }),
+    fetch(`${baseUrl}/api/organizers/${userId}/events/${eventId}/purchased-tickets`, { cache: "no-store" }),
+  ]);
+
+  if (!eventRes.ok || !ticketTypeRes.ok || !purchasedTicketRes.ok) return notFound();
+
+  const { event } = await eventRes.json();
   const { ticketTypes } = await ticketTypeRes.json();
+  const { purchasedTickets } = await purchasedTicketRes.json();
 
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto p-8 space-y-6">
         <div>
-          <h1 className="text-3xl uppercase text-purple-600 font-semibold">
-            {event.name}
-          </h1>
-          <p className="text-sm font-bold mt-2 mb-4">
-            Organizer: {event.organizerName}
-          </p>
+          <h1 className="text-3xl uppercase text-purple-600 font-semibold">{event.name}</h1>
+          <p className="text-sm font-bold mt-2 mb-4">Organizer: {event.organizerName}</p>
           <p className="text-gray-700 mb-4">{event.description}</p>
 
           <p className="text-gray-600">
@@ -74,7 +68,11 @@ export default async function EventDetailPage({
           </p>
         </div>
 
-        <TicketManager eventId={event.id} initialTicketTypes={ticketTypes} />
+        <TicketManager
+          eventId={event.id}
+          initialTicketTypes={ticketTypes}
+          purchasedTickets={purchasedTickets}
+        />
       </div>
     </AppShell>
   );

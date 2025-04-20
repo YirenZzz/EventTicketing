@@ -1,3 +1,4 @@
+//src/components/ticket/TicketManager.tsx
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -21,14 +22,21 @@ type TicketType = {
   tickets: Ticket[];
 };
 
+type PurchasedTicket = {
+  id: number;
+  finalPrice: number;
+};
+
 const ticketTiers = ['Basic', 'VIP', 'Early Bird', 'Student', 'Other'];
 
 export default function TicketManager({
   eventId,
   initialTicketTypes,
+  purchasedTickets,
 }: {
   eventId: number;
   initialTicketTypes: TicketType[];
+  purchasedTickets: PurchasedTicket[];
 }) {
   const { data: session } = useSession();
   const userId = session?.user?.id;
@@ -44,11 +52,8 @@ export default function TicketManager({
   const [editForm, setEditForm] = useState({ name: '', price: '', quantity: '' });
 
   const totalRevenue = useMemo(() => {
-    return ticketTypes.reduce((sum, tt) => {
-      const sold = (tt.tickets ?? []).filter((t) => t.purchased).length;
-      return sum + tt.price * sold;
-    }, 0);
-  }, [ticketTypes]);
+    return purchasedTickets.reduce((sum, pt) => sum + pt.finalPrice, 0);
+  }, [purchasedTickets]);
 
   if (!userId) return <p className="text-gray-500">Loading user session...</p>;
 
