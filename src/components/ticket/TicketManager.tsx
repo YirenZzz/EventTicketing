@@ -1,4 +1,3 @@
-//src/components/ticket/TicketManager.tsx
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -110,22 +109,18 @@ export default function TicketManager({
 
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this ticket type?')) return;
-  
     try {
       const res = await fetch(
         `/api/organizers/${userId}/events/${eventId}/ticket-types/${id}`,
         { method: 'DELETE' }
       );
-  
       const result = await res.json();
-  
       if (!res.ok) {
         alert(result?.error ?? 'Delete failed');
         return;
       }
-  
       setTicketTypes((prev) => prev.filter((tt) => tt.id !== id));
-    } catch (error) {
+    } catch {
       alert('An unexpected error occurred while deleting.');
     }
   };
@@ -136,7 +131,6 @@ export default function TicketManager({
       alert('This ticket type has already been sold and cannot be edited.');
       return;
     }
-  
     setEditingId(tt.id);
     setEditForm({
       name: tt.name,
@@ -156,9 +150,7 @@ export default function TicketManager({
     }
 
     const isDuplicate = ticketTypes.some(
-      (tt) =>
-        tt.id !== editingId &&
-        tt.name.toLowerCase() === editForm.name.trim().toLowerCase()
+      (tt) => tt.id !== editingId && tt.name.toLowerCase() === editForm.name.toLowerCase()
     );
     if (isDuplicate) {
       setEditNameError('Ticket type already exists.');
@@ -183,104 +175,85 @@ export default function TicketManager({
   };
 
   return (
-    <div className="bg-white border rounded p-4 shadow-sm mt-6">
-      <h3 className="text-xl font-bold mb-4">🎟️ Ticket Types</h3>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-        <select
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-            setNameError('');
-          }}
-          className="border rounded px-3 py-2 text-sm text-gray-700"
-        >
-          <option value="">Select Ticket Tier</option>
-          {ticketTiers.map((tier) => (
-            <option key={tier} value={tier}>
-              {tier}
-            </option>
-          ))}
-        </select>
-        <Input placeholder="Price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
-        <Input placeholder="Quantity" type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
-      </div>
-      {nameError && <p className="text-red-500 text-sm mb-2">{nameError}</p>}
-
-      <Button onClick={handleCreate} disabled={loading}>
-        {loading ? 'Creating...' : 'Add Ticket Type'}
-      </Button>
-
-      <div className="text-gray-700 my-4">
-        <p className="text-lg font-semibold">💰 Total Revenue: CA${totalRevenue.toFixed(2)}</p>
+    <div className="bg-white border rounded p-6 shadow-sm mt-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h3 className="text-xl font-bold text-gray-800">🎟️ Ticket Types</h3>
+        <p className="text-sm text-gray-700 font-medium">
+          💰 Total Revenue: <span className="text-purple-700">CA${totalRevenue.toFixed(2)}</span>
+        </p>
       </div>
 
-      {ticketTypes.length === 0 ? (
-        <p className="text-gray-500">No ticket types available.</p>
-      ) : (
-        <ul className="space-y-4">
-          {ticketTypes.map((tt) => {
-            const sold = (tt.tickets ?? []).filter((t) => t.purchased).length;
-            const checkedIn = (tt.tickets ?? []).filter((t) => t.purchased && t.checkedIn).length;
+      {/* Create Form */}
+      <div className="bg-gray-50 p-4 rounded border">
+        <h4 className="text-sm font-semibold text-gray-700 mb-3">Add New Ticket Type</h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <select
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              setNameError('');
+            }}
+            className="border rounded px-3 py-2 text-sm text-gray-700 focus:ring-2 focus:ring-purple-500"
+          >
+            <option value="">Select Tier</option>
+            {ticketTiers.map((tier) => (
+              <option key={tier} value={tier}>{tier}</option>
+            ))}
+          </select>
+          <Input placeholder="Price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
+          <Input placeholder="Quantity" type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+        </div>
+        {nameError && <p className="text-red-500 text-sm mt-2">{nameError}</p>}
+        <Button className="mt-4" onClick={handleCreate} disabled={loading}>
+          {loading ? 'Creating...' : 'Add Ticket Type'}
+        </Button>
+      </div>
+
+      {/* Ticket List */}
+      <div className="space-y-4">
+        {ticketTypes.length === 0 ? (
+          <p className="text-gray-500">No ticket types available.</p>
+        ) : (
+          ticketTypes.map((tt) => {
+            const sold = tt.tickets.filter((t) => t.purchased).length;
+            const checkedIn = tt.tickets.filter((t) => t.purchased && t.checkedIn).length;
             const percent = sold > 0 ? Math.round((checkedIn / sold) * 100) : 0;
             const remaining = tt.quantity - sold;
 
             return (
-              <li key={tt.id} className="border rounded px-4 py-3">
+              <div key={tt.id} className="border rounded px-4 py-3 shadow-sm bg-white">
                 {editingId === tt.id ? (
-                  <div className="grid grid-cols-3 gap-2 mb-2">
-                    <select
-                      value={editForm.name}
-                      onChange={(e) => {
-                        setEditForm({ ...editForm, name: e.target.value });
-                        setEditNameError('');
-                      }}
-                      className="border rounded px-2 py-1 text-sm text-gray-700"
-                    >
-                      <option value="">Select Ticket Tier</option>
-                      {ticketTiers.map((tier) => (
-                        <option key={tier} value={tier}>
-                          {tier}
-                        </option>
-                      ))}
-                    </select>
-                    <Input
-                      value={editForm.price}
-                      onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
-                    />
-                    <Input
-                      value={editForm.quantity}
-                      onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })}
-                    />
-                    {editNameError && (
-                      <p className="col-span-3 text-red-500 text-sm mt-1">{editNameError}</p>
-                    )}
-                    <div className="col-span-3 flex gap-2 mt-2">
-                      <Button size="sm" onClick={handleSaveEdit}>
-                        Save
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setEditingId(null);
-                          setEditNameError('');
-                        }}
+                  <>
+                    <div className="grid grid-cols-3 gap-2">
+                      <select
+                        value={editForm.name}
+                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                        className="border rounded px-2 py-1 text-sm text-gray-700"
                       >
-                        Cancel
-                      </Button>
+                        <option value="">Select Tier</option>
+                        {ticketTiers.map((tier) => (
+                          <option key={tier} value={tier}>{tier}</option>
+                        ))}
+                      </select>
+                      <Input value={editForm.price} onChange={(e) => setEditForm({ ...editForm, price: e.target.value })} />
+                      <Input value={editForm.quantity} onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })} />
                     </div>
-                  </div>
+                    {editNameError && <p className="text-red-500 text-sm mt-1">{editNameError}</p>}
+                    <div className="flex gap-2 mt-2">
+                      <Button size="sm" onClick={handleSaveEdit}>Save</Button>
+                      <Button size="sm" variant="outline" onClick={() => setEditingId(null)}>Cancel</Button>
+                    </div>
+                  </>
                 ) : (
                   <div className="flex justify-between items-center">
                     <div>
                       <Link
                         href={`/dashboard/organizer/${userId}/events/${eventId}/tickets_type/${tt.id}`}
-                        className="font-semibold underline hover:text-purple-600"
+                        className="text-lg font-semibold underline text-purple-700"
                       >
                         {tt.name}
                       </Link>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-600">
                         CA${tt.price.toFixed(2)} · {sold} sold / {tt.quantity} total · {remaining} left
                       </p>
                       <p className="text-sm text-green-600">
@@ -288,21 +261,17 @@ export default function TicketManager({
                       </p>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(tt)}>
-                        Edit
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleDelete(tt.id)}>
-                        Delete
-                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleEdit(tt)}>Edit</Button>
+                      <Button size="sm" variant="outline" onClick={() => handleDelete(tt.id)}>Delete</Button>
                     </div>
                   </div>
                 )}
-                <Progress value={percent} className="h-2 mt-2" />
-              </li>
+                <Progress value={percent} className="h-2 mt-2 rounded bg-gray-200" />
+              </div>
             );
-          })}
-        </ul>
-      )}
+          })
+        )}
+      </div>
     </div>
   );
 }
