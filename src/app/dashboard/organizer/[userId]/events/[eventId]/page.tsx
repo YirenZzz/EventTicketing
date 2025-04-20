@@ -26,30 +26,43 @@ export default async function EventDetailPage({
 
   return (
     <AppShell>
-      <div className="max-w-3xl mx-auto p-8 space-y-6">
-        <div>
-          <h1 className="text-3xl uppercase text-purple-600 font-semibold">{event.name}</h1>
-          <p className="text-sm font-bold mt-2 mb-4">Organizer: {event.organizerName}</p>
-          <p className="text-gray-700 mb-4">{event.description}</p>
+      <div className="max-w-4xl mx-auto px-6 py-8 space-y-10">
+        {/* Event Information Card */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border space-y-4">
+          <h1 className="text-3xl font-bold text-purple-700">{event.name}</h1>
 
-          <p className="text-gray-600">
-            📍 Location:{" "}
-            {event.location ? (
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-blue-600 underline hover:text-blue-800 transition"
-              >
-                {event.location}
-              </a>
-            ) : (
-              <span className="text-gray-400">N/A</span>
-            )}
+          <p className="text-sm font-semibold text-gray-500">
+            Organizer: <span className="text-gray-800">{event.organizerName}</span>
           </p>
 
+          <p className="text-gray-700 whitespace-pre-line">{event.description}</p>
+
+          <div className="text-sm text-gray-600 space-y-1">
+            <p>
+              🕒 <strong>Time:</strong>{" "}
+              {new Date(event.startDate).toLocaleString()} –{" "}
+              {new Date(event.endDate).toLocaleString()}
+            </p>
+
+            <p>
+              📍 <strong>Location:</strong>{" "}
+              {event.location ? (
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-blue-600 underline hover:text-blue-800 transition"
+                >
+                  {event.location}
+                </a>
+              ) : (
+                <span className="text-gray-400">N/A</span>
+              )}
+            </p>
+          </div>
+
           {event.location && (
-            <div className="rounded overflow-hidden border shadow w-full h-[300px] mb-6">
+            <div className="rounded overflow-hidden border shadow w-full h-[280px]">
               <iframe
                 title="Google Map"
                 width="100%"
@@ -61,13 +74,9 @@ export default async function EventDetailPage({
               ></iframe>
             </div>
           )}
-
-          <p className="text-sm text-gray-500">
-            🗓️ {new Date(event.startDate).toLocaleString()} –{" "}
-            {new Date(event.endDate).toLocaleString()}
-          </p>
         </div>
 
+        {/* Ticket Management Section */}
         <TicketManager
           eventId={event.id}
           initialTicketTypes={ticketTypes}
