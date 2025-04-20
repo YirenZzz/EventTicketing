@@ -154,14 +154,25 @@ export default function OrganizerGroupedPromoPage() {
 
     results.forEach(({ event }) => {
       creation[event.id] = false;
+    
+      const eventStart = event.startDate ? new Date(event.startDate) : new Date();
+    
+      // 计算开始时间：活动开始前15天
+      const defaultStart = new Date(eventStart);
+      defaultStart.setDate(defaultStart.getDate() - 15);
+    
+      // 格式化为 datetime-local 可接受的格式（yyyy-MM-ddTHH:mm）
+      const formattedStart = defaultStart.toISOString().slice(0, 16);
+      const formattedEnd = eventStart.toISOString().slice(0, 16);
+    
       form[event.id] = {
         code: "",
         type: "percentage",
         amount: "",
         ticketTypeId: "",
         maxUsage: "",
-        startDate: formattedNow, // Set default start date to now
-        endDate: formattedEndDate, // Set default end date to 30 days from now
+        startDate: formattedStart,
+        endDate: formattedEnd,
       };
     });
 
