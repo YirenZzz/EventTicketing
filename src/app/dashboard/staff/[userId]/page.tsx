@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation';
-import { OrganizerShell } from '@/components/layout/OrganizerShell';
-import { StepCard } from '@/components/ui/StepCard';
-import { EventCard } from '@/components/ui/EventCard';
+import React, { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter, useParams } from "next/navigation";
+import { OrganizerShell } from "@/components/layout/OrganizerShell";
+import { StepCard } from "@/components/ui/StepCard";
+import { EventCard } from "@/components/ui/EventCard";
 
 interface Event {
   id: number;
@@ -26,25 +26,25 @@ export default function StaffDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === "loading") return;
 
     const sessionUserId = String(session?.user?.id);
     const isAuthorized =
-      session?.user?.role === 'Staff' && sessionUserId === userId;
+      session?.user?.role === "Staff" && sessionUserId === userId;
 
     if (!isAuthorized) {
-      router.replace('/login');
+      router.replace("/login");
       return;
     }
 
     const fetchEvents = async () => {
       try {
         const res = await fetch(`/api/staffs/${userId}/events`);
-        if (!res.ok) throw new Error('Failed to fetch events');
+        if (!res.ok) throw new Error("Failed to fetch events");
         const { data } = await res.json();
         setEvents(data || []);
       } catch (err) {
-        console.error('Error loading events:', err);
+        console.error("Error loading events:", err);
         setEvents([]);
       } finally {
         setLoading(false);
@@ -54,9 +54,9 @@ export default function StaffDashboard() {
     fetchEvents();
   }, [session, status, userId, router]);
 
-  if (status === 'loading' || loading) return null;
+  if (status === "loading" || loading) return null;
   const sessionUserId = String(session?.user?.id);
-  if (session?.user?.role !== 'Staff' || sessionUserId !== userId) return null;
+  if (session?.user?.role !== "Staff" || sessionUserId !== userId) return null;
 
   return (
     <OrganizerShell>
@@ -79,29 +79,31 @@ export default function StaffDashboard() {
       </div>
 
       <div className="mt-10 space-y-4">
-  <h2 className="text-xl font-semibold mb-2">Assigned Events</h2>
-  {events.length === 0 ? (
-    <p className="text-gray-500">No events assigned yet.</p>
-  ) : (
-    <div className="space-y-4"> {/* 👈 每行一个 */}
-      {events.map((event) => (
-        <EventCard
-          key={event.id}
-          event={{
-            id: event.id.toString(),
-            name: event.name,
-            startDate: event.startDate,
-            endDate: event.endDate,
-            status: event.status,
-            organizerName: event.organizerName,
-          }}
-          href={`/dashboard/staff/${userId}/events/${event.id}`}
-          showActions={false}
-        />
-      ))}
-    </div>
-  )}
-</div>
+        <h2 className="text-xl font-semibold mb-2">Assigned Events</h2>
+        {events.length === 0 ? (
+          <p className="text-gray-500">No events assigned yet.</p>
+        ) : (
+          <div className="space-y-4">
+            {" "}
+            {/* Each line */}
+            {events.map((event) => (
+              <EventCard
+                key={event.id}
+                event={{
+                  id: event.id.toString(),
+                  name: event.name,
+                  startDate: event.startDate,
+                  endDate: event.endDate,
+                  status: event.status,
+                  organizerName: event.organizerName,
+                }}
+                href={`/dashboard/staff/${userId}/events/${event.id}`}
+                showActions={false}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </OrganizerShell>
   );
 }

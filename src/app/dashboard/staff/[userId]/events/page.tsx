@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import AppShell from '@/components/layout/AppShell';
-import { EventCard } from '@/components/ui/EventCard';
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import AppShell from "@/components/layout/AppShell";
+import { EventCard } from "@/components/ui/EventCard";
 
 interface Event {
   id: number;
@@ -24,13 +24,14 @@ export default function StaffEventsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === "loading") return;
 
     const sessionUserId = String(session?.user?.id);
-    const isAuthorized = session?.user?.role === 'Staff' && sessionUserId === userId;
+    const isAuthorized =
+      session?.user?.role === "Staff" && sessionUserId === userId;
 
     if (!isAuthorized) {
-      router.replace('/login');
+      router.replace("/login");
       return;
     }
 
@@ -40,7 +41,7 @@ export default function StaffEventsPage() {
         const { data } = await res.json();
         setEvents(data || []);
       } catch (err) {
-        console.error('Failed to fetch events:', err);
+        console.error("Failed to fetch events:", err);
         setEvents([]);
       } finally {
         setLoading(false);
@@ -50,7 +51,7 @@ export default function StaffEventsPage() {
     fetchEvents();
   }, [session, status, userId, router]);
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
       <AppShell>
         <div className="p-6 text-gray-500">Loading...</div>
@@ -69,19 +70,19 @@ export default function StaffEventsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {events.map((event) => (
               <EventCard
-              key={event.id}
-              event={{
-                id: event.id,
-                name: event.name,
-                startDate: event.startDate,
-                endDate: event.endDate,
-                status: event.status,
-                organizerName: event.organizerName,
-                coverImage: event.coverImage,
-              }}
-              href={`/dashboard/staff/${userId}/events/${event.id}`} // 👈 正确路径
-              showActions={false} // 👈 禁用编辑和删除按钮
-            />
+                key={event.id}
+                event={{
+                  id: event.id,
+                  name: event.name,
+                  startDate: event.startDate,
+                  endDate: event.endDate,
+                  status: event.status,
+                  organizerName: event.organizerName,
+                  coverImage: event.coverImage,
+                }}
+                href={`/dashboard/staff/${userId}/events/${event.id}`} // Corrent path
+                showActions={false}
+              />
             ))}
           </div>
         )}
