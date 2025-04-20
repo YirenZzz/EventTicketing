@@ -2,11 +2,12 @@
 
 # **Team Information**
 
-| Name         | Student Number | Email                                                                     |
-| ------------ | -------------- | ------------------------------------------------------------------------- | --- |
-| Yiren Zhao   | 1005092427     | [yiren.zhao@mail.utoronto.ca](mailto:yiren.zhao@mail.utoronto.ca)         |     |
-| Yining Wang  | 1005728134     | [yning.wang@mail.utoronto.ca](mailto:yning.wang@mail.utoronto.ca)         |     |
-| Yuting Zhang | 1011474897     | [ytlluvia.zhang@mail.utoronto.ca](mailto:ytlluvia.zhang@mail.utoronto.ca) |
+
+| Name         | Student Number | Email                                                                         |
+| ------------ | -------------- | ----------------------------------------------------------------------------- |
+| Yiren Zhao   | 1005092427     | [yiren.zhao@mail.utoronto.ca](mailto:yiren.zhao@mail.utoronto.ca)             |
+| Yining Wang  | 1005728134     | [yning.wang@mail.utoronto.ca](mailto:yning.wang@mail.utoronto.ca)             |
+| Yuting Zhang | 1011474897     | [ytlluvia.zhang@mail.utoronto.ca](mailto:ytlluvia.zhang@mail.utoronto.ca)     |
 
 ## Video demo
 
