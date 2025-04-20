@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { use, useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { EventCard } from '@/components/ui/EventCard';
-import CreateEventModal from '@/components/modals/CreateEventModal';
-import AppShell from '@/components/layout/AppShell';
+import { use, useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { EventCard } from "@/components/ui/EventCard";
+import CreateEventModal from "@/components/modals/CreateEventModal";
+import AppShell from "@/components/layout/AppShell";
 
 export default function OrganizerEventsPage({
   params,
@@ -23,9 +23,9 @@ export default function OrganizerEventsPage({
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
 
-  const status = searchParams.get('status') || 'UPCOMING';
-  const query = searchParams.get('q') || '';
-  const page = Number(searchParams.get('page') || 1);
+  const status = searchParams.get("status") || "UPCOMING";
+  const query = searchParams.get("q") || "";
+  const page = Number(searchParams.get("page") || 1);
 
   useEffect(() => {
     setLoading(true);
@@ -37,7 +37,7 @@ export default function OrganizerEventsPage({
         setMeta(data?.meta || { page: 1, totalPages: 1 });
       })
       .catch((err) => {
-        console.error('Failed to load events:', err);
+        console.error("Failed to load events:", err);
         setEvents([]);
       })
       .finally(() => setLoading(false));
@@ -46,7 +46,9 @@ export default function OrganizerEventsPage({
   const updateSearchParams = (key: string, value: string) => {
     const paramsObj = new URLSearchParams(searchParams.toString());
     paramsObj.set(key, value);
-    router.push(`/dashboard/organizer/${userId}/events?${paramsObj.toString()}`);
+    router.push(
+      `/dashboard/organizer/${userId}/events?${paramsObj.toString()}`,
+    );
   };
 
   return (
@@ -67,11 +69,11 @@ export default function OrganizerEventsPage({
         />
 
         <div className="flex gap-4 mb-4">
-          {['UPCOMING', 'ENDED'].map((s) => (
+          {["UPCOMING", "ENDED"].map((s) => (
             <Button
               key={s}
-              variant={status === s ? 'default' : 'ghost'}
-              onClick={() => updateSearchParams('status', s)}
+              variant={status === s ? "default" : "ghost"}
+              onClick={() => updateSearchParams("status", s)}
             >
               {s}
             </Button>
@@ -81,7 +83,7 @@ export default function OrganizerEventsPage({
         <Input
           placeholder="Search by name"
           value={query}
-          onChange={(e) => updateSearchParams('q', e.target.value)}
+          onChange={(e) => updateSearchParams("q", e.target.value)}
           className="mb-4"
         />
 
@@ -93,12 +95,12 @@ export default function OrganizerEventsPage({
               <p className="text-gray-500">No events created yet.</p>
             ) : (
               events.map((event) => {
-                // 如果后端没有 coverImage，就用 picsum.seed 生成固定图
+                // If no coverImage on the backend，use picsum.seed to generate picture
                 const fixedCover =
                   event.coverImage?.trim() ||
                   `https://picsum.photos/seed/${event.id}/400/200`;
 
-                // 将 coverImage 强制覆盖，传给 EventCard
+                // Cover coverImage，parse to EventCard
                 return (
                   <EventCard
                     key={event.id}
@@ -114,7 +116,7 @@ export default function OrganizerEventsPage({
           <Button
             size="sm"
             variant="outline"
-            onClick={() => updateSearchParams('page', String(page - 1))}
+            onClick={() => updateSearchParams("page", String(page - 1))}
             disabled={page <= 1}
           >
             &lt;
@@ -125,7 +127,7 @@ export default function OrganizerEventsPage({
           <Button
             size="sm"
             variant="outline"
-            onClick={() => updateSearchParams('page', String(page + 1))}
+            onClick={() => updateSearchParams("page", String(page + 1))}
             disabled={page >= meta.totalPages}
           >
             &gt;

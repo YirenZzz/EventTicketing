@@ -8,9 +8,9 @@ export default async function EventDetailPage({
 }: {
   params: Promise<{ userId: string; eventId: string }>;
 }) {
-  const { userId, eventId } = await params; 
+  const { userId, eventId } = await params;
 
-  // 获取 Event 信息
+  // Get Event info
   const eventRes = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/organizers/${userId}/events/${eventId}`,
     { cache: "no-store" },
@@ -18,7 +18,7 @@ export default async function EventDetailPage({
   if (!eventRes.ok) return notFound();
   const { event } = await eventRes.json();
 
-  // 获取该 Event 下所有 TicketType
+  // Get all the ticktTypes of that Event
   const ticketTypeRes = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/organizers/${userId}/events/${eventId}/ticket-types`,
     { cache: "no-store" },

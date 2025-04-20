@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation';
-import { OrganizerShell } from '@/components/layout/OrganizerShell';
-import { StatCard } from '@/components/ui/StatCard';
-import { StepCard } from '@/components/ui/StepCard';
-import { EventCard } from '@/components/ui/EventCard';
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter, useParams } from "next/navigation";
+import { OrganizerShell } from "@/components/layout/OrganizerShell";
+import { StatCard } from "@/components/ui/StatCard";
+import { StepCard } from "@/components/ui/StepCard";
+import { EventCard } from "@/components/ui/EventCard";
 import {
   ShoppingCart,
   Users,
@@ -14,7 +14,7 @@ import {
   Wallet,
   Eye,
   FileCheck,
-} from 'lucide-react';
+} from "lucide-react";
 
 export default function OrganizerDashboard() {
   const { data: session, status } = useSession();
@@ -27,45 +27,51 @@ export default function OrganizerDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (status === "loading") return;
 
     const sessionUserId = String(session?.user?.id);
     const isAuthorized =
-      session?.user?.role === 'Organizer' && sessionUserId === userId;
+      session?.user?.role === "Organizer" && sessionUserId === userId;
 
     if (!isAuthorized) {
-      router.replace('/login');
+      router.replace("/login");
       return;
     }
 
     async function fetchEvents() {
       try {
-        const res = await fetch(`/api/organizers/${userId}/events?status=UPCOMING`);
-        if (!res.ok) throw new Error('Failed to fetch events');
+        const res = await fetch(
+          `/api/organizers/${userId}/events?status=UPCOMING`,
+        );
+        if (!res.ok) throw new Error("Failed to fetch events");
         const data = await res.json();
         const evts = data.data || [];
         setEvents(evts);
-        
-        const resAll = await fetch(`/api/organizers/${userId}/events?status=ALL`);
+
+        const resAll = await fetch(
+          `/api/organizers/${userId}/events?status=ALL`,
+        );
         const allJson = await resAll.json();
         const allEvents = allJson.data || [];
 
-        // 计算所有活动的总收入
+        // Calculate the gross revenue of the event
         const total = allEvents.reduce((accEvent: number, event: any) => {
           const revenuePerEvent = (event.ticketTypes || []).reduce(
             (accType: number, tt: any) => {
               // tt.price + tt.tickets: purchased flags
-              const soldCount = (tt.tickets || []).filter((t: any) => t.purchased).length;
+              const soldCount = (tt.tickets || []).filter(
+                (t: any) => t.purchased,
+              ).length;
               return accType + soldCount * tt.price;
             },
-            0
+            0,
           );
           return accEvent + revenuePerEvent;
         }, 0);
 
         setGrossSales(total);
       } catch (err) {
-        console.error('Error fetching events:', err);
+        console.error("Error fetching events:", err);
         setEvents([]);
         setGrossSales(0);
       } finally {
@@ -76,13 +82,19 @@ export default function OrganizerDashboard() {
     fetchEvents();
   }, [session, status, userId, router]);
 
-  if (status === 'loading') return null;
-  if (!session || session.user.role !== 'Organizer' || String(session.user.id) !== userId)
+  if (status === "loading") return null;
+  if (
+    !session ||
+    session.user.role !== "Organizer" ||
+    String(session.user.id) !== userId
+  )
     return null;
 
   return (
     <OrganizerShell>
-      <h1 className="text-3xl font-bold mb-6">Welcome back, {session.user.name} 👋</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        Welcome back, {session.user.name} 👋
+      </h1>
 
       <div className="bg-white p-6 rounded-lg border shadow-sm mb-8">
         <h2 className="text-lg font-semibold mb-4">🚀 Get your event ready</h2>
@@ -116,7 +128,7 @@ export default function OrganizerDashboard() {
                 name: event.name,
                 startDate: event.startDate,
                 endDate: event.endDate,
-                status: event.status || 'Draft',
+                status: event.status || "Draft",
                 coverImage: event.coverImage,
               }}
             />
