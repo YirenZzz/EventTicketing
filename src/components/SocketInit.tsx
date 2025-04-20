@@ -1,11 +1,11 @@
 // src/components/SocketInit.tsx
-'use client';
+"use client";
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 export default function SocketInit() {
   useEffect(() => {
-    fetch('/api/socket'); // 触发 Socket.IO 初始化
+    fetch("/api/socket");
   }, []);
 
   return null;

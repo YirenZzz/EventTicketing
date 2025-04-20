@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import clsx from 'clsx';
+import React from "react";
+import clsx from "clsx";
 
 export function Progress({
   value,
@@ -10,12 +10,12 @@ export function Progress({
   value: number;
   className?: string;
 }) {
-  const clampedValue = Math.min(Math.max(value, 0), 100); // 确保在 0–100 之间
+  const clampedValue = Math.min(Math.max(value, 0), 100); // 0-100
   return (
     <div
       className={clsx(
-        'w-full h-2 bg-gray-200 rounded-full overflow-hidden',
-        className
+        "w-full h-2 bg-gray-200 rounded-full overflow-hidden",
+        className,
       )}
     >
       <div

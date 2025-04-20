@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Bar } from 'react-chartjs-2';
+import { useEffect, useState } from "react";
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   BarElement,
@@ -9,9 +9,8 @@ import {
   LinearScale,
   Tooltip,
   Legend,
-} from 'chart.js';
-import { Button } from '@/components/ui/button';
-
+} from "chart.js";
+import { Button } from "@/components/ui/button";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -29,7 +28,13 @@ export default function EventReport({
   } | null>(null);
 
   const [checkinStats, setCheckinStats] = useState<
-    { ticketTypeId: number; name: string; total: number; sold: number; checkedIn: number }[]
+    {
+      ticketTypeId: number;
+      name: string;
+      total: number;
+      sold: number;
+      checkedIn: number;
+    }[]
   >([]);
 
   const [eventAttendanceRates, setEventAttendanceRates] = useState<
@@ -38,7 +43,9 @@ export default function EventReport({
 
   useEffect(() => {
     async function fetchData() {
-      const res1 = await fetch(`/api/organizers/${userId}/events/${eventId}/summary`);
+      const res1 = await fetch(
+        `/api/organizers/${userId}/events/${eventId}/summary`,
+      );
       // const res2 = await fetch(`/api/organizers/${userId}/events/${eventId}/checkin-summary`);
       const res3 = await fetch(`/api/organizers/${userId}/events`);
 
@@ -46,11 +53,6 @@ export default function EventReport({
         const data = await res1.json();
         setSummary(data);
       }
-
-      // if (res2.ok) {
-      //   const { stats } = await res2.json();
-      //   setCheckinStats(stats);
-      // }
 
       if (res3.ok) {
         const { events } = await res3.json();
@@ -72,14 +74,14 @@ export default function EventReport({
 
   const downloadCSV = () => {
     const rows = [
-      ['Ticket Type', 'Total', 'Sold', 'Checked-In'],
+      ["Ticket Type", "Total", "Sold", "Checked-In"],
       ...checkinStats.map((s) => [s.name, s.total, s.sold, s.checkedIn]),
     ];
 
-    const csv = rows.map((r) => r.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const csv = rows.map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `checkin_stats_event_${eventId}.csv`;
     a.click();
@@ -102,15 +104,15 @@ export default function EventReport({
                 labels: eventAttendanceRates.map((e) => e.name),
                 datasets: [
                   {
-                    label: 'Attendance Rate (%)',
+                    label: "Attendance Rate (%)",
                     data: eventAttendanceRates.map((e) => e.attendanceRate),
-                    backgroundColor: '#6366F1',
+                    backgroundColor: "#6366F1",
                     borderRadius: 6,
                   },
                 ],
               }}
               options={{
-                indexAxis: 'y',
+                indexAxis: "y",
                 scales: {
                   x: {
                     min: 0,
@@ -118,12 +120,12 @@ export default function EventReport({
                     ticks: {
                       callback: (v) => `${v}%`,
                       font: { size: 14 },
-                      color: '#4B5563',
+                      color: "#4B5563",
                     },
-                    grid: { color: '#E5E7EB' },
+                    grid: { color: "#E5E7EB" },
                   },
                   y: {
-                    ticks: { font: { size: 14 }, color: '#6B7280' },
+                    ticks: { font: { size: 14 }, color: "#6B7280" },
                     grid: { display: false },
                   },
                 },
@@ -143,42 +145,52 @@ export default function EventReport({
 
       {/* Selected Event Details */}
       <div className="border rounded p-6 bg-gray-50 space-y-6">
-      <div className="w-64">
-              <Select
-                value={selectedEventId?.toString()}
-                onValueChange={(value) => setSelectedEventId(Number(value))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select event" />
-                </SelectTrigger>
-                <SelectContent>
-                  {eventList.map((event) => (
-                    <SelectItem key={event.id} value={event.id.toString()}>
-                      {event.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-        
+        <div className="w-64">
+          <Select
+            value={selectedEventId?.toString()}
+            onValueChange={(value) => setSelectedEventId(Number(value))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select event" />
+            </SelectTrigger>
+            <SelectContent>
+              {eventList.map((event) => (
+                <SelectItem key={event.id} value={event.id.toString()}>
+                  {event.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Summary Text */}
         <div className="space-y-1 text-base text-gray-800">
-          <p><strong>Total Tickets:</strong> {summary.totalTickets}</p>
-          <p><strong>Sold Tickets:</strong> {summary.soldTickets}</p>
-          <p><strong>Checked-In:</strong> {summary.checkedIn}</p>
+          <p>
+            <strong>Total Tickets:</strong> {summary.totalTickets}
+          </p>
+          <p>
+            <strong>Sold Tickets:</strong> {summary.soldTickets}
+          </p>
+          <p>
+            <strong>Checked-In:</strong> {summary.checkedIn}
+          </p>
         </div>
-        
+
         {/* Summary Chart */}
         <div className="mt-6 max-w-md">
           <Bar
             data={{
-              labels: ['Total', 'Sold', 'Checked-In'],
+              labels: ["Total", "Sold", "Checked-In"],
               datasets: [
                 {
-                  label: 'Tickets',
-                  data: [summary.totalTickets, summary.soldTickets, summary.checkedIn],
-                  backgroundColor: ['#7C3AED99', '#22C55E99', '#3B82F699'],
-                  borderColor: ['#7C3AED', '#22C55E', '#3B82F6'],
+                  label: "Tickets",
+                  data: [
+                    summary.totalTickets,
+                    summary.soldTickets,
+                    summary.checkedIn,
+                  ],
+                  backgroundColor: ["#7C3AED99", "#22C55E99", "#3B82F699"],
+                  borderColor: ["#7C3AED", "#22C55E", "#3B82F6"],
                   borderWidth: 1,
                   borderRadius: 8,
                   barPercentage: 0.5,
@@ -191,13 +203,13 @@ export default function EventReport({
               plugins: { legend: { display: false } },
               scales: {
                 x: {
-                  ticks: { font: { size: 14 }, color: '#4B5563' },
+                  ticks: { font: { size: 14 }, color: "#4B5563" },
                   grid: { display: false },
                 },
                 y: {
                   beginAtZero: true,
-                  ticks: { font: { size: 14 }, color: '#6B7280' },
-                  grid: { color: '#E5E7EB' },
+                  ticks: { font: { size: 14 }, color: "#6B7280" },
+                  grid: { color: "#E5E7EB" },
                 },
               },
             }}
@@ -207,15 +219,24 @@ export default function EventReport({
         {/* Check-In by Ticket Type */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Check-in Stats by Ticket Type</h3>
-            <Button size="sm" onClick={downloadCSV}>Export CSV</Button>
+            <h3 className="text-lg font-semibold">
+              Check-in Stats by Ticket Type
+            </h3>
+            <Button size="sm" onClick={downloadCSV}>
+              Export CSV
+            </Button>
           </div>
 
           {checkinStats.length === 0 ? (
-            <p className="text-sm text-gray-500">No ticket type data available.</p>
+            <p className="text-sm text-gray-500">
+              No ticket type data available.
+            </p>
           ) : (
             checkinStats.map((s) => (
-              <div key={s.ticketTypeId} className="p-4 bg-white border rounded shadow-sm">
+              <div
+                key={s.ticketTypeId}
+                className="p-4 bg-white border rounded shadow-sm"
+              >
                 <p className="font-semibold text-purple-700">{s.name}</p>
                 <p className="text-sm text-gray-600">
                   Total: {s.total} | Sold: {s.sold} | Checked-In: {s.checkedIn}

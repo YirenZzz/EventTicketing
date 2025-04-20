@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { TicketCard } from '@/components/ui/TicketCard';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from "react";
+import { TicketCard } from "@/components/ui/TicketCard";
+import { Button } from "@/components/ui/button";
 
 export default function TicketModule({ eventId }: { eventId: string }) {
   const [tickets, setTickets] = useState<any[]>([]);
@@ -17,8 +17,8 @@ export default function TicketModule({ eventId }: { eventId: string }) {
         setTickets(data.tickets);
       })
       .catch((err) => {
-        console.error('Failed to load tickets', err);
-        setError('Failed to load tickets');
+        console.error("Failed to load tickets", err);
+        setError("Failed to load tickets");
       })
       .finally(() => setLoading(false));
   }, [eventId]);
@@ -34,7 +34,7 @@ export default function TicketModule({ eventId }: { eventId: string }) {
           <TicketCard key={ticket.id} ticket={ticket} />
         ))}
       </div>
-      {/* 如果需要，可以增加创建票的按钮 */}
+      {/* if needed */}
       <Button className="mt-4 bg-green-600 hover:bg-green-700 text-white">
         Create New Ticket
       </Button>

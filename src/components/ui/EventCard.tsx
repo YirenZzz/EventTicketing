@@ -1,11 +1,11 @@
 // components/ui/EventCard.tsx
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Calendar, Pencil, Trash2 } from 'lucide-react';
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
-import EditEventModal from '../modals/EditEventModal';
+import Link from "next/link";
+import { Calendar, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import EditEventModal from "../modals/EditEventModal";
 
 interface EventCardProps {
   event: {
@@ -29,15 +29,15 @@ export const EventCard = ({
   const { data: session } = useSession();
 
   const handleDelete = async () => {
-    if (!confirm('Delete this event?')) return;
+    if (!confirm("Delete this event?")) return;
     const organizerId = session?.user?.id;
-    if (!organizerId) return alert('Not logged in');
+    if (!organizerId) return alert("Not logged in");
     const res = await fetch(
       `/api/organizers/${organizerId}/events/${event.id}`,
-      { method: 'DELETE' }
+      { method: "DELETE" },
     );
     if (res.ok) window.location.reload();
-    else alert('Delete failed');
+    else alert("Delete failed");
   };
 
   // 优先使用后端持久化的 coverImage，否则用 picsum seed 接口生成固定图
@@ -52,7 +52,6 @@ export const EventCard = ({
         alt="Event cover"
         className="w-full h-48 object-cover"
         onError={(e) => {
-          // 若意外加载失败，再次尝试相同 seed
           e.currentTarget.src = `https://picsum.photos/seed/${event.id}/400/200`;
         }}
       />
@@ -83,7 +82,7 @@ export const EventCard = ({
 
         <div className="flex items-center text-sm text-gray-600 gap-2">
           <Calendar className="w-4 h-4 text-gray-500" />
-          {new Date(event.startDate).toLocaleString()} –{' '}
+          {new Date(event.startDate).toLocaleString()} –{" "}
           {new Date(event.endDate).toLocaleString()}
         </div>
 

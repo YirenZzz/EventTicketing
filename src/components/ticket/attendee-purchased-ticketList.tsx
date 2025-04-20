@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import TicketQRCode from "@/components/TicketQRCode"; // 你之前写的那个 QR code 组件
+import TicketQRCode from "@/components/TicketQRCode"; // QR code worte before
 
 export default function PurchasedTicketList({ userId }: { userId: number }) {
   const [tickets, setTickets] = useState<any[]>([]);

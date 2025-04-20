@@ -15,28 +15,7 @@ export default function EventDetailClient({ event }: { event: any }) {
       <h1 className="text-3xl font-bold mt-2 mb-4 hover:underline">
         {event.name}
       </h1>
-
       <p className="text-gray-700 mb-4">{event.description}</p>
-
-      {/* <p className="text-gray-700 mb-4">{event.location}</p> */}
-      {/* {event.location ? (
-        <p className="text-gray-700 mb-4">
-          📍 Location:{" "}
-          <a
-            // href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-            //   event.location,
-            // )}`}
-            href={`https://google.com`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline hover:text-blue-800 transition"
-          >
-            {event.location}
-          </a>
-        </p>
-      ) : (
-        <p className="text-gray-500 italic mb-4">Location not provided</p>
-      )} */}
 
       {event.location ? (
         <p className="text-gray-700 mb-4 flex items-center gap-1">
