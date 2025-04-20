@@ -4,8 +4,8 @@
 
 | Name         | Student Number | Email                                                                         |
 | ------------ | -------------- | ----------------------------------------------------------------------------- |
-| Yiren Zhao   |                |                                                                               |
-| Yining Wang  | 1005728134     | [yning.wang@mail.utoronto.ca]               |                                                                               |
+| Yiren Zhao   | 1005092427     | [yiren.zhao@mail.utoronto.ca](mailto:yiren.zhao@mail.utoronto.ca)                |                                                                               |
+| Yining Wang  | 1005728134     | [yning.wang@mail.utoronto.ca](mailto:yning.wang@mail.utoronto.ca)               |                                                                               |
 | Yuting Zhang | 1011474897     | [ytlluvia.zhang@mail.utoronto.ca](img/mailto:ytlluvia.zhang@mail.utoronto.ca) |
 
 # Motivation
@@ -68,33 +68,25 @@ For image and QR code support, we implemented a flexible upload interface that a
 
 We also implemented pre-signed upload URLs for direct S3 uploads from the client, using PUT requests to cloud storage, a strategy directly covered in Week 12 on DigitalOcean Spaces. Although we used AWS S3 instead of Spaces, the API model and security mechanisms are fully compatible. QR codes for each ticket are generated on the fly as base64 Data URLs, removing the need for server-side temp files or binary blobs. This architecture reflects our grasp of client-cloud integration, media processing, and external service orchestration.
 
-//TODO(?)
-### Advanced state management
-
 
 ### API integration with external services
-We integrated several external-service APIs to enhance functionality and user experience. For instance, the Google Maps Embed API is used on the Organizer Event Detail Page to provide a live map preview of the event location. When an organizer sets a location, it is encoded into a query string and passed to an embedded <iframe> powered by Google Maps, enabling people to visualize where the event takes place and improving usability. This implementation reflects the UI enrichment principles, where dynamic, data-driven components were emphasized. //TODO(?) Beyond Maps, Resend is used to dispatch HTML-based confirmation emails with embedded QR codes (a feature rooted in Week 8: API Integration II), and AWS S3 handles image uploads using the same API model as DigitalOcean Spaces introduced in Week 12. Finally, a Stripe skeleton is scaffolded for future payment integration. Each service is integrated with robust error handling and secured access, reflecting best practices from the course.
+We integrated several external-service APIs to enhance functionality and user experience. For instance, the Google Maps Embed API is used on the Organizer Event Detail Page to provide a live map preview of the event location. When an organizer sets a location, it is encoded into a query string and passed to an embedded <iframe> powered by Google Maps, enabling people to visualize where the event takes place and improving usability. This implementation reflects the UI enrichment principles, where dynamic, data-driven components were emphasized. Beyond Maps, Resend is used to dispatch HTML-based confirmation emails with embedded QR codes (a feature rooted in Week 8: API Integration II), and AWS S3 handles image uploads using the same API model as DigitalOcean Spaces introduced in Week 12. Finally, a Stripe skeleton is scaffolded for future payment integration. Each service is integrated with robust error handling and secured access, reflecting best practices from the course.
 
 ### Event Creation with Schema-Driven Forms
-Organizers can dynamically configure registration forms—selecting which fields to include (e.g., description, location). These toggles are persisted in an EventFormField table and hydrated into React forms at runtime. This pattern of schema-driven UI and dynamic form rendering links to course contents in Week 4-5 (?) on advanced React state and reusable components.
+Organizers can dynamically configure registration forms—selecting which fields to include (e.g., description, location). These toggles are persisted in an EventFormField table and hydrated into React forms at runtime. This pattern of schema-driven UI and dynamic form rendering links to course contents on advanced React state and reusable components.
 
-//TODO(?)
 ### Tiered Ticket Types and Promo Codes
 Each event supports multiple ticket tiers (e.g., Early Bird, VIP, Student) with individual pricing and promotional discount settings. Promo codes support both percentage and fixed discounts, along with expiration dates and usage limits. Validation logic is executed inside Prisma.$transaction() blocks to ensure atomicity and reflect Week 3’s emphasis on ACID-compliant operations.
 
-//TODO9(?) 感觉和前面file handeling有点点重复(?)
 ### QR Code Generation and Validation: Real-Time QR-Code Check-In Interface (Camera, Images, and PDFs)
 Upon ticket purchase, a unique code (e.g., TICKET-xxxx) is generated and rendered into a QR image using the qrcode package. This image is embedded into an HTML email sent via the Resend API, showcasing real-world integration with external services as covered in lecture about API Integration.The Staff dashboard includes a real-time check-in system. It supports camera scanning via html5-qrcode, drag-and-drop image uploads, and even PDF parsing. For PDFs, we stream the first page using pdfjs-dist, render it to a canvas, and attempt QR extraction. These functionalities demonstrate our understanding of client-side file processing and expand on the image-handling techniques.
 
-//TODO(?)
 ### PostgreSQL for transaction data: Data Consistency via Prisma Transactions
 Critical updates (like check-ins and promo validation) are provided by Prisma to guarantee updates across multiple tables (e.g., both Ticket and PurchasedTicket). This design reflects proper transaction usage discussed in class and implemented in Assignment 2.
-
 
 ### Attendance analytics and reporting
 Both staff and organizers can view charts for attendance and revenue (Chart.js). Detailed statistics can also be  downloaded as CSV via server-generated Content-Disposition responses. Ticket type breakdowns (Total, Sold, Checked-In) are streamed from API routes and rendered into Excel-compatible file, satisfying Week 11’s emphasis on backend data processing and professional workflows.
 
-//TODO(?) 感觉这个可以加在qr validation和checkin 后面
 ### Mobile-responsive check-in interface
 The check-in interface is fully mobile-responsive, optimized for phones and tablets without any native app. This mobile-first design highlights our ability to deliver production-grade UX beyond the desktop environment.
 
@@ -103,7 +95,7 @@ The check-in interface is fully mobile-responsive, optimized for phones and tabl
 
 ## Getting Started with Development
 
-### 1. Dependencies Installation
+### Dependencies Installation
 
 Begin by installing all required dependencies:
 
@@ -125,7 +117,7 @@ Install the latest version of Tailwind CSS:
 npm install tailwindcss@latest
 ```
 
-### 2. Database Setup
+### Database Setup
 
 Initialize and reset the database with:
 
@@ -139,7 +131,7 @@ Create the initial database schema:
 npx prisma migrate dev --name init
 ```
 
-### 3. Launch Development Server
+### Launch Development Server
 
 Start the application in development mode:
 
