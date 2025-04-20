@@ -63,17 +63,17 @@ Our Event Ticketing and QR Code Check-in System provides a comprehensive set of 
 
 ## Advanced and key features
 
-### Authentication + Authorisation – JWT + role‑aware middleware; guards every API route
+### Authentication & Authorisation
 
 We implemented role-based authentication using NextAuth.js with a Credentials Provider, where each user receives a signed JWT that encodes both their user ID and role (Organizer, Staff, or Attendee). Upon login, the system verifies credentials using bcrypt and checks the selected role against the database before issuing the token. We use a stateless session strategy (strategy: "jwt"), allowing both the frontend and backend to access the user’s identity and role without querying a session store. A custom middleware layer parses the JWT on every request and attaches the user’s role and ID to the request context, enabling consistent, role-aware access control across frontend components and backend API routes. This ensures that only organizers can create events or manage promotions, only staff can perform event check-ins, and only attendees can view their purchased tickets. The implementation directly reflects the contnets covered with Better Auth—and mirrors the role-based guard structures , where building secure, authenticated flows and protecting sensitive routes based on user roles are main objectives.
 
-### Real‑time communication – Socket.io delivers purchase and check‑in events end‑to‑end
+### Real‑time communication
 
 We implemented Check-in and purchase events emit ticketCheckedIn and ticketPurchased messages via Socket.io. Organizers and staff clients subscribe using a shared context provider. Dashboards update instantly—mirroring the real-time components emphasized in class and showing advanced state management via Zustand and React Query.Organizers and Staff dashboards subscribe to these channels via a React Context wrapper, allowing components like counters, progress bars, and bar charts to update instantly—without requiring page reloads. This setup directly reflects the class coverage of real-time communication and demonstrates an applied understanding of WebSocket lifecycle management, as well as frontend reactivity (from Assignment 4).
 
-### File handling and processing: File / Cloud
+### File handling and processing
 
-For image and QR code support, we implemented a flexible upload interface that accepts both image files and PDF documents, allowing staff to check in attendees using screenshots, printed tickets, or email attachments. Uploaded files are parsed on the client side using pdf.js (for PDFs) and html5-qrcode (for image-based decoding), with fallback text extraction for malformed codes.For PDFs, we stream the first page using pdfjs-dist, render it to a canvas, and attempt QR extraction. These functionalities demonstrate our understanding of client-side file processing and expand on the image-handling techniques. This feature demonstrates hands-on understanding of file handling and user experience design.
+For image and QR code support, we implemented a flexible upload interface that accepts both image files and PDF documents, allowing staff to check in attendees using screenshots, printed tickets, or email attachments. Uploaded files are parsed on the client side using pdf.js (for PDFs) and html5-qrcode (for image-based decoding). For PDFs, we stream the first page using pdfjs-dist, render it to a canvas, and attempt QR extraction. These functionalities demonstrate our understanding of client-side file processing and expand on the image-handling techniques. This feature demonstrates hands-on understanding of file handling and user experience design.
 
 We also implemented pre-signed upload URLs for direct S3 uploads from the client, using PUT requests to cloud storage, a strategy directly covered in Week 12 on DigitalOcean Spaces. Although we used AWS S3 instead of Spaces, the API model and security mechanisms are fully compatible. QR codes for each ticket are generated on the fly as base64 Data URLs, removing the need for server-side temp files or binary blobs. This architecture reflects our grasp of client-cloud integration, media processing, and external service orchestration.
 
@@ -89,21 +89,20 @@ Organizers can dynamically configure registration forms—selecting which fields
 
 Each event supports multiple ticket tiers (e.g., Early Bird, VIP, Student) with individual pricing and promotional discount settings. Promo codes support both percentage and fixed discounts, along with expiration dates and usage limits. Validation logic is executed inside Prisma.$transaction() blocks to ensure atomicity and reflect Week 3’s emphasis on ACID-compliant operations.
 
-### QR Code Generation and Validation: Real-Time QR-Code Check-In Interface (Camera, Images, and PDFs)
+### QR Code Generation and Validation: Real-Time QR-Code Check-In Interface (Camera, Images, and PDFs), and Mobile-responsive check-in interface
 
-Upon ticket purchase, a unique code (e.g., TICKET-xxxx) is generated and rendered into a QR image using the qrcode package. This image is embedded into an HTML email sent via the Resend API, showcasing real-world integration with external services as covered in lecture about API Integration.The Staff dashboard includes a real-time check-in system. It supports camera scanning via html5-qrcode, drag-and-drop image uploads, and even PDF parsing. For PDFs, we stream the first page using pdfjs-dist, render it to a canvas, and attempt QR extraction. These functionalities demonstrate our understanding of client-side file processing and expand on the image-handling techniques.
+Upon ticket purchase, a unique code (e.g., TICKET-xxxx) is generated and rendered into a QR image using the qrcode package. This image is embedded into an HTML email sent via the Resend API, showcasing real-world integration with external services as covered in lecture about API Integration.The Staff dashboard includes a real-time check-in system. It supports camera scanning via html5-qrcode, drag-and-drop image uploads, and even PDF parsing. The check-in interface is fully mobile-responsive, optimized for phones and tablets without any native app. This design highlights our ability to deliver production-grade UX beyond the desktop environment。
 
 ### PostgreSQL for transaction data: Data Consistency via Prisma Transactions
 
 Critical updates (like check-ins and promo validation) are provided by Prisma to guarantee updates across multiple tables (e.g., both Ticket and PurchasedTicket). This design reflects proper transaction usage discussed in class and implemented in Assignment 2.
 
 ### Attendance analytics and reporting
-
 Both staff and organizers can view charts for attendance and revenue (Chart.js). Detailed statistics can also be downloaded as CSV via server-generated Content-Disposition responses. Ticket type breakdowns (Total, Sold, Checked-In) are streamed from API routes and rendered into Excel-compatible file, satisfying Week 11’s emphasis on backend data processing and professional workflows.
 
-### Mobile-responsive check-in interface
+### Automated email confirmations
+After a successful ticket purchase, our system automatically sends a confirmation email containing the event name and a unique ticket code. This feature is implemented using the Resend email API. We call the `/api/email/confirmation` endpoint with the attendee’s email, event name, and generated ticket code. The email is sent in HTML format, with dynamic templating via template literals. This automated flow not only reduces manual work for organizers but also demonstrates our understanding of external service integration, secure API calling, and error handling patterns.
 
-The check-in interface is fully mobile-responsive, optimized for phones and tablets without any native app. This mobile-first design highlights our ability to deliver production-grade UX beyond the desktop environment.
 
 # Development Guide
 
