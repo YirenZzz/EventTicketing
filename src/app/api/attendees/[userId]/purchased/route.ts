@@ -41,7 +41,7 @@ export async function GET(
     eventEnd: p.ticket.ticketType.event.endDate.toISOString(),
     ticketTypeId: p.ticket.ticketType.id,
     ticketTypeName: p.ticket.ticketType.name,
-    price: p.ticket.ticketType.price,
+    price: p.finalPrice,
     checkedIn: p.checkedIn,
     ticketId: p.ticket.id,
     code: p.ticket.code,
