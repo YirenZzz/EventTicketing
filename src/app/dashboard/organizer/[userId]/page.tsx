@@ -55,19 +55,9 @@ export default function OrganizerDashboard() {
         const allEvents = allJson.data || [];
 
         // Calculate the gross revenue of the event
-        const total = allEvents.reduce((accEvent: number, event: any) => {
-          const revenuePerEvent = (event.ticketTypes || []).reduce(
-            (accType: number, tt: any) => {
-              // tt.price + tt.tickets: purchased flags
-              const soldCount = (tt.tickets || []).filter(
-                (t: any) => t.purchased,
-              ).length;
-              return accType + soldCount * tt.price;
-            },
-            0,
-          );
-          return accEvent + revenuePerEvent;
-        }, 0);
+        const total = allEvents.reduce((sum: number, event: any) => {
+          return sum + (event.totalRevenue ?? 0);
+        }, 0);  
 
         setGrossSales(total);
       } catch (err) {

@@ -3,7 +3,6 @@ import { getRandomCoverImage } from '@/lib/randomCover';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { NextRequest, NextResponse } from "next/server";
-import { uploadCoverImageFromURL } from '@/lib/aws';
 import { uploadImageFromUrlToS3 } from '@/lib/aws/upload';
 
 export async function GET(
@@ -18,7 +17,7 @@ export async function GET(
 
   const { searchParams } = req.nextUrl;
   const filterStatus = searchParams.get("status");
-  const query = searchParams.get("q")?.toLowerCase() || ""; // 👈 搜索关键词（默认空）
+  const query = searchParams.get("q")?.toLowerCase() || "";
 
   try {
     const allEvents = await db.event.findMany({
@@ -35,17 +34,44 @@ export async function GET(
       orderBy: { startDate: "asc" },
     });
 
-    const now = new Date();
+    const allPurchased = await db.purchasedTicket.findMany({
+      where: {
+        ticket: {
+          ticketType: {
+            event: {
+              organizerId: userIdNum,
+            },
+          },
+        },
+      },
+      select: {
+        finalPrice: true,
+        ticket: {
+          select: {
+            ticketType: {
+              select: {
+                eventId: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
+    const revenueByEvent: Record<number, number> = {};
+    for (const p of allPurchased) {
+      const eventId = p.ticket.ticketType.eventId;
+      revenueByEvent[eventId] = (revenueByEvent[eventId] || 0) + p.finalPrice;
+    }
+
+    const now = new Date();
     const filteredEvents = allEvents
       .filter((ev) => {
         const isEnded = new Date(ev.endDate) < now;
         if (!filterStatus || filterStatus === 'ALL') return true;
         return filterStatus === "ENDED" ? isEnded : !isEnded;
       })
-      .filter((ev) =>
-        ev.name.toLowerCase().includes(query) // 👈 搜索过滤（忽略大小写）
-      );
+      .filter((ev) => ev.name.toLowerCase().includes(query));
 
     const data = filteredEvents.map((ev) => {
       const allTickets = ev.ticketTypes.flatMap((tt) => tt.tickets);
@@ -65,6 +91,7 @@ export async function GET(
         totalTickets: allTickets.length,
         soldTickets: sold,
         checkedIn,
+        totalRevenue: revenueByEvent[ev.id] ?? 0, // ✅ 实际收入
       };
     });
 
@@ -91,11 +118,10 @@ export async function POST(req: Request) {
   try {
     let finalCoverImage = coverImage;
 
-    // ✅ 如果没传封面图，自动使用稳定 seed + picsum 随机图并上传至 S3
     if (!coverImage) {
-      const seed = `${name}-${Date.now()}`; // 可加入 style 前缀也行
-      const tempImage = getRandomCoverImage(seed); // https://picsum.photos/seed/xxx
-      finalCoverImage = await uploadImageFromUrlToS3(tempImage); // 上传到 S3，返回 URL
+      const seed = `${name}-${Date.now()}`;
+      const tempImage = getRandomCoverImage(seed);
+      finalCoverImage = await uploadImageFromUrlToS3(tempImage);
     }
 
     const event = await db.event.create({
