@@ -2,6 +2,7 @@
 import { notFound } from "next/navigation";
 import TicketManager from "@/components/ticket/TicketManager";
 import AppShell from "@/components/layout/AppShell";
+import BackButton from "@/components/ui/BackButton";
 
 export default async function EventDetailPage({
   params,
@@ -28,6 +29,10 @@ export default async function EventDetailPage({
     <AppShell>
       <div className="max-w-4xl mx-auto px-6 py-8 space-y-10">
         {/* Event Information Card */}
+        <div className="flex items-center justify-between mb-6">
+        <h1 className="text-4xl font-bold text-purple-800">Event Info & Tickets</h1>
+        <BackButton fallbackHref={`/dashboard/organizer/${userId}/events`} />
+      </div>
         <div className="bg-white p-6 rounded-lg shadow-sm border space-y-4">
           <h1 className="text-3xl font-bold text-purple-700">{event.name}</h1>
 
