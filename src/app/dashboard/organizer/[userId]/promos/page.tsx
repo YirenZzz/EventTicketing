@@ -157,13 +157,12 @@ export default function OrganizerGroupedPromoPage() {
     
       const eventStart = event.startDate ? new Date(event.startDate) : new Date();
     
-      // 计算开始时间：活动开始前15天
       const defaultStart = new Date(eventStart);
-      defaultStart.setDate(defaultStart.getDate() - 15);
+      defaultStart.setDate(eventStart.getDate() - 15);
     
-      // 格式化为 datetime-local 可接受的格式（yyyy-MM-ddTHH:mm）
-      const formattedStart = defaultStart.toISOString().slice(0, 16);
-      const formattedEnd = eventStart.toISOString().slice(0, 16);
+      // 正确格式化为本地时间字符串 yyyy-MM-ddTHH:mm
+      const formattedStart = format(defaultStart, "yyyy-MM-dd'T'HH:mm");
+      const formattedEnd = format(eventStart, "yyyy-MM-dd'T'HH:mm");
     
       form[event.id] = {
         code: "",
