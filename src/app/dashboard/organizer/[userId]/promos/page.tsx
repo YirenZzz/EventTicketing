@@ -116,7 +116,12 @@ export default function OrganizerGroupedPromoPage() {
     const res = await fetch(`/api/organizers/${userId}/events`);
     const json = await res.json();
     const events = Array.isArray(json) ? json : (json.events ?? json.data);
-    if (!Array.isArray(events)) return;
+    if (!Array.isArray(events) || events.length === 0) {
+      setData([]);
+      setFilteredData([]);
+      setLoading(false);
+      return;
+    }
 
     const results = await Promise.all(
       events.map(async (evt: any) => {

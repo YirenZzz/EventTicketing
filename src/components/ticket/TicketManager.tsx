@@ -215,8 +215,8 @@ export default function TicketManager({
           <p className="text-gray-500">No ticket types available.</p>
         ) : (
           ticketTypes.map((tt) => {
-            const sold = tt.tickets.filter((t) => t.purchased).length;
-            const checkedIn = tt.tickets.filter((t) => t.purchased && t.checkedIn).length;
+            const sold = (tt.tickets ?? []).filter((t) => t.purchased).length;
+            const checkedIn = (tt.tickets ?? []).filter((t) => t.purchased && t.checkedIn).length;
             const percent = sold > 0 ? Math.round((checkedIn / sold) * 100) : 0;
             const remaining = tt.quantity - sold;
 
