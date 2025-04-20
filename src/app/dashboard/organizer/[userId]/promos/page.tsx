@@ -340,13 +340,12 @@ export default function OrganizerGroupedPromoPage() {
                           {event.name}
                         </CardTitle>
                         {event.startDate && (
-                          <p className="text-sm text-gray-500 mt-1">
-                            {format(new Date(event.startDate), "MMM d, yyyy")}
+                          <p className="text-sm text-gray-600 mt-1 flex items-center gap-1">
+                            {format(new Date(event.startDate), "MMM d, yyyy h:mm a")}
                             {event.endDate && (
                               <>
                                 {" "}
-                                -{" "}
-                                {format(new Date(event.endDate), "MMM d, yyyy")}
+                                – {format(new Date(event.endDate), "h:mm a")}
                               </>
                             )}
                           </p>
