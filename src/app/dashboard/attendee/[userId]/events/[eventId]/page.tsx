@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Calendar, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import AppShell from "@/components/layout/AppShell";
+import BackButton from "@/components/ui/BackButton";
 
 interface TicketType {
   id: number;
@@ -197,6 +198,11 @@ export default function AttendeeEventDetailPage() {
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+
+         <div className="flex items-center justify-between mb-6">
+                <h1 className="text-4xl font-bold text-purple-800">Ticket Purchase</h1>
+                <BackButton fallbackHref={`/dashboard/organizer/${userId}/events`} />
+              </div>
         <h1 className="text-3xl font-bold">{event.name}</h1>
 
         <div className="text-gray-600 space-y-1">
