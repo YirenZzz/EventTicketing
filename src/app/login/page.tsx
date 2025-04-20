@@ -48,7 +48,9 @@ export default function LoginPage() {
         <div className="max-w-md mx-auto">
           <div className="flex items-center mb-8">
             {/* <img src="/your-logo.png" alt="Logo" className="h-8 w-8 mr-2" /> */}
-            <h1 className="text-3xl font-bold text-purple-600">Event Ticket System</h1>
+            <h1 className="text-3xl font-bold text-purple-600">
+              Event Ticket System
+            </h1>
           </div>
 
           <h2 className="text-2xl font-semibold mb-2">
@@ -69,7 +71,10 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Email *
               </label>
               <input
@@ -83,7 +88,10 @@ export default function LoginPage() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Password *
               </label>
               <input
@@ -103,7 +111,10 @@ export default function LoginPage() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Select Your Role
               </label>
               <select
@@ -126,32 +137,26 @@ export default function LoginPage() {
               {loading ? "Logging in..." : "Log in"}
             </button>
           </form>
-
-          {/* <div className="flex items-center justify-between text-sm text-gray-500 mt-4">
-            <div>Powered by Hi.Events 🚀</div>
-            <select className="border rounded px-2 py-1 text-gray-700">
-              <option>English</option>
-              <option>Français</option>
-              <option>中文</option>
-            </select>
-          </div> */}
         </div>
       </section>
 
-      {/* 右侧介绍内容 */}
+      {/* Intro on the right */}
       <section className="hidden md:flex md:w-1/2 bg-gradient-to-r from-purple-400 via-pink-500 to-pink-600 text-white flex-col justify-center px-10">
         <div className="max-w-md">
           <h3 className="text-2xl font-bold mb-4">Smart Dashboard</h3>
           <p className="mb-6">
-            Track revenue, page views, and sales with detailed analytics and exportable reports
+            Track revenue, page views, and sales with detailed analytics and
+            exportable reports
           </p>
           <h3 className="text-2xl font-bold mb-4">Complete Store</h3>
           <p className="mb-6">
-            Sell merchandise alongside tickets with integrated tax and promo code support
+            Sell merchandise alongside tickets with integrated tax and promo
+            code support
           </p>
           <h3 className="text-2xl font-bold mb-4">Brand Control</h3>
           <p className="mb-6">
-            Customize your event page and widget design to match your brand perfectly
+            Customize your event page and widget design to match your brand
+            perfectly
           </p>
         </div>
       </section>

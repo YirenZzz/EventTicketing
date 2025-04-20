@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { EventCard } from '@/components/ui/EventCard';
-import CreateEventModal from '@/components/modals/CreateEventModal';
-import AppShell from '@/components/layout/AppShell'; 
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { EventCard } from "@/components/ui/EventCard";
+import CreateEventModal from "@/components/modals/CreateEventModal";
+import AppShell from "@/components/layout/AppShell";
 
 export default function EventsPage() {
   const searchParams = useSearchParams();
@@ -17,9 +17,9 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
 
-  const status = searchParams.get('status') || 'UPCOMING';
-  const query = searchParams.get('q') || '';
-  const page = Number(searchParams.get('page') || 1);
+  const status = searchParams.get("status") || "UPCOMING";
+  const query = searchParams.get("q") || "";
+  const page = Number(searchParams.get("page") || 1);
 
   useEffect(() => {
     setLoading(true);
@@ -40,7 +40,9 @@ export default function EventsPage() {
   };
 
   return (
-    <AppShell> {/* ✅ 包裹内容 */}
+    <AppShell>
+      {" "}
+      {/* content */}
       <div className="p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Upcoming Events</h1>
@@ -57,11 +59,11 @@ export default function EventsPage() {
         />
 
         <div className="flex gap-4 mb-4">
-          {['UPCOMING', 'ENDED', 'ARCHIVED'].map((s) => (
+          {["UPCOMING", "ENDED", "ARCHIVED"].map((s) => (
             <Button
               key={s}
-              variant={status === s ? 'default' : 'ghost'}
-              onClick={() => updateSearchParams('status', s)}
+              variant={status === s ? "default" : "ghost"}
+              onClick={() => updateSearchParams("status", s)}
             >
               {s}
             </Button>
@@ -71,7 +73,7 @@ export default function EventsPage() {
         <Input
           placeholder="Search by name"
           value={query}
-          onChange={(e) => updateSearchParams('q', e.target.value)}
+          onChange={(e) => updateSearchParams("q", e.target.value)}
           className="mb-4"
         />
 
@@ -83,7 +85,9 @@ export default function EventsPage() {
               {events.length === 0 ? (
                 <p className="text-gray-500">No events found.</p>
               ) : (
-                events.map((event) => <EventCard key={event.id} event={event} />)
+                events.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))
               )}
             </div>
 
@@ -91,16 +95,18 @@ export default function EventsPage() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => updateSearchParams('page', String(page - 1))}
+                onClick={() => updateSearchParams("page", String(page - 1))}
                 disabled={page <= 1}
               >
                 &lt;
               </Button>
-              <span className="text-sm">Page {page} of {meta.totalPages}</span>
+              <span className="text-sm">
+                Page {page} of {meta.totalPages}
+              </span>
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => updateSearchParams('page', String(page + 1))}
+                onClick={() => updateSearchParams("page", String(page + 1))}
                 disabled={page >= meta.totalPages}
               >
                 &gt;
