@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import io from "socket.io-client";
 import AppShell from "@/components/layout/AppShell";
-import BackButton from "@/components/ui/BackButton";
+// import BackButton from "@/components/ui/BackButton";
 import {
   Ticket,
   Users,
@@ -172,10 +172,10 @@ export default function TicketTypeLivePage() {
     <AppShell>
       <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        {/* <div className="flex items-center justify-between mb-6">
                 <h1 className="text-4xl font-bold text-purple-800">Live Ticket Tracker</h1>
                 <BackButton fallbackHref={`/dashboard/organizer/${userId}/events`} />
-              </div>
+              </div> */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
             <div>
