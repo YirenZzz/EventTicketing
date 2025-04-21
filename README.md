@@ -57,7 +57,11 @@ When an attendee completes a purchase, a corresponding PurchasedTicket record is
 During development, we used Prisma Studio to explore, verify, and manipulate database contents. This setup ensures structured, normalized, and query-efficient data management for all parts of the system.
 
 ### Real‑time & State
-Our application uses Socket.io 4 to enable real-time updates, with a server-side Socket.IO instance initialized in `/api/socket.ts` and a lightweight client initializer component (SocketInit.tsx) that connects the browser to the WebSocket backend. We collect frontend state using a hybrid strategy: immutable props are passed through React Server Components, while volatile real-time counters are managed by a centralized Zustand store. React Query is used to fetch data and perform optimistic updates, enabling UI changes that respond to both user input and backend mutations. This structure reflects knowledge on frontend reactivity, state management, real-time design principles, and supports a clean separation between server-side and client-side logic.
+To support real-time feedback and synchronized views between staff and organizer interfaces, the system integrates Socket.IO for bidirectional event-driven communication over WebSocket. This enables immediate updates without requiring page reloads, which is essential for live check-in operations during an event.
+
+When a staff member scans a QR code and completes a check-in, the check-in API validates the ticket and then emits a check-in event via the Socket.IO server. Organizer dashboards that are subscribed to this event receive the updated data instantly, allowing the interface to reflect changes such as updated check-in counts, progress bars, and attendee status without refreshing the page. This improves operational efficiency and user experience, especially in fast-paced, high-attendance scenarios.
+
+The real-time layer is fully integrated into the Next.js backend, and the client connections are managed through a lightweight Socket.IO context provider on the frontend. The system ensures that only authenticated users with the correct role and session state can establish a socket connection, maintaining both data consistency and access control.
 
 ### Part of Additional Technologies
 
