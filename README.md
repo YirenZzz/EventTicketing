@@ -11,7 +11,7 @@
 
 ## Video demo
 
-demo link: [[https://drive.google.com/file/d/1Hq_-tGKYt0PiNFJCN-WKe6-93Ox3vX-7/view?usp=share_link](https://drive.google.com/file/d/1U-j7z2vOSZP4nZrWmB0d1LrmBheqHfoh/view?usp=drive_link)](https://drive.google.com/file/d/1U-j7z2vOSZP4nZrWmB0d1LrmBheqHfoh/view?usp=drive_link)
+demo link: https://www.dropbox.com/scl/fi/67x3cn54e7mga3rd9j0ax/ECE1724demo_final.mp4?rlkey=cm3164lag6l5qvgj7ktekfzjf&st=01ax1xxv&dl=0
 
 # Motivation
 
