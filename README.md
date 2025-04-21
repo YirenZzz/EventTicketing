@@ -43,7 +43,7 @@ Our Event Ticketing and QR Code Check-in System implements a comprehensive techn
 
 ### Frontend
 
-We built the frontend using Next.js 15 with the App Router and React Server Components for efficient server-side data fetching. We used TypeScript throughout the application to ensure type safety and catch bugs early, aligning with the concepts introduced in lectures about TypeScript and Next.js. For styling, we adopted Tailwind CSS along with shadcn/ui to compose accessible, reusable UI components, following the best practices covered in Week 8’s lecture on Modern Styling Solutions. Interactive visualizations such as attendance rates and revenue stats are implemented with Chart.js, which is dynamically imported inside client components to avoid unnecessary server load. Our dashboards and check-in UI are all implemented in React, with client-side state management and routing, showing the core skills developed in Assignment 3.
+We built the frontend using Next.js 15 with the App Router and React Server Components for efficient server-side data fetching. We used TypeScript throughout the application to ensure type safety and catch bugs early, aligning with the concepts introduced in lectures about TypeScript and Next.js. For styling, we adopted Tailwind CSS along with shadcn/ui to compose accessible, reusable UI components, following the best practices covered in lecture on Modern Styling Solutions. Interactive visualizations such as attendance rates and revenue stats are implemented with Chart.js, which is dynamically imported inside client components to avoid unnecessary server load. Our dashboards and check-in UI are all implemented in React, with client-side state management and routing.
 
 ### Backend
 
@@ -53,23 +53,24 @@ Our backend architecture combines Next.js API routes for most server-side logic,
 
 Socket.io 4 provides WebSockets; a single /lib/socket.ts keeps the client connection. Frontend state is co‑located: Server Components for immutable props, Zustand store for volatile real‑time counters, React‑Query for fetch/optimistic update.
 
+### Additional Technologies
 Additional technologies incorporated into our stack include QRCode.js for generating unique ticket identifiers, React-QR-Reader for implementing the scanning functionality during check-in, and Chart.js for visualizing attendance data in the analytics dashboard. We implemented real-time updates for the check-in dashboard using WebSockets, ensuring immediate synchronization of attendance data across multiple devices.
 
-Email communications were handled using Nodemailer, enabling automated notifications for registrations, ticket issuance, and event updates. For frontend testing, we employed Jest and React Testing Library to ensure component functionality and user interaction reliability. The development workflow was enhanced through ESLint and Prettier for code quality enforcement and formatting consistency.
+
 
 # Features
 
-Our Event Ticketing and QR Code Check-in System provides a comprehensive set of features designed to address the challenges of event management. These features fulfill both the course requirements and our project objectives, delivering a valid solution for event ticketing management.
+Our project provides a comprehensive set of features designed to address the challenges of event management. These features fulfill both the course requirements and our project objectives, delivering a valid solution for event ticketing management.
 
 ## Advanced and key features
 
-### Authentication & Authorisation
+### Authentication & Authorization
 
 We implemented role-based authentication using NextAuth.js with a Credentials Provider, where each user receives a signed JWT that encodes both their user ID and role (Organizer, Staff, or Attendee). Upon login, the system verifies credentials using bcrypt and checks the selected role against the database before issuing the token. We use a stateless session strategy (strategy: "jwt"), allowing both the frontend and backend to access the user’s identity and role without querying a session store. A custom middleware layer parses the JWT on every request and attaches the user’s role and ID to the request context, enabling consistent, role-aware access control across frontend components and backend API routes. This ensures that only organizers can create events or manage promotions, only staff can perform event check-ins, and only attendees can view their purchased tickets. The implementation directly reflects the contnets covered with Better Auth—and mirrors the role-based guard structures , where building secure, authenticated flows and protecting sensitive routes based on user roles are main objectives.
 
 ### Real‑time communication
 
-We implemented Check-in and purchase events emit ticketCheckedIn and ticketPurchased messages via Socket.io. Organizers and staff clients subscribe using a shared context provider. Dashboards update instantly—mirroring the real-time components emphasized in class and showing advanced state management via Zustand and React Query.Organizers and Staff dashboards subscribe to these channels via a React Context wrapper, allowing components like counters, progress bars, and bar charts to update instantly—without requiring page reloads. This setup directly reflects the class coverage of real-time communication and demonstrates an applied understanding of WebSocket lifecycle management, as well as frontend reactivity (from Assignment 4).
+We implemented Check-in and purchase events emit ticketCheckedIn and ticketPurchased messages via Socket.io. Organizers and staff clients subscribe using a shared context provider. Dashboards update instantly—mirroring the real-time components emphasized in class and showing advanced state management via Zustand and React Query. Organizers and Staff dashboards subscribe to these channels via a React Context wrapper, allowing components like counters, progress bars, and bar charts to update instantly—without requiring page reloads. This setup directly reflects the class coverage of real-time communication and demonstrates an applied understanding of WebSocket lifecycle management, as well as frontend reactivity.
 
 ### File handling and processing
 
@@ -79,7 +80,7 @@ We also implemented pre-signed upload URLs for direct S3 uploads from the client
 
 ### API integration with external services
 
-We integrated several external-service APIs to enhance functionality and user experience. For instance, the Google Maps Embed API is used on the Organizer Event Detail Page to provide a live map preview of the event location. When an organizer sets a location, it is encoded into a query string and passed to an embedded <iframe> powered by Google Maps, enabling people to visualize where the event takes place and improving usability. This implementation reflects the UI enrichment principles, where dynamic, data-driven components were emphasized. Beyond Maps, Resend is used to dispatch HTML-based confirmation emails with embedded QR codes (a feature rooted in Week 8: API Integration II), and AWS S3 handles image uploads using the same API model as DigitalOcean Spaces introduced in Week 12. Finally, a Stripe skeleton is scaffolded for future payment integration. Each service is integrated with robust error handling and secured access, reflecting best practices from the course.
+We integrated several external-service APIs to enhance functionality and user experience. For instance, the Google Maps Embed API is used on the Organizer Event Detail Page to provide a live map preview of the event location. When an organizer sets a location, it is encoded into a query string and passed to an embedded <iframe> powered by Google Maps, enabling people to visualize where the event takes place and improving usability. This implementation reflects the UI enrichment principles, where dynamic, data-driven components were emphasized. Beyond Maps, Resend is used to dispatch HTML-based confirmation emails with embedded QR codes, and AWS S3 handles image uploads using the same API model as DigitalOcean Spaces introduced in class. Each service is integrated with error handling and secured access, showing best practices from the course.
 
 ### Event Creation with Schema-Driven Forms
 
@@ -87,22 +88,21 @@ Organizers can dynamically configure registration forms—selecting which fields
 
 ### Tiered Ticket Types and Promo Codes
 
-Each event supports multiple ticket tiers (e.g., Early Bird, VIP, Student) with individual pricing and promotional discount settings. Promo codes support both percentage and fixed discounts, along with expiration dates and usage limits. Validation logic is executed inside Prisma.$transaction() blocks to ensure atomicity and reflect Week 3’s emphasis on ACID-compliant operations.
+Our platform supports tiered ticket pricing and discount codes, enabling organizers to define multiple ticket types per event (Early Bird, VIP etc.), each with its own price and inventory. Promo codes offer either fixed or percentage-based discounts and support constraints like usage limits and validity dates. These codes are validated server-side during purchase using atomic Prisma transactions, ensuring consistency and enforcing ACID properties, aligning with the PostgreSQL & Prisma ORM part covered by lecture. Promo management is handled through dynamic React forms and integrated CRUD APIs, reflecting the schema-driven UI and backend integration patterns emphasized in assignments.
 
 ### QR Code Generation and Validation: Real-Time QR-Code Check-In Interface (Camera, Images, and PDFs), and Mobile-responsive check-in interface
 
-Upon ticket purchase, a unique code (e.g., TICKET-xxxx) is generated and rendered into a QR image using the qrcode package. This image is embedded into an HTML email sent via the Resend API, showcasing real-world integration with external services as covered in lecture about API Integration.The Staff dashboard includes a real-time check-in system. It supports camera scanning via html5-qrcode, drag-and-drop image uploads, and even PDF parsing. The check-in interface is fully mobile-responsive, optimized for phones and tablets without any native app. This design highlights our ability to deliver production-grade UX beyond the desktop environment。
+Upon ticket purchase, a unique code (e.g., TICKET-xxxx) is generated and rendered into a QR image using the qrcode package. This image is embedded into an HTML email sent via the Resend API, showcasing real-world integration with external services as covered in lecture about API Integration.The Staff dashboard includes a real-time check-in system. It supports camera scanning via html5-qrcode, drag-and-drop image uploads, and even PDF parsing. The check-in interface is fully mobile-responsive, optimized for phones and tablets without any native app. This design highlights our ability to deliver production-grade UX beyond the desktop environment.
 
 ### PostgreSQL for transaction data: Data Consistency via Prisma Transactions
 
-Critical updates (like check-ins and promo validation) are provided by Prisma to guarantee updates across multiple tables (e.g., both Ticket and PurchasedTicket). This design reflects proper transaction usage discussed in class and implemented in Assignment 2.
+Critical updates (like check-ins and promo validation) are provided by Prisma to guarantee updates across multiple tables (e.g., both Ticket and PurchasedTicket). This design reflects proper transaction usage discussed in class and implemented in assignments.
 
 ### Attendance analytics and reporting
 Both staff and organizers can view charts for attendance and revenue (Chart.js). Detailed statistics can also be downloaded as CSV via server-generated Content-Disposition responses. Ticket type breakdowns (Total, Sold, Checked-In) are streamed from API routes and rendered into Excel-compatible file, satisfying Week 11’s emphasis on backend data processing and professional workflows.
 
 ### Automated email confirmations
-After a successful ticket purchase, our system automatically sends a confirmation email containing the event name and a unique ticket code. This feature is implemented using the Resend email API. We call the `/api/email/confirmation` endpoint with the attendee’s email, event name, and generated ticket code. The email is sent in HTML format, with dynamic templating via template literals. This automated flow not only reduces manual work for organizers but also demonstrates our understanding of external service integration, secure API calling, and error handling patterns.
-
+After a successful ticket purchase, our system automatically sends a confirmation email using the Resend email API. This email includes the event name, event time, ticket type, a unique ticket code (e.g., TICKET-QmwYBfUY), and a QR code that staff can later scan for check-in. We trigger this via a POST to the `/api/email/confirmation` endpoint, passing in the attendee’s email. The message is composed in HTML using dynamic templating with template literals. This feature automates what would otherwise be a manual process for organizers and demonstrates our ability to work with third-party APIs and handle errors.
 
 # Development Guide
 
@@ -604,16 +604,12 @@ This mobile-optimized approach enhances operational efficiency for event staff w
 
 # Lessons Learned and Concluding Remarks
 
-The development of our Event Ticketing and QR Code Check-in System provided valuable insights into both technical implementation strategies and effective project management approaches. Throughout this process, we encountered various challenges that ultimately enhanced our understanding of full-stack web development and collaborative software creation.
+The development of our Event Ticketing and QR Code Check-in System provided valuable insights into both technical implementation strategies and effective project management approaches. Throughout this process, we encountered many challenges that enhanced our understanding of full-stack web development and collaborative software creation.
 
 One significant lesson emerged from our experience implementing the QR code scanning functionality. We initially underestimated the complexity of developing a reliable scanning mechanism that functions consistently across various devices and lighting conditions. Through iterative testing and refinement, we discovered the importance of incorporating error handling and fallback mechanisms to ensure operational reliability even in suboptimal conditions. This experience reinforced the value of progressive enhancement in feature development, ensuring core functionality remains accessible regardless of environmental variables.
 
 Our implementation of real-time synchronization for the check-in process revealed the challenges of managing concurrent operations and data consistency across multiple clients. By adopting WebSocket technology and implementing appropriate state management, we developed a deeper understanding of distributed system principles and their application in web development contexts. This knowledge proved invaluable for creating an efficient, responsive check-in experience that maintains data integrity even during high-volume events.
 
-The project also highlighted the importance of responsive design implementation from the outset rather than as a subsequent adaptation. By adopting a mobile-first approach, we created interfaces that naturally adapted to various screen sizes while maintaining functionality and usability. This strategy significantly reduced development time compared to retrofitting responsiveness onto desktop-oriented interfaces and ensured a consistent experience across all devices.
-
-From a project management perspective, we found that clearly defining feature priorities and maintaining a flexible implementation schedule allowed us to adapt to unexpected challenges while ensuring delivery of essential functionality. Our structured approach to GitHub-based collaboration, including branch management, pull requests, and code reviews, facilitated efficient parallel development while maintaining code quality and consistency.
-
 As we reflect on this project, we recognize several areas for potential enhancement in future iterations. Expanding analytics capabilities to include predictive attendance modeling could provide additional value for event planners. Implementing more sophisticated communication options, such as automated SMS notifications and in-app messaging, would further streamline organizer-attendee interactions. Additionally, enhancing the platform's integration capabilities with external services would increase its utility within broader organizational ecosystems.
 
-In conclusion, the development of our Event Ticketing and QR Code Check-in System provided both practical experience in modern web development techniques and valuable insights into effective software development practices. The resulting platform successfully addresses the challenges identified in our initial motivation, delivering a comprehensive solution that enhances efficiency, improves user experience, and enables data-driven decision making for event management. We believe this project demonstrates our ability to conceptualize, implement, and refine complex web applications while maintaining focus on user needs and operational requirements.
+In conclusion, the development of our Event Ticketing and QR Code Check-in System provided both practical experience in modern web development techniques and valuable insights into effective software development practices. The resulting platform successfully addresses the challenges identified in our initial motivation, delivering a comprehensive solution that improves efficiency, user experience, and enables data-driven decision making for event management.
