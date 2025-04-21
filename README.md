@@ -75,9 +75,6 @@ Our platform supports tiered ticket pricing and discount codes, enabling organiz
 
 Upon ticket purchase, a unique code (e.g., TICKET-xxxx) is generated and rendered into a QR image using the qrcode package. This image is embedded into an HTML email sent via the Resend API, showcasing real-world integration with external services as covered in lecture about API Integration.The Staff dashboard includes a real-time check-in system. It supports camera scanning via html5-qrcode, drag-and-drop image uploads, and even PDF parsing. The check-in interface is fully mobile-responsive, optimized for phones and tablets without any native app. This design highlights our ability to deliver production-grade UX beyond the desktop environment.
 
-### PostgreSQL for transaction data: Data Consistency via Prisma Transactions
-
-Critical updates (like check-ins and promo validation) are provided by Prisma to guarantee updates across multiple tables (e.g., both Ticket and PurchasedTicket). This design reflects proper transaction usage discussed in class and implemented in assignments. Input data is sanitized and type-checked before transactions execute, with rollback logic automatically applied on error handelling.
 
 ### Attendance analytics and reporting
 Both staff and organizers can view charts for attendance and revenue (Chart.js). Detailed statistics can also be downloaded as CSV via server-generated Content-Disposition responses. Ticket type breakdowns (Total, Sold, Checked-In) are streamed from API routes and rendered into Excel-compatible file, satisfying emphasis on backend data processing and professional workflows. All numeric inputs are validated for type and range, and missing fields return appropriate HTTP errors.
@@ -85,9 +82,9 @@ Both staff and organizers can view charts for attendance and revenue (Chart.js).
 ### Automated email confirmations
 After a successful ticket purchase, our system automatically sends a confirmation email using the Resend email API. This email includes the event name, event time, ticket type, a unique ticket code (e.g., TICKET-QmwYBfUY), and a QR code that staff can later scan for check-in. We trigger this via a POST to the `/api/email/confirmation` endpoint, passing in the attendee’s email. The message is composed in HTML using dynamic templating with template literals. Input validation ensures all required fields are present and properly formatted before dispatch. Fallback logic handles delivery failures gracefully with console logging and response monitoring. This automation demonstrates our ability to work with third-party APIs and handle errors.
 
-## PostgreSQL for transaction data
+### PostgreSQL for transaction data
 
-We use PostgreSQL as the primary database to manage all transactional data, including ticket purchases, check-in status, and promo code usage. Through Prisma ORM, we define clear data models and perform all updates.
+Critical updates (like check-ins and promo validation) are provided by Prisma to guarantee updates across multiple tables (e.g., both Ticket and PurchasedTicket). This design reflects proper transaction usage discussed in class and implemented in assignments. Input data is sanitized and type-checked before transactions execute, with rollback logic automatically applied on error handelling.
 
 ## Cloud storage for event assets
 
@@ -600,7 +597,7 @@ Yiren:
 
 - Automated email confirmations
 
-- PostgreSQL transaction data
+- PostgreSQL for transaction data
 
 - Cloud storage for event assets
 
