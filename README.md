@@ -110,6 +110,14 @@ Error evaluating Node.js code
 Error: Can't resolve 'tailwindcss' in '/path/to/project/src/app'
 ```
 
+Install the latest version of Tailwind CSS:
+
+```bash
+npm install tailwindcss@latest
+```
+
+### Database Setup
+
 Copy `.env.example` to  `.env`, and change the username and password to your own
 ```bash
 DATABASE_URL="postgresql://{username}:{password}@localhost:5432/event_ticketing?schema=public"
@@ -125,14 +133,6 @@ AWS_SECRET_ACCESS_KEY="WGOF6nPiv0Wzsmfn2Nsy9NyztJdSv2bFjsqviSmu"
 AWS_BUCKET_NAME="event-ticketing-assets"
 AWS_REGION="us-east-2"
 ```
-
-Install the latest version of Tailwind CSS:
-
-```bash
-npm install tailwindcss@latest
-```
-
-### Database Setup
 
 Initialize and reset the database with:
 
