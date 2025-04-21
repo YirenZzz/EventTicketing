@@ -35,11 +35,7 @@ This project adopts a Next.js full-stack architecture using the App Router and A
 
 ### Frontend
 
-The frontend is developed using Next.js 15 with the App Router architecture, which enables seamless integration of server and client components within a unified full-stack framework. We chose Next.js for its built-in routing, server-side rendering capabilities, and close integration with API routes, all of which simplify application structure and improve performance.
-
-Pages and components are implemented in TypeScript, providing static type checking and better development tooling. Styling is handled using Tailwind CSS, a utility-first CSS framework that facilitates rapid development with consistent design. We adopted shadcn/ui, a headless component library built on Radix UI, to build accessible, reusable UI elements such as modals, dropdowns, and tabs. This approach aligns with modern styling best practices discussed in the course lectures.
-
-Frontend logic includes interactive forms for event creation, promo code application, and ticket management; dynamic rendering of components such as ticket type selectors and real-time status indicators; and fully responsive layouts that adapt to both desktop and mobile devices. Interactive data visualizations—such as attendance rates and revenue statistics—are implemented using Chart.js, which is imported inside client components to reduce server-side load. All dashboards and the check-in interface are implemented in React, with client-side state management and route handling using Next.js features.
+The frontend is developed using Next.js 15 with the App Router architecture, which enables seamless integration of server and client components within a unified full-stack framework. Pages and components are implemented in TypeScript, providing static type checking and better development tooling. Styling is handled using Tailwind CSS. We adopted shadcn/ui, a headless component library built on Radix UI, to build accessible, reusable UI elements such as modals, dropdowns, and tabs. Frontend logic includes interactive forms for event creation, promo code application, and ticket management; dynamic rendering of components such as ticket type selectors and real-time status indicators; and fully responsive layouts that adapt to both desktop and mobile devices. Interactive data visualizations—such as attendance rates and revenue statistics—are implemented using Chart.js, which is imported inside client components to reduce server-side load. All dashboards and the check-in interface are implemented in React, with client-side state management and route handling using Next.js features.
 
 ### Backend
 
@@ -613,75 +609,13 @@ Real-time synchronization ensures that check-in operations performed on mobile d
 
 # Individual Contributions
 
-Yiren:
-- Real-time functionality (e.g., WebSocket)
+Yiren led the implementation of core functionalities across all user roles, including the organizer, attendee, and staff. On the organizer side, she developed event creation/edition/deletion with customizable registration forms. This form supports title, description, date-time selection, and optional image upload. She used the AWS S3 as cloud storage for event assets. She implemented the full logic for tiered ticket pricing, allowing organizers to define multiple ticket types per event, along with the creation and management of promo codes that support fixed or percentage discounts, usage limits, and valid time ranges. She also built the attendance analytics and reporting module, including backend aggregation endpoints and frontend visualizations. On the attendee side, Yiren implemented the logic to generate a unique QR code upon each ticket purchase using the qrcode library. She also built the workflow for sending automated email confirmations using the Resend API, with fully customized HTML templates containing event details and the corresponding QR code. Beyond role-specific features, she fixed all the bugs from teammates, for example, the bug introduced from the waitlist management module. She implemented file handling and processing features, including the ability for attendees to download their tickets as PDF files and for organizers to export event data as CSV files. Yiren also designed and maintained the PostgreSQL data schema using Prisma ORM, modeling all core entities. She ensured relational consistency and implemented transactional logic across API endpoints to support real-time ticket validation, check-in tracking, and role-specific access control. She also made the demo video and the final report revising.
 
-- File handling and processing (with Yining)
+Yining was primarily responsible for the implementation of user authentication and authorization, enabling secure login and access control for organizers, staff, and attendees. She configured the authentication system using NextAuth.js with a custom CredentialsProvider, and extended the JWT to include both the user’s role and ID to support role-based routing and protected access. She also integrated the Google Maps Location API to support event address autocompletion during event creation. This enhancement allows organizers to input precise event locations through a responsive location search interface, improving usability and location accuracy for attendees. Yining led the implementation of the QR code generation and validation workflow. She used the qrcode library to generate scannable codes for each purchased ticket and built the staff-side scanning interface. She implemented the server-side ticket validation logic and developed the corresponding frontend UI to provide real-time check-in results. She ensured that the check-in interface was fully mobile-responsive, adapting layout, camera activation, and feedback interactions for small-screen usage. She also contributed to the PostgreSQL schema design using Prisma, with a focus on ticket ownership, check-in status tracking, and promo code usage limits. In addition, Yining handled various bug fixes and file structure cleanup, contributed to demo preparation, and actively participated in the rewriting and revision of the final report, helping refine technical descriptions and ensure consistency between documentation and implementation.
 
-- Advanced state management (with Yining)
-
-- API integration with external services (with Yining)
-
-- Event creation with customizable registration forms
-
-- Tiered ticket pricing and discount codes
-
-- Attendance analytics and reporting
-
-- Automated email confirmations
-
-- PostgreSQL for transaction data
-
-- Cloud storage for event assets
-
-- Mobile-responsive check-in interface
-
-- Bug fixing
-
-- Demo preparation
-
-- Final report writing and revising
-
-
-Yining:
-- User authentication and authorization: Organizer, Staff, Attendee
-
-- File handling and processing (with Yiren)
-
-- Advanced state management (with Yiren)
-
-- API integration with external services (with Yiren)
-
-- QR code generation and validation
-
-- Real-time check-in dashboard
-
-- Mobile-responsive check-in interface
-
-- PostgreSQL for transaction data
-
-- Basic project framework preparation
-
-- Bug fixing and file cleanup
-
-- Demo preparation
-
-- Final report writing and revising
-
-
-Yuting:
-
-- Waitlist Implementation
-
-- Mobile-responsive check-in interface
-
-- Final report writing
+Yuting implemented the waitlist feature, first UI page of helpcenter for attendees. She assisted in improving the mobile-responsive check-in interface. She revised the UI of promotion management page from the organizer’s view and the UI of activity page from the attendee’s side, though some bugs and inconsistencies remained. Beyond development, Yuting contributed to the initial drafting of the final report, with some terminology later refined during the revision process.
 
 
 # Lessons Learned and Concluding Remarks
 
-Building our Event Ticketing and QR Code Check-in System taught us a lot， not just about full-stack development, but also about what it takes to deliver a reliable product as a team. One of the biggest lessons came from implementing QR scanning. At first, we thought it would be straightforward, but making it work smoothly across different ways took multiple iterations. Along the way, we realized how critical good error handling and fallback strategies are for user-friendly features.
-
-Adding real-time updates for check-in also brought its own challenges. Getting multiple devices to stay in sync while keeping data consistent pushed us to better understand WebSocket communication and state management. It was a hands-on lesson in how distributed systems work in practice.
-
-Looking ahead, we see room to grow, like adding predictive analytics for attendance, or features like SMS reminders and deeper third-party integrations. But overall, this project gave us practical experience in modern web technologies and showed us how thoughtful design can directly improve user experience in a real-world setting.
+Building our Event Ticketing and QR Code Check-in System taught us not only full-stack development, but also how to deliver a reliable product through effective teamwork. Implementing QR code scanning was more complex than expected—it took several iterations to make it work smoothly across devices, highlighting the importance of robust error handling and fallback design. Integrating real-time check-in updates introduced challenges in synchronizing multiple clients and maintaining consistent state, deepening our understanding of WebSocket communication and distributed system behavior. Looking ahead, we see opportunities to extend the system with predictive attendance analytics, SMS reminders, and further third-party integrations.
