@@ -39,7 +39,7 @@ The frontend is developed using Next.js 15 with the App Router architecture, whi
 
 Pages and components are implemented in TypeScript, providing static type checking and better development tooling. Styling is handled using Tailwind CSS, a utility-first CSS framework that facilitates rapid development with consistent design. We adopted shadcn/ui, a headless component library built on Radix UI, to build accessible, reusable UI elements such as modals, dropdowns, and tabs. This approach aligns with modern styling best practices discussed in the course lectures.
 
-Frontend logic includes interactive forms for event creation, promo code application, and ticket management; dynamic rendering of components such as ticket type selectors and real-time status indicators; and fully responsive layouts that adapt to both desktop and mobile devices. Interactive data visualizations—such as attendance rates and revenue statistics—are implemented using Chart.js, which is dynamically imported inside client components to reduce server-side load. All dashboards and the check-in interface are implemented in React, with client-side state management and route handling using Next.js features.
+Frontend logic includes interactive forms for event creation, promo code application, and ticket management; dynamic rendering of components such as ticket type selectors and real-time status indicators; and fully responsive layouts that adapt to both desktop and mobile devices. Interactive data visualizations—such as attendance rates and revenue statistics—are implemented using Chart.js, which is imported inside client components to reduce server-side load. All dashboards and the check-in interface are implemented in React, with client-side state management and route handling using Next.js features.
 
 ### Backend
 
@@ -59,13 +59,9 @@ During development, we used Prisma Studio to explore, verify, and manipulate dat
 ### Real‑time & State
 To support real-time feedback and synchronized views between staff and organizer interfaces, the system integrates Socket.IO for bidirectional event-driven communication over WebSocket. This enables immediate updates without requiring page reloads, which is essential for live check-in operations during an event.
 
-When a staff member scans a QR code and completes a check-in, the check-in API validates the ticket and then emits a check-in event via the Socket.IO server. Organizer dashboards that are subscribed to this event receive the updated data instantly, allowing the interface to reflect changes such as updated check-in counts, progress bars, and attendee status without refreshing the page. This improves operational efficiency and user experience, especially in fast-paced, high-attendance scenarios.
+We use QRCode.js for generating unique ticket identifiers. When a staff member scans a QR code and completes a check-in, the check-in API validates the ticket and then emits a check-in event via the Socket.IO server. Organizer dashboards that are subscribed to this event receive the updated data instantly, allowing the interface to reflect changes such as updated check-in counts, progress bars, and attendee status without refreshing the page. This improves operational efficiency and user experience, especially in fast-paced, high-attendance scenarios.
 
 The real-time layer is fully integrated into the Next.js backend, and the client connections are managed through a lightweight Socket.IO context provider on the frontend. The system ensures that only authenticated users with the correct role and session state can establish a socket connection, maintaining both data consistency and access control.
-
-### Part of Additional Technologies
-
-Additional technologies integrated into our stack include QRCode.js for generating unique ticket identifiers, React-QR-Reader for implementing the scanning functionality during check-in, and Chart.js for visualizing attendance data in the analytics dashboard. We implemented real-time updates for the check-in dashboard using WebSockets, ensuring immediate synchronization of attendance data across multiple devices.
 
 # Features
 
