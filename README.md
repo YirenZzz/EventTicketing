@@ -422,7 +422,7 @@ Within individual event management screens, organizers can access detailed analy
 
 Organizers can drill down into specific ticket categories by selecting individual ticket type names within the analytics interface.
 
-This detailed view provides category-specific metrics including: Total tickets sold, Revenue generated, Attendance rate and Demographic information (when collected).
+This detailed view provides category-specific metrics including: Total tickets sold, Revenue generated, Attendance rate and Demographic information.
 
 ![Screenshot 2025-04-19 at 19.30.17.png](doc/img/Screenshot_2025-04-19_at_19.30.17.png)
 
@@ -440,7 +440,7 @@ The staff analytics dashboard emphasizes operational metrics relevant to entranc
 
 ### Data Filtering and Search Functionality
 
-The system incorporates advanced filtering and search capabilities that enable users to isolate specific segments of attendance data based on various parameters. And these data management tools support customized reporting and targeted analysis of specific attendee segments or ticket categories.
+The system incorporates advanced filtering and search capabilities that enable users to isolate specific segments of attendance data based on various parameters.
 
 ![Screenshot 2025-04-19 at 19.51.19.png](doc/img/Screenshot_2025-04-19_at_19.51.19.png)
 
@@ -450,7 +450,7 @@ The analytics and reporting system serves as a valuable decision support tool, p
 
 ## Waitlist Management System
 
-The platform implements a sophisticated waitlist management system that efficiently handles demand when ticket availability is limited. This section details the end-to-end waitlist process from both attendee and organizer perspectives.
+The platform implements a waitlist management system that efficiently handles demand when capacity is limited. This section details the end-to-end waitlist process from both attendee and organizer perspectives.
 
 ### Waitlist Entry Process
 
@@ -500,8 +500,7 @@ Another attendee joined waitlist:
 
 When organizers release tickets, the system processes the allocation in sequential order:
 
-1. If one ticket is released, it is assigned to the attendee in position 1.
-2. If multiple tickets are released, they are distributed sequentially through the waitlist until exhausted.
+If one ticket is released, it is assigned to the attendee in position 1. If multiple tickets are released, they are distributed sequentially through the waitlist until exhausted.
 
 ![Screenshot 2025-04-19 at 20.25.18.png](doc/img/Screenshot_2025-04-19_at_20.25.18.png)
 
@@ -550,9 +549,7 @@ The platform features a comprehensively optimized mobile experience that ensures
 
 ### Responsive Design Implementation
 
-The system employs responsive design principles throughout the application, automatically adapting layout, typography, and interactive elements to accommodate different screen dimensions.
-
-Navigation elements reconfigure appropriately for mobile devices, maintaining intuitive access to all platform functions while optimizing for touch-based interaction.
+The system employs responsive design principles throughout the application, automatically adapting layout and interactive elements to accommodate different screen dimensions.
 
 ![21745109611_.pic.jpg](doc/img/21745109611_.pic.jpg)
 
@@ -570,7 +567,7 @@ The mobile ticket display presents QR codes at optimal resolution and size for r
 
 ### Mobile Staff Operations
 
-The check-in system is specifically engineered for mobile usage, recognizing that event staff frequently operate in dynamic environments where desktop access is impractical.
+The check-in system is designed for mobile usage, recognizing that event staff frequently operate in dynamic environments where desktop access is impractical.
 
 ![171745109747_.pic.jpg](doc/img/171745109747_.pic.jpg)
 
@@ -583,12 +580,74 @@ Staff members can perform all check-in functions directly from mobile devices, i
 
 ![181745109749_.pic.jpg](doc/img/181745109749_.pic.jpg)
 
-Real-time synchronization ensures that check-in operations performed on mobile devices immediately update the central database, maintaining data consistency across all platform access points.
-
-This mobile-optimized approach enhances operational efficiency for event staff while providing attendees with convenient access to their tickets, ultimately streamlining the check-in process and improving the overall event experience.
+Real-time synchronization ensures that check-in operations performed on mobile devices immediately update the central database, improving efficiency for staff while providing attendees with convenient access to their tickets, ultimately streamlining the check-in process and improving the overall event experience.
 
 
 # Individual Contributions
+
+Yiren:
+- Real-time functionality (e.g., WebSocket)
+
+- File handling and processing (with Yining)
+
+- Advanced state management (with Yining)
+
+- API integration with external services (with Yining)
+
+- Event creation with customizable registration forms
+
+- Tiered ticket pricing and discount codes
+
+- Attendance analytics and reporting
+
+- Automated email confirmations
+
+- PostgreSQL transaction data
+
+- Cloud storage for event assets
+
+- Mobile-responsive check-in interface
+
+- Bug fixing
+
+- Demo preparation
+
+- Final report writing and revising
+
+
+Yining:
+- User authentication and authorization: Organizer, Staff, Attendee
+
+- File handling and processing (with Yiren)
+
+- Advanced state management (with Yiren)
+
+- API integration with external services (with Yiren)
+
+- QR code generation and validation
+
+- Real-time check-in dashboard
+
+- Mobile-responsive check-in interface
+
+- PostgreSQL for transaction data
+
+- Basic project framework preparation
+
+- Bug fixing and file cleanup
+
+- Demo preparation
+
+- Final report writing and revising
+
+
+Yuting:
+
+- Waitlist Implementation
+
+- Mobile-responsive check-in interface
+
+- Final report writing
 
 
 # Lessons Learned and Concluding Remarks
