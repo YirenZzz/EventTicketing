@@ -585,8 +585,6 @@ Staff members can perform all check-in functions directly from mobile devices, i
 
 ![181745109749_.pic.jpg](doc/img/181745109749_.pic.jpg)
 
-Real-time synchronization ensures that check-in operations performed on mobile devices immediately update the central database, improving efficiency for staff while providing attendees with convenient access to their tickets, ultimately streamlining the check-in process and improving the overall event experience.
-
 
 # Individual Contributions
 
