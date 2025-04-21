@@ -15,15 +15,18 @@ https://drive.google.com/file/d/1Hq_-tGKYt0PiNFJCN-WKe6-93Ox3vX-7/view?usp=share
 
 # Motivation
 
-Small to medium-sized organizations often face real challenges running events without the support of enterprise tools. Many of them still rely on spreadsheets, emails, and websites that are not mature enough, which are time-consuming and prone to errors, especially when it comes to check-in, communication, and tracking attendance. Long lines at entry, lost data, and missed follow-ups are common issues that not only frustrate attendees but also drain staff resources and leave people with a poor impression.
+Event organizers often struggle with managing ticketing, attendee registration, and check-in processes efficiently. Traditional paper-based methods are prone to fraud, errors, and delays, while existing digital solutions impose high service fees, offer limited customization, and fail to provide real-time tracking. Platforms like Eventbrite[1] and Ticketmaster [2], while widely used, do not allow event hosts to control the check-in process effectively, nor do they provide seamless integration with discount codes, tiered ticketing, or waitlist management.
 
-From our own experience planning and attending events, we saw a clear need for a simpler, more efficient solution. Our project provides a user-friendly web platform that helps organizers manage events more smoothly, from setup to check-in, while giving attendees a better overall experience. It reduces manual work, improves communication, supports data-driven decisions, and promotes sustainability by replacing paper-based systems.
+To address these challenges, we proposes a simple, user-friendly event ticketing system with QR code check-in. The system will allow organizers to create events with customizable registration forms, manage tiered ticket pricing, generate discount codes, and track attendance efficiently. Event staff will be equipped with a real-time check-in dashboard that validates QR-coded tickets instantly, reducing wait times and eliminating fraudulent entries. Attendees will benefit from a smooth ticket purchasing experience, instant email confirmations, and a mobile-responsive check-in process.
+
+The target users of our event ticketing and QR code check-in system include event organizers, staff, and attendees. Organizers can create events, manage tiered ticketing, apply discount codes, and track attendance in real time with full customization. Event staff benefit from a mobile-responsive check-in dashboard for instant QR code validation and fraud prevention. Attendees enjoy a seamless experience, from easy ticket purchases and automated confirmations to fast, contactless check-ins. 
 
 # Objectives
 
-Our primary objective was to develop a comprehensive, user-friendly event ticketing and check-in system that balances strong functionality with intuitive design. We aimed to create a platform accessible to users of different roles with varying technical expertise while providing advanced event management tools.Throughout the development process, we focused on building clean interfaces, maintaining data integrity, and ensuring a responsive experience across devices.
+The objective of this project is to build a secure, scalable, and feature-rich event ticketing system that enables organizers to manage ticket sales and check-ins effectively. The system will provide customizable event registration, QR code-based validation, real-time check-in tracking, automated notifications, and analytics.
 
 Beyond technical implementation, our broader objective was to create a well-structured, maintainable codebase that reflects best practices in modern full-stack web development. This included thoughtful state management, modular design patterns, and secure backend architecture. By emphasizing clarity, flexibility, and robustness, we aimed to deliver a system that could be extended or adapted to real-world use cases beyond the classroom context.
+
 
 # Technical Stack
 
