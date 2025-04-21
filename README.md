@@ -349,7 +349,7 @@ Attendees can also access their tickets at any time through the dashboard interf
 
 ### Ticket Documentation
 
-The platform provides document export functionality through a "Print" option, enabling attendees to generate a PDF version of their ticket.The exported PDF includes:
+The platform provides document export functionality through a "Print" option, enabling attendees to generate a PDF version of their ticket. The exported PDF includes:
 
 ![Screenshot 2025-04-19 at 19.16.45.png](doc/img/Screenshot_2025-04-19_at_19.16.45.png)
 
@@ -362,7 +362,7 @@ This digital ticket system eliminates the need for physical tickets while mainta
 
 ## Real-Time Check-In Management System
 
-The platform provides staff members with a comprehensive real-time check-in system that enables efficient attendee verification and event access control. This section details the check-in process and monitoring capabilities.
+The platform provides staff members with a real-time check-in system that enables attendee verification and event access control. This section details the check-in process and monitoring capabilities.
 
 ### Accessing the Check-In Interface
 
@@ -376,11 +376,7 @@ Select "Check-In Lists" from the navigation options to access the attendee verif
 
 ### Multiple Verification Methods
 
-The system supports multiple verification methods to accommodate various operational scenarios:
-
-- **Document Upload Verification**: Staff can upload PDF tickets that attendees have previously downloaded or printed. The system processes the document to extract and validate the QR code.
-- **Image Scanning Capability**: The interface supports processing of screenshot images containing QR codes, providing flexibility when attendees present tickets on devices.
-- **Real-Time Camera Scanning**: Staff can activate the device camera to scan QR codes directly from attendees' physical or digital tickets, facilitating rapid verification.
+Staff can upload PDF tickets that attendees have previously downloaded or printed. The system processes the document to extract and validate the QR code. The interface supports processing of screenshot images containing QR codes, providing flexibility when attendees present tickets on devices. Staff can activate the device camera to scan QR codes directly from attendees' tickets.
 
 ![Screenshot 2025-04-19 at 19.21.26.png](doc/img/Screenshot_2025-04-19_at_19.21.26.png)
 
@@ -396,7 +392,7 @@ The system supports multiple verification methods to accommodate various operati
 
 ### Attendee Information Access
 
-The check-in system provides seamless navigation to detailed attendee information pages, where staff can view comprehensive ticket information and attendance history.
+The check-in system provides seamless navigation to detailed attendee information pages, where staff can view ticket information and attendance history.
 
 ![Screenshot 2025-04-19 at 19.26.28.png](doc/img/Screenshot_2025-04-19_at_19.26.28.png)
 
@@ -406,15 +402,14 @@ The check-in system provides seamless navigation to detailed attendee informatio
 
 ![Screenshot 2025-04-19 at 19.27.10.png](doc/img/Screenshot_2025-04-19_at_19.27.10.png)
 
-This integrated check-in system enhances event security, streamlines attendee processing, and provides organizers with accurate, real-time attendance data for improved event management.
 
 ## Attendance Analytics and Reporting System
 
-The platform provides comprehensive analytics and reporting capabilities that enable organizers and staff to monitor attendance metrics and gain actionable insights. This section details the analytical features available through various interfaces.
+The platform provides analytics and reporting capabilities that enable organizers and staff to monitor attendance metrics. 
 
 ### Organizer Analytics Dashboard
 
-Organizers can access consolidated attendance data through the primary dashboard interface, which presents key metrics in an intuitive visual format.
+Organizers can access attendance data through the primary dashboard interface with intuitive figures.
 
 ![Screenshot 2025-04-19 at 19.27.58.png](doc/img/Screenshot_2025-04-19_at_19.27.58.png)
 
@@ -456,13 +451,12 @@ The system incorporates advanced filtering and search capabilities that enable u
 
 ![Screenshot 2025-04-19 at 19.51.19.png](doc/img/Screenshot_2025-04-19_at_19.51.19.png)
 
-The analytics and reporting system serves as a valuable decision support tool, providing organizers with the quantitative insights necessary for continuous improvement of event management processes and attendee experiences.
 
 ## Automated email confirmations
 
 ## Waitlist Management System
 
-The platform implements a waitlist management system that efficiently handles demand when capacity is limited. This section details the end-to-end waitlist process from both attendee and organizer perspectives.
+The platform implements a waitlist management system that handles demand when capacity is limited. This section details the end-to-end waitlist process from both attendee and organizer perspectives.
 
 ### Waitlist Entry Process
 
@@ -553,11 +547,10 @@ The system maintains accurate status indicators throughout the platform:
 
 ![Screenshot 2025-04-19 at 20.35.25.png](doc/img/Screenshot_2025-04-19_at_20.35.25.png)
 
-This comprehensive waitlist management system enhances the user experience by establishing clear expectations, maintaining transparency, and providing organizers with flexible tools to manage demand effectively.
 
 ## Mobile-Responsive Check-In Interface
 
-The platform features a comprehensively optimized mobile experience that ensures all system functionality remains accessible and user-friendly across various device form factors. This section highlights the mobile responsiveness of the check-in system for both attendees and staff.
+The platform features a optimized mobile experience that ensures all system functionality remains accessible and user-friendly across various device form factors.
 
 ### Responsive Design Implementation
 
