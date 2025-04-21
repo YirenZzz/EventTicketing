@@ -57,9 +57,7 @@ We use Socket.io to implement end-to-end real-time communication for ticket purc
 
 ### File handling and processing
 
-For image and QR code support, we implemented a flexible upload interface that accepts both image files and PDF documents, allowing staff to check in attendees using screenshots, printed tickets, or email attachments. Uploaded files are parsed on the client side using pdf.js (for PDFs) and html5-qrcode (for image-based decoding). For PDFs, we stream the first page using pdfjs-dist, render it to a canvas, and attempt QR extraction. These functionalities demonstrate our understanding of client-side file processing and expand on the image-handling techniques. Input validation checks are in place to reject unsupported file types or empty uploads, and try-catch blocks provide feedback on failed QR-code decoding attempts. This feature demonstrates hands-on understanding of file handling and user experience design.
-
-We also implemented pre-signed upload URLs for direct S3 uploads from the client, using PUT requests to cloud storage, a strategy directly covered on DigitalOcean Spaces. In this project, we used AWS S3 instead of DigitalOcean Spaces, and their API models are compatible.
+For image and QR code support, we implemented a flexible upload interface that accepts both image files and PDF documents, allowing staff to check in attendees using screenshots, printed tickets, or email attachments. Uploaded files are parsed on the client side using pdf.js (for PDFs) and html5-qrcode (for image-based decoding). For PDFs, we stream the first page using pdfjs-dist, render it to a canvas, and attempt QR extraction. These functionalities demonstrate our understanding of client-side file processing and expand on the image-handling techniques. Input validation checks are in place to reject unsupported file types or empty uploads, and try-catch blocks provide feedback on failed QR-code decoding attempts. This feature demonstrates hands-on understanding of file handling and user experience design. We also implemented pre-signed upload URLs for direct S3 uploads from the client, using PUT requests to cloud storage. In this project, we used AWS S3 instead of DigitalOcean Spaces, and their API models are compatible.
 
 ### API integration with external services
 
@@ -67,7 +65,7 @@ We integrated several external-service APIs to enhance functionality and user ex
 
 ### Event Creation with Schema-Driven Forms
 
-Organizers can dynamically configure registration forms—selecting which fields to include (e.g., description, location). These toggles are persisted in an EventFormField table and hydrated into React forms at runtime. This pattern of schema-driven UI and dynamic form rendering links to course contents on advanced React state and reusable components.
+Organizers can dynamically configure registration forms, selecting which fields to include (description, location, etc.). These fields are defined in the Event model and rendered dynamically in the frontend. This pattern of schema-driven UI and dynamic form rendering links to course contents on advanced React state and reusable components.
 
 ### Tiered Ticket Types and Promo Codes
 
