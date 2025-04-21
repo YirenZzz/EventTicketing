@@ -41,13 +41,20 @@ Pages and components are implemented in TypeScript, providing static type checki
 
 Frontend logic includes interactive forms for event creation, promo code application, and ticket management; dynamic rendering of components such as ticket type selectors and real-time status indicators; and fully responsive layouts that adapt to both desktop and mobile devices. Interactive data visualizations—such as attendance rates and revenue statistics—are implemented using Chart.js, which is dynamically imported inside client components to reduce server-side load. All dashboards and the check-in interface are implemented in React, with client-side state management and route handling using Next.js features.
 
-### Backend & Database
+### Backend
 
 Our backend architecture combines Next.js API routes for most server-side logic, collaborating with the framework’s built-in support for backend development as introduced in the course. This design is inspired by the backend development workflows demonstrated in early course weeks. For example, /api/events manages event creation and retrieval; /api/purchased-tickets processes ticket purchase, updates database entries, and triggers confirmation emails. These routes interact directly with the database via Prisma Client, and return JSON responses to the frontend using NextResponse.
 
 API routes also enforce role-based access control by validating the current session and role on each request, using getServerSession() provided by NextAuth.js.
 
-For database interactions, we used Prisma ORM connected to a PostgreSQL instance hosted on Render, directly applying knowledge from Database Management lecture, enabling type-safe database queries and simplified database schema management. Critical update operations, such as check-ins and ticket modifications, are grouped logically and follow design principles introduced in the course. The operations are kept isolated and minimal to guarantee data consistency.
+### Database
+The system uses PostgreSQL as the relational database to store all structured application data. PostgreSQL was chosen for its reliability, performance, and strong support for relational integrity and advanced query capabilities. The database schema is defined and managed using Prisma ORM, which allows us to write type-safe queries, perform schema migrations, and maintain consistency between application logic and data models.
+
+The core entities modeled in the database include users, events, ticket types, tickets, purchases, check-in records, and promo codes. The User table stores user credentials and roles, such as organizer, staff, and attendee. The Event table contains metadata including name, description, start and end time, and an optional cover image URL. Each event can have multiple TicketType entries, defining ticket categories with associated price and quantity. For each ticket type, individual Ticket records are pre-generated and linked, each with a unique ID to support QR code issuance and validation.
+
+When an attendee completes a purchase, a corresponding PurchasedTicket record is created, linking the user to a specific ticket and recording the time of purchase. This table also includes a checkedIn flag to track entry status. PromoCode records include fields for discount type (fixed or percentage), applicable ticket types, usage limits, and validity periods. Staff check-in actions are recorded through a one-to-one relationship between PurchasedTicket and CheckIn, which stores the check-in timestamp for traceability.
+
+During development, we used Prisma Studio to explore, verify, and manipulate database contents. This setup ensures structured, normalized, and query-efficient data management for all parts of the system.
 
 ### Real‑time & State
 Our application uses Socket.io 4 to enable real-time updates, with a server-side Socket.IO instance initialized in `/api/socket.ts` and a lightweight client initializer component (SocketInit.tsx) that connects the browser to the WebSocket backend. We collect frontend state using a hybrid strategy: immutable props are passed through React Server Components, while volatile real-time counters are managed by a centralized Zustand store. React Query is used to fetch data and perform optimistic updates, enabling UI changes that respond to both user input and backend mutations. This structure reflects knowledge on frontend reactivity, state management, real-time design principles, and supports a clean separation between server-side and client-side logic.
