@@ -11,7 +11,7 @@
 
 ## Video demo
 
-https://drive.google.com/file/d/1Hq_-tGKYt0PiNFJCN-WKe6-93Ox3vX-7/view?usp=share_link
+[https://drive.google.com/file/d/1Hq_-tGKYt0PiNFJCN-WKe6-93Ox3vX-7/view?usp=share_link](https://drive.google.com/file/d/1U-j7z2vOSZP4nZrWmB0d1LrmBheqHfoh/view?usp=drive_link)
 
 # Motivation
 
