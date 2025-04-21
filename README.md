@@ -11,31 +11,43 @@
 
 ## Video demo
 
-https://drive.google.com/file/d/1U-j7z2vOSZP4nZrWmB0d1LrmBheqHfoh/view?usp=drive_link
+demo link: [[https://drive.google.com/file/d/1Hq_-tGKYt0PiNFJCN-WKe6-93Ox3vX-7/view?usp=share_link](https://drive.google.com/file/d/1U-j7z2vOSZP4nZrWmB0d1LrmBheqHfoh/view?usp=drive_link)](https://drive.google.com/file/d/1U-j7z2vOSZP4nZrWmB0d1LrmBheqHfoh/view?usp=drive_link)
 
 # Motivation
 
-Small to medium-sized organizations often face real challenges running events without the support of enterprise tools. Many of them still rely on spreadsheets, emails, and websites that are not mature enough, which are time-consuming and prone to errors, especially when it comes to check-in, communication, and tracking attendance. Long lines at entry, lost data, and missed follow-ups are common issues that not only frustrate attendees but also drain staff resources and leave people with a poor impression.
+Event organizers often struggle with managing ticketing, attendee registration, and check-in processes efficiently. Traditional paper-based methods are prone to fraud, errors, and delays, while existing digital solutions impose high service fees, offer limited customization, and fail to provide real-time tracking. Platforms like Eventbrite[1] and Ticketmaster [2], while widely used, do not allow event hosts to control the check-in process effectively, nor do they provide seamless integration with discount codes, tiered ticketing, or waitlist management.
 
-From our own experience planning and attending events, we saw a clear need for a simpler, more efficient solution. Our project provides a user-friendly web platform that helps organizers manage events more smoothly, from setup to check-in, while giving attendees a better overall experience. It reduces manual work, improves communication, supports data-driven decisions, and promotes sustainability by replacing paper-based systems.
+To address these challenges, we proposes a simple, user-friendly event ticketing system with QR code check-in. The system will allow organizers to create events with customizable registration forms, manage tiered ticket pricing, generate discount codes, and track attendance efficiently. Event staff will be equipped with a real-time check-in dashboard that validates QR-coded tickets instantly, reducing wait times and eliminating fraudulent entries. Attendees will benefit from a smooth ticket purchasing experience, instant email confirmations, and a mobile-responsive check-in process.
+
+The target users of our event ticketing and QR code check-in system include event organizers, staff, and attendees. Organizers can create events, manage tiered ticketing, apply discount codes, and track attendance in real time with full customization. Event staff benefit from a mobile-responsive check-in dashboard for instant QR code validation and fraud prevention. Attendees enjoy a seamless experience, from easy ticket purchases and automated confirmations to fast, contactless check-ins. 
+
 
 # Objectives
 
-Our primary objective was to develop a comprehensive, user-friendly event ticketing and check-in system that balances strong functionality with intuitive design. We aimed to create a platform accessible to users of different roles with varying technical expertise while providing advanced event management tools.Throughout the development process, we focused on building clean interfaces, maintaining data integrity, and ensuring a responsive experience across devices.
+The objective of this project is to build a secure, scalable, and feature-rich event ticketing system that enables organizers to manage ticket sales and check-ins effectively. The system will provide customizable event registration, QR code-based validation, real-time check-in tracking, automated notifications, and analytics.
 
 Beyond technical implementation, our broader objective was to create a well-structured, maintainable codebase that reflects best practices in modern full-stack web development. This included thoughtful state management, modular design patterns, and secure backend architecture. By emphasizing clarity, flexibility, and robustness, we aimed to deliver a system that could be extended or adapted to real-world use cases beyond the classroom context.
 
+
 # Technical Stack
 
-Our System implements a comprehensive technical stack that aligns with modern web development practices while fulfilling the course requirements. We selected the Next.js Full-Stack approach as our architectural foundation, using its integrated capabilities for both frontend and backend development within a unified framework.
+This project adopts a Next.js full-stack architecture using the App Router and API Routes, enabling seamless integration of frontend pages, backend logic, and database operations within a unified framework. This approach simplifies the development workflow by colocating UI components and server-side endpoints, reducing context switching and ensuring consistency across the stack.
 
 ### Frontend
 
-We built the frontend using Next.js 15 with the App Router and React Server Components for efficient server-side data fetching. We used TypeScript throughout the application to ensure type safety and catch bugs early, aligning with the concepts introduced in lectures about TypeScript and Next.js. For styling, we adopted Tailwind CSS along with shadcn/ui to compose accessible, reusable UI components, following the best practices covered in lecture on Modern Styling Solutions. Interactive visualizations such as attendance rates and revenue stats are implemented with Chart.js, which is dynamically imported inside client components to avoid unnecessary server load. Our dashboards and check-in UI are all implemented in React, with client-side state management and routing.
+The frontend is developed using Next.js 15 with the App Router architecture, which enables seamless integration of server and client components within a unified full-stack framework. We chose Next.js for its built-in routing, server-side rendering capabilities, and close integration with API routes, all of which simplify application structure and improve performance.
+
+Pages and components are implemented in TypeScript, providing static type checking and better development tooling. Styling is handled using Tailwind CSS, a utility-first CSS framework that facilitates rapid development with consistent design. We adopted shadcn/ui, a headless component library built on Radix UI, to build accessible, reusable UI elements such as modals, dropdowns, and tabs. This approach aligns with modern styling best practices discussed in the course lectures.
+
+Frontend logic includes interactive forms for event creation, promo code application, and ticket management; dynamic rendering of components such as ticket type selectors and real-time status indicators; and fully responsive layouts that adapt to both desktop and mobile devices. Interactive data visualizations—such as attendance rates and revenue statistics—are implemented using Chart.js, which is dynamically imported inside client components to reduce server-side load. All dashboards and the check-in interface are implemented in React, with client-side state management and route handling using Next.js features.
 
 ### Backend & Database
 
-Our backend architecture combines Next.js API routes for most server-side logic, collaborating with the framework’s built-in support for backend development as introduced in the course. This design is inspired by the backend development workflows demonstrated in early course weeks. For database interactions, we used Prisma ORM connected to a PostgreSQL instance hosted on Render, directly applying knowledge from Database Management lecture, enabling type-safe database queries and simplified database schema management. Critical update operations, such as check-ins and ticket modifications, are grouped logically and follow design principles introduced in the course. The operations are kept isolated and minimal to guarantee data consistency.
+Our backend architecture combines Next.js API routes for most server-side logic, collaborating with the framework’s built-in support for backend development as introduced in the course. This design is inspired by the backend development workflows demonstrated in early course weeks. For example, /api/events manages event creation and retrieval; /api/purchased-tickets processes ticket purchase, updates database entries, and triggers confirmation emails. These routes interact directly with the database via Prisma Client, and return JSON responses to the frontend using NextResponse.
+
+API routes also enforce role-based access control by validating the current session and role on each request, using getServerSession() provided by NextAuth.js.
+
+For database interactions, we used Prisma ORM connected to a PostgreSQL instance hosted on Render, directly applying knowledge from Database Management lecture, enabling type-safe database queries and simplified database schema management. Critical update operations, such as check-ins and ticket modifications, are grouped logically and follow design principles introduced in the course. The operations are kept isolated and minimal to guarantee data consistency.
 
 ### Real‑time & State
 Our application uses Socket.io 4 to enable real-time updates, with a server-side Socket.IO instance initialized in `/api/socket.ts` and a lightweight client initializer component (SocketInit.tsx) that connects the browser to the WebSocket backend. We collect frontend state using a hybrid strategy: immutable props are passed through React Server Components, while volatile real-time counters are managed by a centralized Zustand store. React Query is used to fetch data and perform optimistic updates, enabling UI changes that respond to both user input and backend mutations. This structure reflects knowledge on frontend reactivity, state management, real-time design principles, and supports a clean separation between server-side and client-side logic.
