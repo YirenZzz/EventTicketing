@@ -188,6 +188,10 @@ export async function PUT(
       },
     });
 
+    if (!selTicketType) {
+      return NextResponse.json({ error: "Ticket type not found" }, { status: 404 });
+    }
+
     const waitlistTickets = await db.ticket.findMany({
       where: { ticketTypeId: id, waitlisted: true, purchased: false },
       include: { waitlistedTicket: true },
@@ -197,7 +201,10 @@ export async function PUT(
       waitlistTickets.length <= numAddTickets
         ? waitlistTickets.length
         : numAddTickets;
-    for (let i: number = 0; i < numWaitlistToPurchase; ++i) {
+
+    const price = selTicketType.price;
+
+    for (let i = 0; i < numWaitlistToPurchase; ++i) {
       const waitlistUserId = waitlistTickets[i].waitlistedTicket!.userId;
       await db.ticket.update({
         where: { id: waitlistTickets[i].id },
@@ -205,7 +212,10 @@ export async function PUT(
           purchased: true,
           waitlisted: false,
           purchasedTicket: {
-            create: { userId: waitlistUserId },
+            create: {
+              userId: waitlistUserId,
+              finalPrice: price,
+            },
           },
         },
       });
@@ -215,74 +225,44 @@ export async function PUT(
       });
     }
 
-    // Update ticketType.quantity
-    const original = await db.ticketType.findUnique({
+    const updatedQuantity = selTicketType.quantity + numAddTickets;
+
+    const updateData: any = {
+      quantity: updatedQuantity,
+    };
+
+    const remainingNewTickets = numAddTickets - numWaitlistToPurchase;
+    if (remainingNewTickets > 0) {
+      updateData.tickets = {
+        createMany: {
+          data: Array.from({ length: remainingNewTickets }, () => ({
+            purchased: false,
+            checkedIn: false,
+            code: `TICKET-${nanoid(8)}`,
+          })),
+        },
+      };
+    }
+
+    const updated = await db.ticketType.update({
       where: { id },
+      data: updateData,
       include: {
+        event: { select: { name: true } },
         tickets: {
           include: {
-            purchasedTicket: { include: { user: { select: { name: true } } } },
-            waitlistedTicket: { include: { user: { select: { name: true } } } },
+            purchasedTicket: {
+              include: { user: { select: { name: true } } },
+            },
+            waitlistedTicket: {
+              include: { user: { select: { name: true } } },
+            },
           },
         },
       },
     });
 
-    if (numAddTickets > waitlistTickets.length) {
-      const updated = await db.ticketType.update({
-        where: { id },
-        data: {
-          quantity: selTicketType!.quantity + numAddTickets,
-          tickets: {
-            createMany: {
-              data: Array.from(
-                { length: numAddTickets - waitlistTickets.length },
-                () => ({
-                  purchased: false,
-                  checkedIn: false,
-                  code: `TICKET-${nanoid(8)}`,
-                }),
-              ),
-            },
-          },
-        },
-        include: {
-          event: { select: { name: true } },
-          tickets: {
-            include: {
-              purchasedTicket: {
-                include: { user: { select: { name: true } } },
-              },
-              waitlistedTicket: {
-                include: { user: { select: { name: true } } },
-              },
-            },
-          },
-        },
-      });
-      return NextResponse.json({ ticketType: updated });
-    } else {
-      const updated = await db.ticketType.update({
-        where: { id },
-        data: {
-          quantity: selTicketType!.quantity + numAddTickets,
-        },
-        include: {
-          event: { select: { name: true } },
-          tickets: {
-            include: {
-              purchasedTicket: {
-                include: { user: { select: { name: true } } },
-              },
-              waitlistedTicket: {
-                include: { user: { select: { name: true } } },
-              },
-            },
-          },
-        },
-      });
-      return NextResponse.json({ ticketType: updated });
-    }
+    return NextResponse.json({ ticketType: updated });
   } catch (e) {
     console.error(e);
     return NextResponse.json(
