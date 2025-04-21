@@ -15,71 +15,55 @@ https://drive.google.com/file/d/1Hq_-tGKYt0PiNFJCN-WKe6-93Ox3vX-7/view?usp=share
 
 # Motivation
 
-Small to medium organizations face significant event management challenges without enterprise-level resources. Current processes rely on manual methods—paper forms, spreadsheets, and emails—creating error-prone workflows that scale poorly. On-site check-in using printed lists causes long queues and inaccurate attendance records. Organizations lack analytical tools for data-driven planning and struggle to maintain consistent communication with attendees.
+Small to medium-sized organizations often face real challenges running events without the support of enterprise tools. Many of them still rely on spreadsheets, emails, and websites that are not mature enough, which are time-consuming and prone to errors, especially when it comes to check-in, communication, and tracking attendance. Long lines at entry, lost data, and missed follow-ups are common issues that not only frustrate attendees but also drain staff resources and leave people with a poor impression.
 
-These inefficiencies divert administrative resources away from improving core event experiences and create negative impressions for participants, potentially damaging reputation and reducing future attendance. Paper-based processes also conflict with growing sustainability priorities.
-
-Our team, drawing from personal experience as both organizers and attendees, recognized the opportunity to create an accessible web-based platform addressing these challenges. Our solution streamlines the event lifecycle to reduce administrative overhead, enhance attendee experience, enable data-driven decisions, improve communication, and support sustainability goals while remaining intuitive for users of all technical backgrounds.
+From our own experience planning and attending events, we saw a clear need for a simpler, more efficient solution. Our project provides a user-friendly web platform that helps organizers manage events more smoothly, from setup to check-in, while giving attendees a better overall experience. It reduces manual work, improves communication, supports data-driven decisions, and promotes sustainability by replacing paper-based systems.
 
 # Objectives
 
-Our primary objective was to develop a comprehensive, user-friendly event ticketing and check-in system that balances robust functionality with intuitive design. We aimed to create a platform accessible to users with varying technical expertise while providing sophisticated event management tools.
+Our primary objective was to develop a comprehensive, user-friendly event ticketing and check-in system that balances strong functionality with intuitive design. We aimed to create a platform accessible to users of different roles with varying technical expertise while providing advanced event management tools.Throughout the development process, we focused on building clean interfaces, maintaining data integrity, and ensuring a responsive experience across devices.
 
-We sought to simplify event creation and registration through an intuitive interface for customizable events with multiple ticket types, tailored registration forms, and flexible pricing options including promotional discounts. This would allow precise event configuration without technical assistance.
-
-We focused on streamlining check-in through an efficient QR code verification system that functions effectively on mobile devices, eliminating manual procedures, reducing queues, and minimizing errors. Our goal was to enable staff to process attendees quickly regardless of location.
-
-We aimed to provide real-time analytics and reporting for actionable insights into registration patterns, attendance metrics, and demographics, empowering data-driven decisions during planning and execution phases to optimize resources and improve experiences.
-
-Additionally, we prioritized robust waitlist management for addressing demand fluctuations through a transparent, automated system for handling capacity constraints and ticket reallocation when space becomes available.
-
-Finally, we committed to full responsive design across all device types, recognizing that both organizers and attendees frequently use mobile devices for event-related activities.
-
-Through these objectives, our project delivers a cohesive solution addressing the multifaceted challenges of event management while remaining accessible to organizations without extensive technical resources.
+Beyond technical implementation, our broader objective was to create a well-structured, maintainable codebase that reflects best practices in modern full-stack web development. This included thoughtful state management, modular design patterns, and secure backend architecture. By emphasizing clarity, flexibility, and robustness, we aimed to deliver a system that could be extended or adapted to real-world use cases beyond the classroom context.
 
 # Technical Stack
 
-Our Event Ticketing and QR Code Check-in System implements a comprehensive technical stack that aligns with modern web development practices while fulfilling the course requirements. We selected the Next.js Full-Stack approach as our architectural foundation, using its integrated capabilities for both frontend and backend development within a unified framework.
+Our System implements a comprehensive technical stack that aligns with modern web development practices while fulfilling the course requirements. We selected the Next.js Full-Stack approach as our architectural foundation, using its integrated capabilities for both frontend and backend development within a unified framework.
 
 ### Frontend
 
 We built the frontend using Next.js 15 with the App Router and React Server Components for efficient server-side data fetching. We used TypeScript throughout the application to ensure type safety and catch bugs early, aligning with the concepts introduced in lectures about TypeScript and Next.js. For styling, we adopted Tailwind CSS along with shadcn/ui to compose accessible, reusable UI components, following the best practices covered in lecture on Modern Styling Solutions. Interactive visualizations such as attendance rates and revenue stats are implemented with Chart.js, which is dynamically imported inside client components to avoid unnecessary server load. Our dashboards and check-in UI are all implemented in React, with client-side state management and routing.
 
-### Backend
+### Backend & Database
 
 Our backend architecture combines Next.js API routes for most server-side logic, collaborating with the framework’s built-in support for backend development as introduced in the course. . This design is inspired by the backend development workflows demonstrated in early course weeks. For database interactions, we used Prisma ORM connected to a PostgreSQL instance hosted on Render, directly applying knowledge from Database Management lecture, enabling type-safe database queries and simplified database schema management. Critical update operations, such as check-ins and ticket modifications, are grouped logically and follow design principles introduced in the course. The operations are kept isolated and minimal to guarantee data consistency.
 
 ### Real‑time & State
-//TODO
-Socket.io 4 provides WebSockets; a single /lib/socket.ts keeps the client connection. Frontend state is co‑located: Server Components for immutable props, Zustand store for volatile real‑time counters, React‑Query for fetch/optimistic update.
+Our application uses Socket.io 4 to enable real-time updates, with a server-side Socket.IO instance initialized in `/api/socket.ts` and a lightweight client initializer component (SocketInit.tsx) that connects the browser to the WebSocket backend. We collect frontend state using a hybrid strategy: immutable props are passed through React Server Components, while volatile real-time counters are managed by a centralized Zustand store. React Query is used to fetch data and perform optimistic updates, enabling UI changes that respond to both user input and backend mutations. This structure reflects knowledge on frontend reactivity, state management, real-time design principles, and supports a clean separation between server-side and client-side logic.
 
-### Additional Technologies
+### Part of Additional Technologies
 
-Additional technologies incorporated into our stack include QRCode.js for generating unique ticket identifiers, React-QR-Reader for implementing the scanning functionality during check-in, and Chart.js for visualizing attendance data in the analytics dashboard. We implemented real-time updates for the check-in dashboard using WebSockets, ensuring immediate synchronization of attendance data across multiple devices.
+Additional technologies integrated into our stack include QRCode.js for generating unique ticket identifiers, React-QR-Reader for implementing the scanning functionality during check-in, and Chart.js for visualizing attendance data in the analytics dashboard. We implemented real-time updates for the check-in dashboard using WebSockets, ensuring immediate synchronization of attendance data across multiple devices.
 
 # Features
 
 Our project provides a comprehensive set of features designed to address the challenges of event management. These features fulfill both the course requirements and our project objectives, delivering a valid solution for event ticketing management.
-
-## Advanced and key features
 
 ### Authentication & Authorization
 
 We implemented role-based authentication using NextAuth.js with a Credentials Provider, where each user receives a signed JWT that encodes both their user ID and role (Organizer, Staff, or Attendee). Upon login, the system verifies credentials using bcrypt and checks the selected role against the database before issuing the token. We use a stateless session strategy (strategy: "jwt"), allowing both the frontend and backend to access the user’s identity and role without querying a session store. A custom middleware layer parses the JWT on every request and attaches the user’s role and ID to the request context, enabling consistent, role-aware access control across frontend components and backend API routes. This ensures that only organizers can create events or manage promotions, only staff can perform event check-ins, and only attendees can view their purchased tickets. Input validation is performed during login to ensure all required fields are provided and credentials match stored records. We also handle invalid sessions, missing tokens, and unauthorized access with proper HTTP error responses. The implementation directly reflects the contnets covered with Better Auth and mirrors the role-based guard structures, with the objectives of building secure, authenticated flows and protecting sensitive routes based on user roles.
 
 ### Real‑time communication
-//TODO
-We implemented check-in and purchase events emit ticketCheckedIn and ticketPurchased messages via Socket.io. Organizers and staff clients subscribe using a shared context provider. Dashboards update instantly—mirroring the real-time components emphasized in class and showing advanced state management via Zustand and React Query. Organizers and Staff dashboards subscribe to these channels via a React Context wrapper, allowing components like counters, progress bars, and bar charts to update instantly—without requiring page reloads. This setup directly reflects the class coverage of real-time communication and demonstrates an applied understanding of WebSocket lifecycle management, as well as frontend reactivity.
+We use Socket.io to implement end-to-end real-time communication for ticket purchases and check-ins. When an attendee completes a purchase or is checked in by a staff member, the backend emits ticketPurchased and ticketCheckedIn events via WebSocket. Input validation and error handling are performed on both the client (e.g. optimistic rollback on failure) and server (e.g. Socket connection validation), ensuring a resilient real-time system.
 
 ### File handling and processing
 
 For image and QR code support, we implemented a flexible upload interface that accepts both image files and PDF documents, allowing staff to check in attendees using screenshots, printed tickets, or email attachments. Uploaded files are parsed on the client side using pdf.js (for PDFs) and html5-qrcode (for image-based decoding). For PDFs, we stream the first page using pdfjs-dist, render it to a canvas, and attempt QR extraction. These functionalities demonstrate our understanding of client-side file processing and expand on the image-handling techniques. Input validation checks are in place to reject unsupported file types or empty uploads, and try-catch blocks provide feedback on failed QR-code decoding attempts. This feature demonstrates hands-on understanding of file handling and user experience design.
 
-We also implemented pre-signed upload URLs for direct S3 uploads from the client, using PUT requests to cloud storage, a strategy directly covered on DigitalOcean Spaces. Although we used AWS S3 instead of Spaces, the API model and security mechanisms are fully compatible. //TODO QR codes for each ticket are generated on the fly as base64 Data URLs, removing the need for server-side temp files or binary blobs. This architecture reflects our grasp of client-cloud integration, media processing, and external service orchestration.
+We also implemented pre-signed upload URLs for direct S3 uploads from the client, using PUT requests to cloud storage, a strategy directly covered on DigitalOcean Spaces. In this project, we used AWS S3 instead of DigitalOcean Spaces, and their API models are compatible.
 
 ### API integration with external services
 
-We integrated several external-service APIs to enhance functionality and user experience. For instance, the Google Maps Embed API is used on the Organizer Event Detail Page to provide a live map preview of the event location. When an organizer sets a location, it is encoded into a query string and passed to an embedded <iframe> powered by Google Maps, enabling people to visualize where the event takes place and improving usability. This implementation reflects the UI enrichment principles, where dynamic, data-driven components were emphasized. Beyond Maps, Resend is used to dispatch HTML-based confirmation emails with embedded QR codes, and AWS S3 handles image uploads using the same API model as DigitalOcean Spaces introduced in class. Each service is integrated with error handling and secured access, showing best practices from the course.
+We integrated several external-service APIs to enhance functionality and user experience. For instance, the Google Maps Embed API is used on the Organizer Event Detail Page to provide a live map preview of the event location. When an organizer sets a location, it is encoded into a query string and passed to an embedded <iframe> powered by Google Maps, enabling people to visualize where the event takes place and improving usability. This implementation reflects the UI enrichment principles, where dynamic, data-driven components were emphasized. Beyond Maps, Resend is used to dispatch HTML-based confirmation emails with embedded QR codes, and AWS S3 handles image uploads using the same API model as DigitalOcean Spaces. Each service is integrated with error handling and secured access.
 
 ### Event Creation with Schema-Driven Forms
 
@@ -102,6 +86,14 @@ Both staff and organizers can view charts for attendance and revenue (Chart.js).
 
 ### Automated email confirmations
 After a successful ticket purchase, our system automatically sends a confirmation email using the Resend email API. This email includes the event name, event time, ticket type, a unique ticket code (e.g., TICKET-QmwYBfUY), and a QR code that staff can later scan for check-in. We trigger this via a POST to the `/api/email/confirmation` endpoint, passing in the attendee’s email. The message is composed in HTML using dynamic templating with template literals. Input validation ensures all required fields are present and properly formatted before dispatch. Fallback logic handles delivery failures gracefully with console logging and response monitoring. This automation demonstrates our ability to work with third-party APIs and handle errors.
+
+## PostgreSQL for transaction data
+
+We use PostgreSQL as the primary database to manage all transactional data, including ticket purchases, check-in status, and promo code usage. Through Prisma ORM, we define clear data models and perform all updates.
+
+## Cloud storage for event assets
+
+We store event cover images in an AWS S3 bucket to ensure access to media content. Images can be uploaded via URL using fetch or axios, then stored in S3 through either the aws-sdk or `@aws-sdk/client-s3` libraries. The system generates a unique filename using uuidv4 or randomUUID, determines the correct content type, and uploads the file using PutObjectCommand. All objects are stored with public-read ACLs, enabling direct rendering in the frontend via the returned S3 URL. This cloud integration allows organizers to associate high-quality visual assets with events without occupying the server storage. Basic error handling (e.g., upload failures or URL fetch issues) ensures resilience during file operations.
 
 # Development Guide
 
@@ -595,20 +587,14 @@ Real-time synchronization ensures that check-in operations performed on mobile d
 
 This mobile-optimized approach enhances operational efficiency for event staff while providing attendees with convenient access to their tickets, ultimately streamlining the check-in process and improving the overall event experience.
 
-## PostgreSQL for transaction data
-
-## Cloud storage for event assets
 
 # Individual Contributions
 
+
 # Lessons Learned and Concluding Remarks
 
-The development of our Event Ticketing and QR Code Check-in System provided valuable insights into both technical implementation strategies and effective project management approaches. Throughout this process, we encountered many challenges that enhanced our understanding of full-stack web development and collaborative software creation.
+Building our Event Ticketing and QR Code Check-in System taught us a lot， not just about full-stack development, but also about what it takes to deliver a reliable product as a team. One of the biggest lessons came from implementing QR scanning. At first, we thought it would be straightforward, but making it work smoothly across different ways took multiple iterations. Along the way, we realized how critical good error handling and fallback strategies are for user-friendly features.
 
-One significant lesson emerged from our experience implementing the QR code scanning functionality. We initially underestimated the complexity of developing a reliable scanning mechanism that functions consistently across various devices and lighting conditions. Through iterative testing and refinement, we discovered the importance of incorporating error handling and fallback mechanisms to ensure operational reliability even in suboptimal conditions. This experience reinforced the value of progressive enhancement in feature development, ensuring core functionality remains accessible regardless of environmental variables.
+Adding real-time updates for check-in also brought its own challenges. Getting multiple devices to stay in sync while keeping data consistent pushed us to better understand WebSocket communication and state management. It was a hands-on lesson in how distributed systems work in practice.
 
-Our implementation of real-time synchronization for the check-in process revealed the challenges of managing concurrent operations and data consistency across multiple clients. By adopting WebSocket technology and implementing appropriate state management, we developed a deeper understanding of distributed system principles and their application in web development contexts. This knowledge proved invaluable for creating an efficient, responsive check-in experience that maintains data integrity even during high-volume events.
-
-As we reflect on this project, we recognize several areas for potential enhancement in future iterations. Expanding analytics capabilities to include predictive attendance modeling could provide additional value for event planners. Implementing more sophisticated communication options, such as automated SMS notifications and in-app messaging, would further streamline organizer-attendee interactions. Additionally, enhancing the platform's integration capabilities with external services would increase its utility within broader organizational ecosystems.
-
-In conclusion, the development of our Event Ticketing and QR Code Check-in System provided both practical experience in modern web development techniques and valuable insights into effective software development practices. The resulting platform successfully addresses the challenges identified in our initial motivation, delivering a comprehensive solution that improves efficiency, user experience, and enables data-driven decision making for event management.
+Looking ahead, we see room to grow, like adding predictive analytics for attendance, or features like SMS reminders and deeper third-party integrations. But overall, this project gave us practical experience in modern web technologies and showed us how thoughtful design can directly improve user experience in a real-world setting.
