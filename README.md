@@ -65,8 +65,6 @@ The real-time layer is fully integrated into the Next.js backend, and the client
 
 # Features
 
-Our project provides a comprehensive set of features designed to address the challenges of event management. These features fulfill both the course requirements and our project objectives, delivering a valid solution for event ticketing management.
-
 ### Authentication & Authorization
 
 We implemented role-based authentication using NextAuth.js with a Credentials Provider, where each user receives a signed JWT that encodes both their user ID and role (Organizer, Staff, or Attendee). Upon login, the system verifies credentials using bcrypt and checks the selected role against the database before issuing the token. We use a stateless session strategy (strategy: "jwt"), allowing both the frontend and backend to access the user’s identity and role without querying a session store. A custom middleware layer parses the JWT on every request and attaches the user’s role and ID to the request context, enabling consistent, role-aware access control across frontend components and backend API routes. This ensures that only organizers can create events or manage promotions, only staff can perform event check-ins, and only attendees can view their purchased tickets. Input validation is performed during login to ensure all required fields are provided and credentials match stored records. We also handle invalid sessions, missing tokens, and unauthorized access with proper HTTP error responses. The implementation directly reflects the contnets covered with Better Auth and mirrors the role-based guard structures, with the objectives of building secure, authenticated flows and protecting sensitive routes based on user roles.
